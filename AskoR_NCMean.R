@@ -1,10 +1,10 @@
 NormCountsMean<-function(glmfit, ASKOlist, context){
   
   lib_size_norm<-glmfit$samples$lib.size*glmfit$samples$norm.factors                          # normalization computation of all library sizes 
-  set_condi<-ASKOlist$context$condition[ASKOlist$context$context==context]                    # recovery of condition names associated to context
+  set_condi<-ASKOlist$context$condition[ASKOlist$context$context==context]                    # retrieval of condition names associated to context
   
   for (condition in set_condi){
-    sample_name<-rownames(glmfit$samples[glmfit$samples$condition==condition,])               # recovery of the replicate names associated to conditions
+    sample_name<-rownames(glmfit$samples[glmfit$samples$condition==condition,])               # retrieval of the replicate names associated to conditions
     subset_counts<-data.frame(row.names = row.names(glmfit$genes))                            # initialization of data frame as subset of counts table
     for(name in sample_name){
       lib_sample_norm<-glmfit$samples[name,"lib.size"]*glmfit$samples[name,"norm.factors"]    # normalization computation of sample library size 
