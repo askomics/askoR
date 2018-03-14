@@ -1,4 +1,4 @@
-AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, orga, logFC=F, FC=T, logCPM=F, FDR=T, LR=F, Sign=T, Expression=T, mean_counts=T) {   
+AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, orga, logFC=F, FC=T, logCPM=F, FDR=T, LR=F, Sign=T, Expression=T, mean_counts=T, csv=F) {   
   
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]         # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 1st context from Asko object 
@@ -29,19 +29,23 @@ AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, orga, logFC=F, FC=
 
   ASKOlist$stat.table<-ASKO_stat[,c("Test_id","contrast","gene",cola,colb,"PValue",     # adding table "stat.table" to the ASKOlist
                                         "Expression",colc,cold,cole,colf)]
-  if(mean_counts==T){
-    ASKOlist$stat.table<-NormCountsMean(glmfit, ASKOlist, contx1)
-    ASKOlist$stat.table<-NormCountsMean(glmfit, ASKOlist, contx2)
+  if(mean_counts==T){                                                                   # computation of the mean of normalized counts for conditions
+    ASKOlist$stat.table<-NormCountsMean(glmfit, ASKOlist, contx1)                       # in the 1st context
+    ASKOlist$stat.table<-NormCountsMean(glmfit, ASKOlist, contx2)                       # in the 2nd context
     }
 
-  colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="gene"] <- paste("is", "gene", sep="@")                    #
-  colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@")   #
-  o <- order(ASKOlist$stat.table$FDR)                                                                                     #
-  ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                                #
+  colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="gene"] <- paste("is", "gene", sep="@")                  # header formatting for askomics
+  colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
+  o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
+  ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                          #
   return(ASKOlist)
-  #write.table(ASKOlist$stat.table,paste(orga, contrasko, "_test.txt", sep = ""),                                      #
-  #            sep="\t", col.names = T, row.names = F)                                                                     #
-  
-  #write.table(asko, paste("result_for_asko_",orga, contrasko, "_test.txt", sep = ""),                                     #
-  #            sep="\t", col.names = T, row.names = F)                                                                     #
+  write.table(ASKOlist$stat.table,paste(orga, contrasko, "_test.txt", sep = ""),                                        #
+              sep="\t", col.names = T, row.names = F)                                                                   #
+  if(csv==T){
+    write.csv(ASKOlist$stat.table,paste(orga, contrasko, "_test.txt", sep = ""),                                        #
+              sep="\t", col.names = T, row.names = F)
+  }
+  #write.table(asko, paste("result_for_asko_",orga, contrasko, "_test.txt", sep = ""),                                   #
+  #            sep="\t", col.names = T, row.names = F)                                                                   #
+
 }
