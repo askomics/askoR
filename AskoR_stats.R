@@ -9,19 +9,19 @@ AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, orga, logFC=F, FC=
   ASKO_stat$contrast<-contrasko                                                         # addition of the contrast of the test
   ASKO_stat$gene <- row.names(ASKO_stat)                                                # addition of gene column = gene ID
                                                                            
-  ASKO_stat$Signification=0                                                             # Between context1 and context2 :
-  ASKO_stat$Signification[ASKO_stat$logFC< 0 & ASKO_stat$FDR<=threshold_FDR] = -1       # Signification values = -1 for down regulated genes
-  ASKO_stat$Signification[ASKO_stat$logFC> 0 & ASKO_stat$FDR<=threshold_FDR] = 1        # Signification values = 1 for up regulated genes
+  ASKO_stat$Significance=0                                                             # Between context1 and context2 :
+  ASKO_stat$Significance[ASKO_stat$logFC< 0 & ASKO_stat$FDR<=threshold_FDR] = -1       # Significance values = -1 for down regulated genes
+  ASKO_stat$Significance[ASKO_stat$logFC> 0 & ASKO_stat$FDR<=threshold_FDR] = 1        # Significance values = 1 for up regulated genes
 
   if(Expression==T){
     ASKO_stat$Expression=NA                                                             # addition of column "expression" 
-    ASKO_stat$Expression[ASKO_stat$Signification==-1]<-paste(contx1, contx2, sep="<")   # the value of attribute "Expression" is a string
-    ASKO_stat$Expression[ASKO_stat$Signification==1]<-paste(contx1, contx2, sep=">")    # this attribute is easier to read the signification
-    ASKO_stat$Expression[ASKO_stat$Signification==0]<-paste(contx1, contx2, sep="=")    # of expression between two contexts
+    ASKO_stat$Expression[ASKO_stat$Significance==-1]<-paste(contx1, contx2, sep="<")   # the value of attribute "Expression" is a string
+    ASKO_stat$Expression[ASKO_stat$Significance==1]<-paste(contx1, contx2, sep=">")    # this attribute is easier to read the Significance
+    ASKO_stat$Expression[ASKO_stat$Significance==0]<-paste(contx1, contx2, sep="=")    # of expression between two contexts
   }
   if(logFC==T){cola="logFC"}else{cola=NULL}                                             #
   if(FC==T){colb="FC";ASKO_stat$FC <- 2^abs(ASKO_stat$logFC)}else{colb=NULL}            # computation of Fold Change from log2FC
-  if(Sign==T){colc="Signification"}                                                     #
+  if(Sign==T){colc="Significance"}                                                     #
   if(logCPM==T){cold="logCPM"}else{cold=NULL}                                           #
   if(LR==T){cole="LR"}else{cole=NULL}                                                   #
   if(FDR==T){
