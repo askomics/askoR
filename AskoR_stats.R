@@ -1,4 +1,4 @@
-AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, orga, logFC=F, FC=T, logCPM=F, FDR=T, LR=F, Sign=T, Expression=T, mean_counts=T, csv=F) {   
+AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, organism, logFC=F, FC=T, logCPM=F, FDR=T, LR=F, Sign=T, Expression=T, mean_counts=T, csv=F) {   
   
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]         # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 1st context from Asko object 
@@ -9,19 +9,19 @@ AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, orga, logFC=F, FC=
   ASKO_stat$contrast<-contrasko                                                         # addition of the contrast of the test
   ASKO_stat$gene <- row.names(ASKO_stat)                                                # addition of gene column = gene ID
                                                                            
-  ASKO_stat$Significance=0                                                             # Between context1 and context2 :
-  ASKO_stat$Significance[ASKO_stat$logFC< 0 & ASKO_stat$FDR<=threshold_FDR] = -1       # Significance values = -1 for down regulated genes
-  ASKO_stat$Significance[ASKO_stat$logFC> 0 & ASKO_stat$FDR<=threshold_FDR] = 1        # Significance values = 1 for up regulated genes
+  ASKO_stat$Significance=0                                                              # Between context1 and context2 :
+  ASKO_stat$Significance[ASKO_stat$logFC< 0 & ASKO_stat$FDR<=threshold_FDR] = -1        # Significance values = -1 for down regulated genes
+  ASKO_stat$Significance[ASKO_stat$logFC> 0 & ASKO_stat$FDR<=threshold_FDR] = 1         # Significance values = 1 for up regulated genes
 
-  if(Expression==T){
+  if(Expression==TRUE){
     ASKO_stat$Expression=NA                                                             # addition of column "expression" 
-    ASKO_stat$Expression[ASKO_stat$Significance==-1]<-paste(contx1, contx2, sep="<")   # the value of attribute "Expression" is a string
-    ASKO_stat$Expression[ASKO_stat$Significance==1]<-paste(contx1, contx2, sep=">")    # this attribute is easier to read the Significance
-    ASKO_stat$Expression[ASKO_stat$Significance==0]<-paste(contx1, contx2, sep="=")    # of expression between two contexts
+    ASKO_stat$Expression[ASKO_stat$Significance==-1]<-paste(contx1, contx2, sep="<")    # the value of attribute "Expression" is a string
+    ASKO_stat$Expression[ASKO_stat$Significance==1]<-paste(contx1, contx2, sep=">")     # this attribute is easier to read the Significance
+    ASKO_stat$Expression[ASKO_stat$Significance==0]<-paste(contx1, contx2, sep="=")     # of expression between two contexts
   }
   if(logFC==T){cola="logFC"}else{cola=NULL}                                             #
   if(FC==T){colb="FC";ASKO_stat$FC <- 2^abs(ASKO_stat$logFC)}else{colb=NULL}            # computation of Fold Change from log2FC
-  if(Sign==T){colc="Significance"}                                                     #
+  if(Sign==T){colc="Significance"}                                                      #
   if(logCPM==T){cold="logCPM"}else{cold=NULL}                                           #
   if(LR==T){cole="LR"}else{cole=NULL}                                                   #
   if(FDR==T){
@@ -39,13 +39,13 @@ AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, orga, logFC=F, FC=
   o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                          #
   return(ASKOlist)
-  write.table(ASKOlist$stat.table,paste(orga, contrasko, "_test.txt", sep = ""),                                        #
+  write.table(ASKOlist$stat.table,paste(organism, contrasko, "_test.txt", sep = ""),                                    #
               sep="\t", col.names = T, row.names = F)                                                                   #
   if(csv==T){
-    write.csv(ASKOlist$stat.table,paste(orga, contrasko, "_test.txt", sep = ""),                                        #
+    write.csv(ASKOlist$stat.table,paste(organism, contrasko, "_test.txt", sep = ""),                                    #
               sep="\t", col.names = T, row.names = F)
   }
-  #write.table(asko, paste("result_for_asko_",orga, contrasko, "_test.txt", sep = ""),                                   #
-  #            sep="\t", col.names = T, row.names = F)                                                                   #
+  #write.table(asko, paste("result_for_asko_",organism, contrasko, "_test.txt", sep = ""),                              #
+  #            sep="\t", col.names = T, row.names = F)                                                                  #
 
 }
