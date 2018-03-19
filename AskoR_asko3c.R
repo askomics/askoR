@@ -6,7 +6,7 @@ asko3c<-function(Samples_file, contrast_table){
   
   condition<-levels(Samples_file$condition)                                                 # retrieval of different condition's names
   col1<-which(colnames(Samples_file)=="condition")                                          # determination of number of the column "condition"
-  col2<-which(colnames(Samples_file)=="rep")                                                # determination of number of the column "replicate"
+  col2<-which(colnames(Samples_file)=="replicate")                                          # determination of number of the column "replicate"
   column_name<-colnames(Samples_file[,c(-1:-(col1-1),-col2:-length(Samples_file))])         # retrieval of column names needful to create the file condition
   condition_asko<-data.frame(row.names=condition)                                           # initialization of the condition's data frame
   level<-list()                                                                             # initialization of the list will contain the level
