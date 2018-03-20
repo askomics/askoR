@@ -1,0 +1,11 @@
+Package: AskoR
+Type: Package
+Title: Formatting DGE analysis data to Askomics
+Version: 0.5
+Date: 2018-03-15
+Author: Masanelli Sylvin
+Maintainer: <sylvin.masanelli@gmail.com>
+Description: AskoR contains several functions about automatic formatting data and writing tabulated result files for their integration in AskOmics
+License: GPL (>=2.0)
+Depends: R (>= 3.3.0), stringr, stats
+Built: R 3.3.1; ; 2018-03-20 14:26:27 UTC; windows

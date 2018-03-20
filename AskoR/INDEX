@@ -1,0 +1,4 @@
+AskoR-package           Formatting DGE analysis data to Askomics
+AskoStats               Formatting statistical results of DGE analysis
+NormCountsMean          Averaging of normalized reads counts
+asko3c                  Contrast, Context, Condition
