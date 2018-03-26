@@ -1,79 +1,27 @@
-AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, orga, logFC=F, FC=T, logCPM=F, FDR=T, LR=F, Sign=T, Expression=T, mean_counts=T, csv=F) {   
-  
-  contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]         # to retrieve the name of contrast from Asko object
-  contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 1st context from Asko object 
-  contx2<-ASKOlist$contrast$context2[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 2nd context from Asko object
-  
-  ASKO_stat<-glm_result$table
-  ASKO_stat$Test_id<-paste(contrasko, rownames(ASKO_stat), sep = "_")                   # addition of Test_id column = unique ID
-  ASKO_stat$contrast<-contrasko                                                         # addition of the contrast of the test
-  ASKO_stat$gene <- row.names(ASKO_stat)                                                # addition of gene column = gene ID
-  
-  ASKO_stat$Signification=0                                                             # Between context1 and context2 :
-  ASKO_stat$Signification[ASKO_stat$logFC< 0 & ASKO_stat$FDR<=threshold_FDR] = -1       # Signification values = -1 for down regulated genes
-  ASKO_stat$Signification[ASKO_stat$logFC> 0 & ASKO_stat$FDR<=threshold_FDR] = 1        # Signification values = 1 for up regulated genes
-  
-  if(Expression==T){
-    ASKO_stat$Expression=NA                                                             # addition of column "expression" 
-    ASKO_stat$Expression[ASKO_stat$Signification==-1]<-paste(contx1, contx2, sep="<")   # the value of attribute "Expression" is a string
-    ASKO_stat$Expression[ASKO_stat$Signification==1]<-paste(contx1, contx2, sep=">")    # this attribute is easier to read the signification
-    ASKO_stat$Expression[ASKO_stat$Signification==0]<-paste(contx1, contx2, sep="=")    # of expression between two contexts
-  }
-  if(logFC==T){cola="logFC"}else{cola=NULL}                                             #
-  if(FC==T){colb="FC";ASKO_stat$FC <- 2^abs(ASKO_stat$logFC)}else{colb=NULL}            # computation of Fold Change from log2FC
-  if(Sign==T){colc="Signification"}                                                     #
-  if(logCPM==T){cold="logCPM"}else{cold=NULL}                                           #
-  if(LR==T){cole="LR"}else{cole=NULL}                                                   #
-  if(FDR==T){
-    colf="FDR";ASKO_stat$FDR<-p.adjust(ASKO_stat$PValue, method="BH")}else{colf=NULL}   # computation of False Discovery Rate
-  
-  ASKOlist$stat.table<-ASKO_stat[,c("Test_id","contrast","gene",cola,colb,"PValue",     # adding table "stat.table" to the ASKOlist
-                                    "Expression",colc,cold,cole,colf)]
-  if(mean_counts==T){                                                                   # computation of the mean of normalized counts for conditions
-    ASKOlist$stat.table<-NormCountsMean(glmfit, ASKOlist, contx1)                       # in the 1st context
-    ASKOlist$stat.table<-NormCountsMean(glmfit, ASKOlist, contx2)                       # in the 2nd context
-  }
-  
-  colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="gene"] <- paste("is", "gene", sep="@")                  # header formatting for askomics
-  colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
-  o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
-  ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                          #
-  return(ASKOlist)
-  write.table(ASKOlist$stat.table,paste(orga, contrasko, "_test.txt", sep = ""),                                        #
-              sep="\t", col.names = T, row.names = F)                                                                   #
-  if(csv==T){
-    write.csv(ASKOlist$stat.table,paste(orga, contrasko, "_test.txt", sep = ""),                                        #
-              sep="\t", col.names = T, row.names = F)
-  }
-  #write.table(asko, paste("result_for_asko_",orga, contrasko, "_test.txt", sep = ""),                                   #
-  #            sep="\t", col.names = T, row.names = F)                                                                   #
-  
-}
-
-asko3c<-function(Samples_file, contrast_table){
+asko3c<-function(data_list){
   
   asko<-list()
   
   ######### Condition ############ 
   
-  condition<-levels(Samples_file$condition)                                                 # retrieval of different condition's names
-  col1<-which(colnames(Samples_file)=="condition")                                          # determination of number of the column "condition"
-  col2<-which(colnames(Samples_file)=="rep")                                                # determination of number of the column "replicate"
-  column_name<-colnames(Samples_file[,c(-1:-(col1-1),-col2:-length(Samples_file))])         # retrieval of column names needful to create the file condition
+  condition<-levels(data_list$samples$condition)                                                 # retrieval of different condition's names
+  col1<-which(colnames(data_list$samples)=="condition")                                          # determination of number of the column "condition"
+  col2<-which(colnames(data_list$samples)=="replicate")                                          # determination of number of the column "replicate"
+  column_name<-colnames(data_list$samples[,c(-1:-(col1-1),-col2:-length(data_list$samples))])    # retrieval of column names needful to create the file condition
   condition_asko<-data.frame(row.names=condition)                                           # initialization of the condition's data frame
   level<-list()                                                                             # initialization of the list will contain the level
-  # of each experimental factor
+                                                                                            # of each experimental factor
   for (name in column_name){                                                                # for each experimental factor :
     if(str_detect(name, "condition")){                                                      # for the column of conditions, the level is fixed to 0 because
       level<-append(level, 0)                                                               # "condition" must be the first column of the data frame
     }else{                                                                                  #
-      level<-append(level, length(levels(Samples_file[,name])))                             # adding to the list the level of other experimental factors
+      level<-append(level, length(levels(data_list$samples[,name])))                             # adding to the list the level of other experimental factors
     }
     
     condition_asko$n<-NA                                                                    # initialization of new column in the condition's data frame
     colnames(condition_asko)[colnames(condition_asko)=="n"]<-name                           # to rename the new column with with the name of experimental factor
     for(condition_name in condition){                                                       # for each condition's names
-      condition_asko[condition_name,name]<-as.character(unique(Samples_file[Samples_file$condition==condition_name, name])) 
+      condition_asko[condition_name,name]<-as.character(unique(data_list$samples[data_list$samples$condition==condition_name, name])) 
     }                                                                                       # filling the condition's data frame
   }
   order_level<-order(unlist(level))                                                         # list to vector
@@ -83,7 +31,7 @@ asko3c<-function(Samples_file, contrast_table){
   
   #############contrast + context##################  
   i=0
-  contrast_asko<-data.frame(row.names = colnames(contrast_table))               # initialization of the contrast's data frame
+  contrast_asko<-data.frame(row.names = colnames(data_list$contrast))           # initialization of the contrast's data frame
   contrast_asko$Contrast<-NA                                                    # all columns are created et initialized with
   contrast_asko$context1<-NA                                                    # NA values
   contrast_asko$context2<-NA                                                    #
@@ -91,11 +39,11 @@ asko3c<-function(Samples_file, contrast_table){
   list_context<-list()                                                          # initialization of context and condition lists 
   list_condition<-list()                                                        # will be used to create the context data frame
   
-  for (contrast in colnames(contrast_table)){                                   # for each contrast :
+  for (contrast in colnames(data_list$contrast)){                               # for each contrast :
     i=i+1                                                                       # contrast data frame will be filled line by line
     #print(i)
-    set_cond1<-row.names(contrast_table)[contrast_table[,contrast]==1]          # retrieval of 1st set of condition's names implicated in a given contrast
-    set_cond2<-row.names(contrast_table)[contrast_table[,contrast]==-1]         # retrieval of 2nd set of condition's names implicated in a given contrast
+    set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]==1]  # retrieval of 1st set of condition's names implicated in a given contrast
+    set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]==-1] # retrieval of 2nd set of condition's names implicated in a given contrast
     parameters<-colnames(condition_asko)                                        # retrieval of names of experimental factor
     if(length(set_cond1)==1){complex1=F}else{complex1=T}                        # to determine if we have complex contrast (multiple conditions
     if(length(set_cond2)==1){complex2=F}else{complex2=T}                        # compared to multiple conditions) or not
@@ -115,7 +63,7 @@ asko3c<-function(Samples_file, contrast_table){
       list_context<-append(list_context, set_cond1)                             # adding respectively to the lists "context" and "condition" the 1st context
       list_condition<-append(list_condition, set_cond1)                         # name and the condition name associated
       l=0
-      # "common_factor" will contain the common experimental factors shared by
+                                                                                # "common_factor" will contain the common experimental factors shared by
       common_factor=list()                                                      # conditions belonging to the complex context
       for (param_names in parameters){                                          # for each experimental factor 
         facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
@@ -141,7 +89,7 @@ asko3c<-function(Samples_file, contrast_table){
       list_context<-append(list_context, set_cond2)                             # adding respectively to the lists "context" and "condition" the 2nd context
       list_condition<-append(list_condition, set_cond2)                         # name and the 2nd condition name associated
       l=0
-      # "common_factor" will contain the common experimental factors shared by
+                                                                                # "common_factor" will contain the common experimental factors shared by
       common_factor=list()                                                      # conditions belonging to the complex context
       for (param_names in parameters){                                          # for each experimental factor:
         facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
@@ -172,9 +120,9 @@ asko3c<-function(Samples_file, contrast_table){
         
         for(value in facteur){                                                  # for each possible values:
           verif1<-unique(str_detect(set_cond1, value))                          # verification of the presence of values in each condition 
-          # contained in the 1st context
+                                                                                # contained in the 1st context
           verif2<-unique(str_detect(set_cond2, value))                          # verification of the presence of values in each condition
-          # contained in the 2nd context
+                                                                                # contained in the 2nd context
           
           if(length(verif1)==1 && verif1==TRUE){m=m+1;common_factor1[m]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
           if(length(verif2)==1 && verif2==TRUE){n=n+1;common_factor2[n]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
@@ -203,6 +151,7 @@ asko3c<-function(Samples_file, contrast_table){
   list_context<-unlist(list_context)                                                                        # conversion list to vector
   list_condition<-unlist(list_condition)                                                                    # conversion list to vector
   context_asko<-data.frame(list_context,list_condition)                                                     # creation of the context data frame 
+  context_asko<-unique(context_asko)
   colnames(context_asko)[colnames(context_asko)=="list_context"]<-"context"                                 # header formatting for askomics
   colnames(context_asko)[colnames(context_asko)=="list_condition"]<-"condition"                             # header formatting for askomics
   asko$contrast<-contrast_asko                                                                              # adding context data frame to asko object
@@ -220,7 +169,7 @@ asko3c<-function(Samples_file, contrast_table){
   return(asko)
 }
 
-NormCountsMean<-function(glmfit, ASKOlist, context){
+.NormCountsMean<-function(glmfit, ASKOlist, context){
   
   lib_size_norm<-glmfit$samples$lib.size*glmfit$samples$norm.factors                          # normalization computation of all library sizes 
   set_condi<-ASKOlist$context$condition[ASKOlist$context$context==context]                    # retrieval of condition names associated to context
@@ -240,3 +189,160 @@ NormCountsMean<-function(glmfit, ASKOlist, context){
   }                                                                                           # to rename the column with the context name
   return(ASKOlist$stat.table)                                                                 # return the glm object
 }
+
+AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, organism, logFC=T, FC=T, logCPM=F, FDR=T, LR=F, Sign=T, Expression=T, mean_counts=T, csv=F) {   
+  
+  contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]         # to retrieve the name of contrast from Asko object
+  contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 1st context from Asko object 
+  contx2<-ASKOlist$contrast$context2[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 2nd context from Asko object
+  
+  ASKO_stat<-glm_result$table
+  ASKO_stat$Test_id<-paste(contrasko, rownames(ASKO_stat), sep = "_")                   # addition of Test_id column = unique ID
+  ASKO_stat$contrast<-contrasko                                                         # addition of the contrast of the test
+  ASKO_stat$gene <- row.names(ASKO_stat)                                                # addition of gene column = gene ID
+  ASKO_stat$FDR<-p.adjust(ASKO_stat$PValue, method="BH")                                # computation of False Discovery Rate
+  
+  ASKO_stat$Significance=0                                                              # Between context1 and context2 :
+  ASKO_stat$Significance[ASKO_stat$logFC< -1 & ASKO_stat$FDR<=threshold_FDR] = -1       # Significance values = -1 for down regulated genes
+  ASKO_stat$Significance[ASKO_stat$logFC> 1 & ASKO_stat$FDR<=threshold_FDR] = 1         # Significance values = 1 for up regulated genes
+  
+  if(Expression==TRUE){
+    ASKO_stat$Expression=NA                                                             # addition of column "expression" 
+    ASKO_stat$Expression[ASKO_stat$Significance==-1]<-paste(contx1, contx2, sep="<")    # the value of attribute "Expression" is a string
+    ASKO_stat$Expression[ASKO_stat$Significance==1]<-paste(contx1, contx2, sep=">")     # this attribute is easier to read the Significance
+    ASKO_stat$Expression[ASKO_stat$Significance==0]<-paste(contx1, contx2, sep="=")     # of expression between two contexts
+  }
+  if(logFC==T){cola="logFC"}else{cola=NULL}                                             #
+  if(FC==T){colb="FC";ASKO_stat$FC <- 2^abs(ASKO_stat$logFC)}else{colb=NULL}            # computation of Fold Change from log2FC
+  if(Sign==T){colc="Significance"}                                                      #
+  if(logCPM==T){cold="logCPM"}else{cold=NULL}                                           #
+  if(LR==T){cole="LR"}else{cole=NULL}                                                   #
+  if(FDR==T){colf="FDR"}else{colf=NULL}
+  
+  ASKOlist$stat.table<-ASKO_stat[,c("Test_id","contrast","gene",cola,colb,"PValue",     # adding table "stat.table" to the ASKOlist
+                                    "Expression",colc,cold,cole,colf)]
+  if(mean_counts==T){                                                                   # computation of the mean of normalized counts for conditions
+    ASKOlist$stat.table<-NormCountsMean(glmfit, ASKOlist, contx1)                       # in the 1st context
+    ASKOlist$stat.table<-NormCountsMean(glmfit, ASKOlist, contx2)                       # in the 2nd context
+  }
+  
+  colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="gene"] <- paste("is", "gene", sep="@")                  # header formatting for askomics
+  colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
+  o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
+  ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                          #
+  write.table(ASKOlist$stat.table,paste(organism, contrasko, "_test.txt", sep = ""),                                    #
+              sep="\t", col.names = T, row.names = F)                                                                   #
+  if(csv==T){
+    write.csv(ASKOlist$stat.table,paste(organism, contrasko, "_test.txt", sep = ""),                                    #
+              sep="\t", col.names = T, row.names = F)
+  }
+  #write.table(asko, paste("result_for_asko_",organism, contrasko, "_test.txt", sep = ""),                              #
+  #            sep="\t", col.names = T, row.names = F)                                                                  #
+  return(ASKOlist)
+  
+}
+
+loadData <- function(parameters){
+  
+  #####counts#####
+  foc<-read.table(parameters$fileofcount, header=TRUE, row.names=1)     
+  slct<-str_detect(string = colnames(foc), pattern = parameters$select_sample)
+  counts<-foc[,slct] 
+  rm1<-match(parameters$rm_sample, colnames(counts))
+  countT<-counts[,-rm1]
+  
+  #####samples#####
+  samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names = 1)       #prise en compte des résultats de T2
+  rm2<-match(parameters$rm_sample, rownames(samples))
+  samples<-samples[-rm2,]
+  
+  #####design#####
+  Group<-factor(samples$condition)
+  designExp<-model.matrix(~0+Group)
+  rownames(designExp) <- row.names(samples)
+  colnames(designExp) <- levels(Group)
+
+  #####contrast#####
+  contrastab<-read.csv(parameters$contrast_file, sep="\t", header=TRUE, row.names = 1)
+  ord<-match(colnames(designExp),row.names(contrastab), nomatch = 0)
+  contrast_table<-contrastab[ord,]
+  
+  #####annotation#####
+  annotation <- read.csv(parameters$annotation_file, header = T, sep = '\t', quote = "", row.names = 1)
+  
+  data<-list("counts"=countT, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
+  return(data)
+}
+
+loadDGE <- function(data){
+  
+  #####counts#####
+  countTab<-DGEList(counts=data_test$counts)                        # transformation de notre data.frame en DGEList object
+  
+  #####samples#####
+  names_factors<-names(data_test$samples)                         # Remplissage de la partie "samples" de l'objet "countTable"
+  for (n in 2:length(names_factors)){                   # à l'aide du fichier détaillant les différentes conditions
+    countTab$samples[n+2] <- data_test$samples[n]               # du plan expérimental
+    names(countTab$samples[n+2])<-names(data_test$samples[n])
+  }
+  #####annotation#####
+  # countTab$genes<-data.frame(row.names = rownames(annotation))
+  # 
+  # countTab$genes$Description<-annotation$Description
+  # countTab$genes$GO<-annotation$B2G_GO_IDs
+  # countTab$genes$Go_Name<-annotation$B2G_GO_Names
+  # countTab$genes$EC<-annotation$B2G_Enzyme_Codes
+  # countTab$genes$EC_Name<-annotation$B2G_Enzyme_Names
+  # countTab$genes$IP<-annotation$B2G_InterPro_IDs
+  # #countTab$genes$IP_Name<-annotation
+  # countTab$genes$e3_geneID<-annotation$Blast_e3
+  return(countTab)
+}
+
+GEfilt <- function(dge_list, parameters){
+  logcpm<-cpm(dge_list, log=TRUE)
+  nsamples <- ncol(dge_list$counts)
+  plot.new()                                                                    # création nouveau plot 
+  plot(density(logcpm[,1]),
+       col=as.character(dge$samples$color[1]),      # plot exprimant la densité de chaque gène   
+       lwd=1,
+       ylim=c(0,0.21),
+       las=2,
+       main="A. Raw data",
+       xlab="Log-cpm")        # en fonction de leurs valeurs d'expression
+  abline(v=0, lty=3)
+  for (i in 2:nsamples){                                                        # on boucle sur chaque condition restante
+    den<-density(logcpm[,i])                                                    # et les courbes sont rajoutées dans le plot
+    lines(den$x, col=as.character(dge_list$samples$color[i]), den$y, lwd=1)   #
+  }
+  legend("topright", rownames(dge_list$samples), 
+         text.col=as.character(dge_list$samples$color), 
+         bty="n",
+         text.width=6,
+         cex=0.5)
+                                                          # rowSums compte le nombre de score (cases) pour chaque colonne Sup à 0.5
+  keep.exprs <- rowSums(CPM>parameters$threshold_cpm)>=parameters$replicate_cpm      # en ajoutant >=3 cela donne un test conditionnel
+  filtered_counts <- dge_list[keep.exprs,,keep.lib.sizes=F] # si le comptage respecte la condition alors renvoie TRUE
+  filtered_cpm<-cpm(filtered_counts, log=TRUE)
+
+  plot(density(filtered_cpm[,1]),
+       col=as.character(dge_list$samples$color[1]),
+       lwd=2,
+       ylim=c(0,0.21),
+       las=2,
+       main="B. Filtered data", xlab="Log-cpm")
+  abline(v=0, lty=3) 
+  ?abline
+  for (i in 2:nsamples){
+    den <- density(filtered_cpm[,i])
+    lines(den$x,col=as.character(dge_list$samples$color[i]), den$y, lwd=1)
+  } 
+  legend("topright", rownames(dge_list$samples),
+         text.col=as.character(dge_list$samples$col),
+         bty="n",
+         text.width=6,
+         cex=0.5)
+  return(filtered_cpm)
+}
+
+##GEnorm <- function(GEfilt, )
