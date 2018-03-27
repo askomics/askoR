@@ -249,7 +249,15 @@ loadData <- function(parameters){
     rm2<-match(parameters$rm_sample, rownames(samples))
     samples<-samples[-rm2,]
   }
-  print(samples$file)
+  condition<-unique(data_test$samples$condition)
+  color<-brewer.pal(length(condition), "Set1")
+  samples$color<-NA
+  j=0
+  for(name in condition){
+    j=j+1
+    samples$color[samples$condition==name]<-color[j]
+  }
+  
   #####counts#####
   if (is.null(parameters$fileofcount)) {
     countT<-readDGE(samples$file, columns=c(col_genes,col_counts), header=TRUE, comment.char="#")
