@@ -1,4 +1,4 @@
-asko3c<-function(data_list){
+asko3c <- function(data_list){
   
   asko<-list()
   
@@ -45,8 +45,15 @@ asko3c<-function(data_list){
     set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]==1]  # retrieval of 1st set of condition's names implicated in a given contrast
     set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]==-1] # retrieval of 2nd set of condition's names implicated in a given contrast
     parameters<-colnames(condition_asko)                                        # retrieval of names of experimental factor
-    if(length(set_cond1)==1){complex1=F}else{complex1=T}                        # to determine if we have complex contrast (multiple conditions
-    if(length(set_cond2)==1){complex2=F}else{complex2=T}                        # compared to multiple conditions) or not
+    if(length(set_cond1)==length(set_cond2)){modif=FALSE}else{modif=TRUE}
+    if(length(set_cond1)==1){complex1=F}else{
+      complex1=T
+      if(modif==T){
+        data_list$contrast[data_list$contrast[,contrast]==1]=integer(1/length(set_cond1))}}# to determine if we have complex contrast (multiple conditions
+    if(length(set_cond2)==1){complex2=F}else{
+      complex2=T
+      if(modif==T){
+        data_list$contrast[data_list$contrast[,contrast]==-1]=integer(-1/length(set_cond2))}}# compared to multiple conditions) or not
     
     if(complex1==F && complex2==F){                                             # Case 1: one condition against one condition
       contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
@@ -75,6 +82,7 @@ asko3c<-function(data_list){
       }
       if(length(common_factor)>1){                                              # if there are several common factor
         common_factor<-toString(common_factor)                                  # the list is converted to string
+        contx<-str_replace_all(contx, "NULL", "")
         contx<-str_replace(common_factor,", ","")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
       contrast_asko[i,"context2"]<-contx                                        # filling contrast data frame with the name of the 2nd context
       contrast_name<-paste(set_cond1,contx, sep = "vs")                         # concatenation of context names to make the contrast name 
@@ -101,6 +109,7 @@ asko3c<-function(data_list){
       }
       if(length(common_factor)>1){                                              # if there are several common factor
         common_factor<-toString(common_factor)                                  # the list is converted to string
+        contx<-str_replace_all(contx, "NULL", "")
         contx<-str_replace(common_factor2,", ","")}else{contx<-common_factor}   # and all common factor are concatenated to become the name of context
       contrast_asko[i,"context1"]<-contx                                        # filling contrast data frame with the name of the 1st context
       contrast_name<-paste(contx,set_cond2, sep = "vs")                         # concatenation of context names to make the contrast name
@@ -131,9 +140,11 @@ asko3c<-function(data_list){
       if(length(common_factor1)>1){                                             # if there are several common factor for conditions in the 1st context 
         common_factor1<-toString(common_factor1)                                # conversion list to string
         contx1<-str_replace(common_factor1,", ","")}else{contx1<-common_factor1}# all common factor are concatenated to become the name of context
+        contx1<-str_replace_all(contx1, "NULL", "")
       if(length(common_factor2)>1){                                             # if there are several common factor for conditions in the 2nd context 
         common_factor2<-toString(common_factor2)                                # conversion list to string
         contx2<-str_replace(common_factor2,", ","")}else{contx2<-common_factor2}# all common factor are concatenated to become the name of context
+        contx1<-str_replace_all(contx1, "NULL", "")
       contrast_asko[i,"context1"]<-contx1                                       # filling contrast data frame with the name of the 1st context
       contrast_asko[i,"context2"]<-contx2                                       # filling contrast data frame with the name of the 2nd context
       contrast_asko[i,"Contrast"]<-paste(contx1,contx2, sep = "vs")             # filling contrast data frame with the name of the contrast
@@ -169,7 +180,7 @@ asko3c<-function(data_list){
   return(asko)
 }
 
-.NormCountsMean<-function(glmfit, ASKOlist, context){
+.NormCountsMean <- function(glmfit, ASKOlist, context){
   
   lib_size_norm<-glmfit$samples$lib.size*glmfit$samples$norm.factors                          # normalization computation of all library sizes 
   set_condi<-ASKOlist$context$condition[ASKOlist$context$context==context]                    # retrieval of condition names associated to context
@@ -190,7 +201,7 @@ asko3c<-function(data_list){
   return(ASKOlist$stat.table)                                                                 # return the glm object
 }
 
-AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, organism, logFC=T, FC=T, logCPM=F, FDR=T, LR=F, Sign=T, Expression=T, mean_counts=T, csv=F) {   
+AskoStats <- function (glm_result, glmfit, constrast, ASKOlist, organism, logFC=T, FC=T, logCPM=F, FDR=T, LR=F, Sign=T, Expression=T, mean_counts=T, csv=F) {   
   
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]         # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 1st context from Asko object 
@@ -245,7 +256,7 @@ AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, organism, logFC=T,
 loadData <- function(parameters){
   #####samples#####
   samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names = 1, comment.char = "#")       #prise en compte des r?sultats de T2
-  if (is.null(parameters$rm_samples) == FALSE) {
+  if(is.null(parameters$rm_sample)==FALSE){
     rm2<-match(parameters$rm_sample, rownames(samples))
     samples<-samples[-rm2,]
   }
@@ -259,7 +270,7 @@ loadData <- function(parameters){
   }
   
   #####counts#####
-  if (is.null(parameters$fileofcount)) {
+  if(is.null(parameters$fileofcount)){
     countT<-readDGE(samples$file, columns=c(col_genes,col_counts), header=TRUE, comment.char="#")
   }else {
     countT<-read.table(parameters$fileofcount, header=TRUE, row.names=1)
