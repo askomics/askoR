@@ -45,15 +45,8 @@ asko3c <- function(data_list){
     set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]==1]  # retrieval of 1st set of condition's names implicated in a given contrast
     set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]==-1] # retrieval of 2nd set of condition's names implicated in a given contrast
     parameters<-colnames(condition_asko)                                        # retrieval of names of experimental factor
-    if(length(set_cond1)==length(set_cond2)){modif=FALSE}else{modif=TRUE}
-    if(length(set_cond1)==1){complex1=F}else{
-      complex1=T
-      if(modif==T){
-        data_list$contrast[data_list$contrast[,contrast]==1]=integer(1/length(set_cond1))}}# to determine if we have complex contrast (multiple conditions
-    if(length(set_cond2)==1){complex2=F}else{
-      complex2=T
-      if(modif==T){
-        data_list$contrast[data_list$contrast[,contrast]==-1]=integer(-1/length(set_cond2))}}# compared to multiple conditions) or not
+    if(length(set_cond1)==1){complex1=F}else{complex1=T}# to determine if we have complex contrast (multiple conditions
+    if(length(set_cond2)==1){complex2=F}else{complex2=T}# compared to multiple conditions) or not
     
     if(complex1==F && complex2==F){                                             # Case 1: one condition against one condition
       contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
@@ -295,7 +288,15 @@ loadData <- function(parameters){
   contrastab<-read.csv(parameters$contrast_file, sep="\t", header=TRUE, row.names = 1)
   ord<-match(colnames(designExp),row.names(contrastab), nomatch = 0)
   contrast_table<-contrastab[ord,]
-  
+  for(contrast in colnames(contrast_table)){
+    set_cond1<-row.names(contrast_table)[contrast_table[,contrast]==1]
+    set_cond2<-row.names(contrast_table)[contrast_table[,contrast]==-1]
+    if(length(set_cond1)!=length(set_cond2)){
+      contrast_table[,contrast][contrast_table[,contrast]==1]=signif(1/length(set_cond1),digits = 2)
+      contrast_table[,contrast][contrast_table[,contrast]==-1]=signif(-1/length(set_cond2),digits = 2)
+    }
+    
+  }
   #####annotation#####
   #annotation <- read.csv(parameters$annotation_file, header = T, sep = '\t', quote = "", row.names = 1)
   
