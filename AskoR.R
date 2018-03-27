@@ -6,27 +6,27 @@ asko3c<-function(data_list){
   
   condition<-levels(data_list$samples$condition)                                                 # retrieval of different condition's names
   col1<-which(colnames(data_list$samples)=="condition")                                          # determination of number of the column "condition"
-  col2<-which(colnames(data_list$samples)=="replicate")                                          # determination of number of the column "replicate"
-  column_name<-colnames(data_list$samples[,c(-1:-(col1-1),-col2:-length(data_list$samples))])    # retrieval of column names needful to create the file condition
+  col2<-which(colnames(data_list$samples)=="files")                                          # determination of number of the column "replicate"
+  column_name<-colnames(data_list$samples[,c(-col1,-col2)])    # retrieval of column names needful to create the file condition
   condition_asko<-data.frame(row.names=condition)                                           # initialization of the condition's data frame
-  level<-list()                                                                             # initialization of the list will contain the level
+  #level<-list()                                                                             # initialization of the list will contain the level
                                                                                             # of each experimental factor
   for (name in column_name){                                                                # for each experimental factor :
-    if(str_detect(name, "condition")){                                                      # for the column of conditions, the level is fixed to 0 because
-      level<-append(level, 0)                                                               # "condition" must be the first column of the data frame
-    }else{                                                                                  #
-      level<-append(level, length(levels(data_list$samples[,name])))                             # adding to the list the level of other experimental factors
-    }
-    
+    # if(str_detect(name, "condition")){                                                      # for the column of conditions, the level is fixed to 0 because
+    #   level<-append(level, 0)                                                               # "condition" must be the first column of the data frame
+    # }else{                                                                                  #
+    #   level<-append(level, length(levels(data_list$samples[,name])))                             # adding to the list the level of other experimental factors
+    # }
+    # 
     condition_asko$n<-NA                                                                    # initialization of new column in the condition's data frame
     colnames(condition_asko)[colnames(condition_asko)=="n"]<-name                           # to rename the new column with with the name of experimental factor
     for(condition_name in condition){                                                       # for each condition's names
       condition_asko[condition_name,name]<-as.character(unique(data_list$samples[data_list$samples$condition==condition_name, name])) 
     }                                                                                       # filling the condition's data frame
   }
-  order_level<-order(unlist(level))                                                         # list to vector
-  condition_asko<-condition_asko[,order_level]                                              # order columns according to their level
-  asko$condition<-condition_asko                                                            # adding data frame of conditions to asko object
+  # order_level<-order(unlist(level))                                                         # list to vector
+  # condition_asko<-condition_asko[,order_level]                                              # order columns according to their level
+  # asko$condition<-condition_asko                                                            # adding data frame of conditions to asko object
   
   
   #############contrast + context##################  
@@ -252,15 +252,19 @@ loadData <- function(parameters){
   print(samples$file)
   #####counts#####
   if (is.null(parameters$fileofcount)) {
-    countT<-readDGE(samples$file, columns=c(1,7), header=TRUE, comment.char="#")
+    countT<-readDGE(samples$file, columns=c(col_genes,col_counts), header=TRUE, comment.char="#")
+  }else {
+    countT<-read.table(parameters$fileofcount, header=TRUE, row.names=1)
   }
-  else {
-    foc<-read.table(parameters$fileofcount, header=TRUE, row.names=1)     
+  if(is.null(parameters$select_sample)==FALSE){
     slct<-str_detect(string = colnames(foc), pattern = parameters$select_sample)
-    counts<-foc[,slct] 
+    countT<-foc[,slct] 
+  }
+  if(is.null(parameters$rm_sample)==FALSE){
     rm1<-match(parameters$rm_sample, colnames(counts))
     countT<-counts[,-rm1]
   }
+
   
   #####design#####
   Group<-factor(samples$condition)
