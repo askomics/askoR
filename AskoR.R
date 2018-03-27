@@ -243,18 +243,24 @@ AskoStats<-function (glm_result, glmfit, constrast, ASKOlist, organism, logFC=T,
 }
 
 loadData <- function(parameters){
-  
-  #####counts#####
-  foc<-read.table(parameters$fileofcount, header=TRUE, row.names=1)     
-  slct<-str_detect(string = colnames(foc), pattern = parameters$select_sample)
-  counts<-foc[,slct] 
-  rm1<-match(parameters$rm_sample, colnames(counts))
-  countT<-counts[,-rm1]
-  
   #####samples#####
-  samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names = 1)       #prise en compte des résultats de T2
-  rm2<-match(parameters$rm_sample, rownames(samples))
-  samples<-samples[-rm2,]
+  samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names = 1, comment.char = "#")       #prise en compte des r?sultats de T2
+  if (is.null(parameters$rm_samples) == FALSE) {
+    rm2<-match(parameters$rm_sample, rownames(samples))
+    samples<-samples[-rm2,]
+  }
+  print(samples$file)
+  #####counts#####
+  if (is.null(parameters$fileofcount)) {
+    countT<-readDGE(samples$file, columns=c(1,7), header=TRUE, comment.char="#")
+  }
+  else {
+    foc<-read.table(parameters$fileofcount, header=TRUE, row.names=1)     
+    slct<-str_detect(string = colnames(foc), pattern = parameters$select_sample)
+    counts<-foc[,slct] 
+    rm1<-match(parameters$rm_sample, colnames(counts))
+    countT<-counts[,-rm1]
+  }
   
   #####design#####
   Group<-factor(samples$condition)
@@ -268,9 +274,10 @@ loadData <- function(parameters){
   contrast_table<-contrastab[ord,]
   
   #####annotation#####
-  annotation <- read.csv(parameters$annotation_file, header = T, sep = '\t', quote = "", row.names = 1)
+  #annotation <- read.csv(parameters$annotation_file, header = T, sep = '\t', quote = "", row.names = 1)
   
-  data<-list("counts"=countT, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
+  #data<-list("counts"=countT, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
+  data<-list("counts"=countT, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
   return(data)
 }
 
@@ -281,8 +288,8 @@ loadDGE <- function(data){
   
   #####samples#####
   names_factors<-names(data_test$samples)                         # Remplissage de la partie "samples" de l'objet "countTable"
-  for (n in 2:length(names_factors)){                   # à l'aide du fichier détaillant les différentes conditions
-    countTab$samples[n+2] <- data_test$samples[n]               # du plan expérimental
+  for (n in 2:length(names_factors)){                   # ? l'aide du fichier d?taillant les diff?rentes conditions
+    countTab$samples[n+2] <- data_test$samples[n]               # du plan exp?rimental
     names(countTab$samples[n+2])<-names(data_test$samples[n])
   }
   #####annotation#####
@@ -302,9 +309,9 @@ loadDGE <- function(data){
 GEfilt <- function(dge_list, parameters){
   logcpm<-cpm(dge_list, log=TRUE)
   nsamples <- ncol(dge_list$counts)
-  plot.new()                                                                    # création nouveau plot 
+  plot.new()                                                                    # cr?ation nouveau plot 
   plot(density(logcpm[,1]),
-       col=as.character(dge$samples$color[1]),      # plot exprimant la densité de chaque gène   
+       col=as.character(dge$samples$color[1]),      # plot exprimant la densit? de chaque g?ne   
        lwd=1,
        ylim=c(0,0.21),
        las=2,
@@ -312,7 +319,7 @@ GEfilt <- function(dge_list, parameters){
        xlab="Log-cpm")        # en fonction de leurs valeurs d'expression
   abline(v=0, lty=3)
   for (i in 2:nsamples){                                                        # on boucle sur chaque condition restante
-    den<-density(logcpm[,i])                                                    # et les courbes sont rajoutées dans le plot
+    den<-density(logcpm[,i])                                                    # et les courbes sont rajout?es dans le plot
     lines(den$x, col=as.character(dge_list$samples$color[i]), den$y, lwd=1)   #
   }
   legend("topright", rownames(dge_list$samples), 
@@ -320,7 +327,7 @@ GEfilt <- function(dge_list, parameters){
          bty="n",
          text.width=6,
          cex=0.5)
-                                                          # rowSums compte le nombre de score (cases) pour chaque colonne Sup à 0.5
+                                                          # rowSums compte le nombre de score (cases) pour chaque colonne Sup ? 0.5
   keep.exprs <- rowSums(CPM>parameters$threshold_cpm)>=parameters$replicate_cpm      # en ajoutant >=3 cela donne un test conditionnel
   filtered_counts <- dge_list[keep.exprs,,keep.lib.sizes=F] # si le comptage respecte la condition alors renvoie TRUE
   filtered_cpm<-cpm(filtered_counts, log=TRUE)
