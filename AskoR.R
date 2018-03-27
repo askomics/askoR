@@ -1,12 +1,11 @@
 asko3c <- function(data_list){
-  
   asko<-list()
   
   ######### Condition ############ 
   
   condition<-levels(data_list$samples$condition)                                                 # retrieval of different condition's names
   col1<-which(colnames(data_list$samples)=="condition")                                          # determination of number of the column "condition"
-  col2<-which(colnames(data_list$samples)=="files")                                          # determination of number of the column "replicate"
+  col2<-which(colnames(data_list$samples)=="file")                                          # determination of number of the column "replicate"
   column_name<-colnames(data_list$samples[,c(-col1,-col2)])    # retrieval of column names needful to create the file condition
   condition_asko<-data.frame(row.names=condition)                                           # initialization of the condition's data frame
   #level<-list()                                                                             # initialization of the list will contain the level
@@ -28,9 +27,12 @@ asko3c <- function(data_list){
   # condition_asko<-condition_asko[,order_level]                                              # order columns according to their level
   # asko$condition<-condition_asko                                                            # adding data frame of conditions to asko object
   
+  #print(condition_asko)
+  
   
   #############contrast + context##################  
   i=0
+  print(data_list$contrast)
   contrast_asko<-data.frame(row.names = colnames(data_list$contrast))           # initialization of the contrast's data frame
   contrast_asko$Contrast<-NA                                                    # all columns are created et initialized with
   contrast_asko$context1<-NA                                                    # NA values
@@ -38,12 +40,12 @@ asko3c <- function(data_list){
   
   list_context<-list()                                                          # initialization of context and condition lists 
   list_condition<-list()                                                        # will be used to create the context data frame
-  
-  for (contrast in colnames(data_list$contrast)){                               # for each contrast :
+  if(parameters$context=="auto"){
+    for (contrast in colnames(data_list$contrast)){                               # for each contrast :
     i=i+1                                                                       # contrast data frame will be filled line by line
-    #print(i)
-    set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]==1]  # retrieval of 1st set of condition's names implicated in a given contrast
-    set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]==-1] # retrieval of 2nd set of condition's names implicated in a given contrast
+    print(contrast)
+    set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]>0]  # retrieval of 1st set of condition's names implicated in a given contrast
+    set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]<0] # retrieval of 2nd set of condition's names implicated in a given contrast
     parameters<-colnames(condition_asko)                                        # retrieval of names of experimental factor
     if(length(set_cond1)==1){complex1=F}else{complex1=T}# to determine if we have complex contrast (multiple conditions
     if(length(set_cond2)==1){complex2=F}else{complex2=T}# compared to multiple conditions) or not
@@ -137,7 +139,7 @@ asko3c <- function(data_list){
       if(length(common_factor2)>1){                                             # if there are several common factor for conditions in the 2nd context 
         common_factor2<-toString(common_factor2)                                # conversion list to string
         contx2<-str_replace(common_factor2,", ","")}else{contx2<-common_factor2}# all common factor are concatenated to become the name of context
-        contx1<-str_replace_all(contx1, "NULL", "")
+        contx2<-str_replace_all(contx2, "NULL", "")
       contrast_asko[i,"context1"]<-contx1                                       # filling contrast data frame with the name of the 1st context
       contrast_asko[i,"context2"]<-contx2                                       # filling contrast data frame with the name of the 2nd context
       contrast_asko[i,"Contrast"]<-paste(contx1,contx2, sep = "vs")             # filling contrast data frame with the name of the contrast
@@ -150,10 +152,34 @@ asko3c <- function(data_list){
         list_condition<-append(list_condition, set_cond2[j])                    # contained in the 1st context
       }
     }  
+    }
+  }
+  else{
+    for (contrast in colnames(data_list$contrast)){
+      i=i+1
+      contexts=strsplit2(contrast,"vs")
+      contrast_asko[i,"Contrast"]<-contrast
+      contrast_asko[i,"context1"]=contexts[1]
+      contrast_asko[i,"context2"]=contexts[2]
+      set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]>0]
+      set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]<0]
+      for (cond1 in set_cond1){
+#        print(contexts[1])
+ #       print(cond1)
+        list_context<-append(list_context, contexts[1])
+        list_condition<-append(list_condition, cond1)
+      }
+      for (cond2 in set_cond2){
+        list_context<-append(list_context, contexts[2])
+        list_condition<-append(list_condition, cond2)
+      }
+    }
   }
   
-  list_context<-unlist(list_context)                                                                        # conversion list to vector
+  list_context<-unlist(list_context)   # conversion list to vector
   list_condition<-unlist(list_condition)                                                                    # conversion list to vector
+#  print(list_condition)
+#  print(list_context)
   context_asko<-data.frame(list_context,list_condition)                                                     # creation of the context data frame 
   context_asko<-unique(context_asko)
   colnames(context_asko)[colnames(context_asko)=="list_context"]<-"context"                                 # header formatting for askomics
@@ -167,9 +193,9 @@ asko3c <- function(data_list){
   
   ######## Files creation ########
   
-  write.table(condition_asko, "condition_for_asko_test.txt", sep = "\t", row.names = F, quote=F)            # creation of condition file for asko 
-  write.table(context_asko, "context_for_asko_test.txt", sep="\t", col.names = T, row.names = F)            # creation of context file for asko
-  write.table(contrast_asko, "contrast_for_asko_test.txt", sep="\t", col.names = T, row.names = F)          # creation of contrast file for asko
+  write.table(condition_asko, "condition.asko.txt", sep = "\t", row.names = F, quote=F)            # creation of condition file for asko 
+  write.table(context_asko, "context.asko.txt", sep="\t", col.names = T, row.names = F,quote=F)            # creation of context file for asko
+  write.table(contrast_asko, "contrast.asko.txt", sep="\t", col.names = T, row.names = F, quote=F)          # creation of contrast file for asko
   return(asko)
 }
 
@@ -253,8 +279,9 @@ loadData <- function(parameters){
     rm2<-match(parameters$rm_sample, rownames(samples))
     samples<-samples[-rm2,]
   }
-  condition<-unique(data_test$samples$condition)
-  color<-brewer.pal(length(condition), "Set1")
+  
+  condition<-unique(samples$condition)
+  color<-brewer.pal(length(condition), parameters$palette)
   samples$color<-NA
   j=0
   for(name in condition){
@@ -264,7 +291,7 @@ loadData <- function(parameters){
   
   #####counts#####
   if(is.null(parameters$fileofcount)){
-    countT<-readDGE(samples$file, columns=c(col_genes,col_counts), header=TRUE, comment.char="#")
+    countT<-readDGE(samples$file, columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
   }else {
     countT<-read.table(parameters$fileofcount, header=TRUE, row.names=1)
   }
@@ -285,17 +312,20 @@ loadData <- function(parameters){
   colnames(designExp) <- levels(Group)
 
   #####contrast#####
-  contrastab<-read.csv(parameters$contrast_file, sep="\t", header=TRUE, row.names = 1)
+  contrastab<-read.csv(parameters$contrast_file, sep="\t", header=TRUE, row.names = 1,  comment.char="#",stringsAsFactors = FALSE)
   ord<-match(colnames(designExp),row.names(contrastab), nomatch = 0)
   contrast_table<-contrastab[ord,]
   for(contrast in colnames(contrast_table)){
-    set_cond1<-row.names(contrast_table)[contrast_table[,contrast]==1]
-    set_cond2<-row.names(contrast_table)[contrast_table[,contrast]==-1]
+    set_cond1<-row.names(contrast_table)[contrast_table[,contrast]=="+"]
+    set_cond2<-row.names(contrast_table)[contrast_table[,contrast]=="-"]
     if(length(set_cond1)!=length(set_cond2)){
-      contrast_table[,contrast][contrast_table[,contrast]==1]=signif(1/length(set_cond1),digits = 2)
-      contrast_table[,contrast][contrast_table[,contrast]==-1]=signif(-1/length(set_cond2),digits = 2)
+      contrast_table[,contrast][contrast_table[,contrast]=="+"]=signif(1/length(set_cond1),digits = 2)
+      contrast_table[,contrast][contrast_table[,contrast]=="-"]=signif(-1/length(set_cond2),digits = 2)
     }
-    
+    else {
+      contrast_table[,contrast][contrast_table[,contrast]=="+"]=1
+      contrast_table[,contrast][contrast_table[,contrast]=="-"]=-1
+    }
   }
   #####annotation#####
   #annotation <- read.csv(parameters$annotation_file, header = T, sep = '\t', quote = "", row.names = 1)
@@ -308,13 +338,13 @@ loadData <- function(parameters){
 loadDGE <- function(data){
   
   #####counts#####
-  countTab<-DGEList(counts=data_test$counts)                        # transformation de notre data.frame en DGEList object
+  countTab<-DGEList(counts=data$counts)                        # transformation de notre data.frame en DGEList object
   
   #####samples#####
-  names_factors<-names(data_test$samples)                         # Remplissage de la partie "samples" de l'objet "countTable"
+  names_factors<-names(data$samples)                         # Remplissage de la partie "samples" de l'objet "countTable"
   for (n in 2:length(names_factors)){                   # ? l'aide du fichier d?taillant les diff?rentes conditions
-    countTab$samples[n+2] <- data_test$samples[n]               # du plan exp?rimental
-    names(countTab$samples[n+2])<-names(data_test$samples[n])
+    countTab$samples[n+2] <- data_$samples[n]               # du plan exp?rimental
+    names(countTab$samples[n+2])<-names(data$samples[n])
   }
   #####annotation#####
   # countTab$genes<-data.frame(row.names = rownames(annotation))
