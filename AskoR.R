@@ -454,9 +454,9 @@ DEanlaysis <- function(norm_GE, data_list, parameters){
       glm_test<-glmQLFTest(fit, contrast=contrastab[,contrast])
     }
 
-    sum[,contrast]<-decideTestsDGE(lrt, adjust.method = parameters$p_adj_method, lfc=1)
+    #sum[,contrast]<-decideTestsDGE(lrt, adjust.method = parameters$p_adj_method, lfc=1)
 
-    AskoStats(glm_test, fit, contrast, asko, parameters)
-    print(contrast)
+    #AskoStats(glm_test, fit, contrast, asko, parameters)
+    print(glm_test)
   }
 } 
