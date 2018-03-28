@@ -25,14 +25,14 @@ asko3c <- function(data_list){
   }
   # order_level<-order(unlist(level))                                                         # list to vector
   # condition_asko<-condition_asko[,order_level]                                              # order columns according to their level
-  # asko$condition<-condition_asko                                                            # adding data frame of conditions to asko object
+  asko$condition<-condition_asko                                                            # adding data frame of conditions to asko object
   
   #print(condition_asko)
   
   
   #############contrast + context##################  
   i=0
-  print(data_list$contrast)
+  
   contrast_asko<-data.frame(row.names = colnames(data_list$contrast))           # initialization of the contrast's data frame
   contrast_asko$Contrast<-NA                                                    # all columns are created et initialized with
   contrast_asko$context1<-NA                                                    # NA values
@@ -43,7 +43,7 @@ asko3c <- function(data_list){
   if(parameters$context=="auto"){
     for (contrast in colnames(data_list$contrast)){                               # for each contrast :
     i=i+1                                                                       # contrast data frame will be filled line by line
-    print(contrast)
+    #print(contrast)
     set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]>0]  # retrieval of 1st set of condition's names implicated in a given contrast
     set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]<0] # retrieval of 2nd set of condition's names implicated in a given contrast
     parameters<-colnames(condition_asko)                                        # retrieval of names of experimental factor
@@ -153,8 +153,7 @@ asko3c <- function(data_list){
       }
     }  
     }
-  }
-  else{
+  }else{
     for (contrast in colnames(data_list$contrast)){
       i=i+1
       contexts=strsplit2(contrast,"vs")
@@ -335,16 +334,16 @@ loadData <- function(parameters){
   return(data)
 }
 
-loadDGE <- function(data){
+loadDGE <- function(data_list){
   
   #####counts#####
-  countTab<-DGEList(counts=data$counts)                        # transformation de notre data.frame en DGEList object
+  countTab<-DGEList(counts=data_list$counts)                        # transformation de notre data.frame en DGEList object
   
   #####samples#####
-  names_factors<-names(data$samples)                         # Remplissage de la partie "samples" de l'objet "countTable"
+  names_factors<-names(data_list$samples)                         # Remplissage de la partie "samples" de l'objet "countTable"
   for (n in 2:length(names_factors)){                   # ? l'aide du fichier d?taillant les diff?rentes conditions
-    countTab$samples[n+2] <- data_$samples[n]               # du plan exp?rimental
-    names(countTab$samples[n+2])<-names(data$samples[n])
+    countTab$samples[n+2] <- data_list$samples[n]               # du plan exp?rimental
+    names(countTab$samples[n+2])<-names(data_list$samples[n])
   }
   #####annotation#####
   # countTab$genes<-data.frame(row.names = rownames(annotation))
@@ -403,7 +402,27 @@ GEfilt <- function(dge_list, parameters){
          bty="n",
          text.width=6,
          cex=0.5)
-  return(filtered_cpm)
+  return(filtered_counts)
 }
 
-##GEnorm <- function(GEfilt, )
+GEnorm <- function(filtered_GE, parameters){
+  filtered_cpm <- cpm(filtered_GE, log=TRUE)                                     #nouveau calcul Cpm sur données filtrées, si log=true alors valeurs cpm en log2 
+  boxplot(filtered_cpm,
+          col=filtered_GE$samples$color,         #boxplot des scores cpm non normalisés
+          main="A. Before normalization",
+          cex.axis=0.5,
+          las=2,
+          ylab="Log-cpm")
+  
+  norm_GE<-calcNormFactors(filtered_GE, method = parameters$normal_method)                      # normalisation de nos comptages par le methode TMM, estimation du taux de production d'un ARN                                                                      # en estimant l'échelle des facteurs entre echantillons -> but : pouvoir comparer nos ech entre eux
+  logcpm_norm <- cpm(norm_GE, log=TRUE)
+  
+  boxplot(logcpm_norm,
+          col=filtered_GE$samples$color, 
+          main="B. After normalization",
+          cex.axis=0.5,
+          las=2,
+          ylab="Log-cpm")
+
+  return(norm_GE)
+}
