@@ -361,11 +361,12 @@ loadDGE <- function(data){
 }
 
 GEfilt <- function(dge_list, parameters){
+  cpm<-cpm(dge_list)
   logcpm<-cpm(dge_list, log=TRUE)
   nsamples <- ncol(dge_list$counts)
   plot.new()                                                                    # cr?ation nouveau plot 
   plot(density(logcpm[,1]),
-       col=as.character(dge$samples$color[1]),      # plot exprimant la densit? de chaque g?ne   
+       col=as.character(dge_list$samples$color[1]),      # plot exprimant la densit? de chaque g?ne   
        lwd=1,
        ylim=c(0,0.21),
        las=2,
@@ -382,7 +383,7 @@ GEfilt <- function(dge_list, parameters){
          text.width=6,
          cex=0.5)
                                                           # rowSums compte le nombre de score (cases) pour chaque colonne Sup ? 0.5
-  keep.exprs <- rowSums(CPM>parameters$threshold_cpm)>=parameters$replicate_cpm      # en ajoutant >=3 cela donne un test conditionnel
+  keep.exprs <- rowSums(cpm>parameters$threshold_cpm)>=parameters$replicate_cpm      # en ajoutant >=3 cela donne un test conditionnel
   filtered_counts <- dge_list[keep.exprs,,keep.lib.sizes=F] # si le comptage respecte la condition alors renvoie TRUE
   filtered_cpm<-cpm(filtered_counts, log=TRUE)
 
