@@ -219,52 +219,57 @@ asko3c <- function(data_list){
   return(ASKOlist$stat.table)                                                                 # return the glm object
 }
 
-AskoStats <- function (glm_result, glmfit, constrast, ASKOlist, organism, logFC=T, FC=T, logCPM=F, FDR=T, LR=F, Sign=T, Expression=T, mean_counts=T, csv=F) {   
+AskoStats <- function (glm_test, fit, constrast, ASKOlist, parameters) {   
   
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]         # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 1st context from Asko object 
   contx2<-ASKOlist$contrast$context2[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 2nd context from Asko object
   
-  ASKO_stat<-glm_result$table
+  ASKO_stat<-glm_test$table
   ASKO_stat$Test_id<-paste(contrasko, rownames(ASKO_stat), sep = "_")                   # addition of Test_id column = unique ID
   ASKO_stat$contrast<-contrasko                                                         # addition of the contrast of the test
   ASKO_stat$gene <- row.names(ASKO_stat)                                                # addition of gene column = gene ID
-  ASKO_stat$FDR<-p.adjust(ASKO_stat$PValue, method="BH")                                # computation of False Discovery Rate
+  ASKO_stat$FDR<-p.adjust(ASKO_stat$PValue, method=parameters$p_adj_method)                                # computation of False Discovery Rate
   
   ASKO_stat$Significance=0                                                              # Between context1 and context2 :
-  ASKO_stat$Significance[ASKO_stat$logFC< -1 & ASKO_stat$FDR<=threshold_FDR] = -1       # Significance values = -1 for down regulated genes
-  ASKO_stat$Significance[ASKO_stat$logFC> 1 & ASKO_stat$FDR<=threshold_FDR] = 1         # Significance values = 1 for up regulated genes
+  ASKO_stat$Significance[ASKO_stat$logFC< -1 & ASKO_stat$FDR<=parameters$threshold_FDR] = -1       # Significance values = -1 for down regulated genes
+  ASKO_stat$Significance[ASKO_stat$logFC> 1 & ASKO_stat$FDR<=parameters$threshold_FDR] = 1         # Significance values = 1 for up regulated genes
   
-  if(Expression==TRUE){
+  if(parameters$Expression==TRUE){
     ASKO_stat$Expression=NA                                                             # addition of column "expression" 
     ASKO_stat$Expression[ASKO_stat$Significance==-1]<-paste(contx1, contx2, sep="<")    # the value of attribute "Expression" is a string
     ASKO_stat$Expression[ASKO_stat$Significance==1]<-paste(contx1, contx2, sep=">")     # this attribute is easier to read the Significance
     ASKO_stat$Expression[ASKO_stat$Significance==0]<-paste(contx1, contx2, sep="=")     # of expression between two contexts
   }
-  if(logFC==T){cola="logFC"}else{cola=NULL}                                             #
-  if(FC==T){colb="FC";ASKO_stat$FC <- 2^abs(ASKO_stat$logFC)}else{colb=NULL}            # computation of Fold Change from log2FC
-  if(Sign==T){colc="Significance"}                                                      #
-  if(logCPM==T){cold="logCPM"}else{cold=NULL}                                           #
-  if(LR==T){cole="LR"}else{cole=NULL}                                                   #
-  if(FDR==T){colf="FDR"}else{colf=NULL}
+  if(parameters$logFC==T){cola="logFC"}else{cola=NULL}                                             #
+  if(parameters$FC==T){colb="FC";ASKO_stat$FC <- 2^abs(ASKO_stat$logFC)}else{colb=NULL}            # computation of Fold Change from log2FC
+  if(parameters$Sign==T){colc="Significance"}                                                      #
+  if(parameters$logCPM==T){cold="logCPM"}else{cold=NULL}                                           #
+  if(parameters$LR==T){cole="LR"}else{cole=NULL}                                                   #
+  if(parameters$FDR==T){colf="FDR"}else{colf=NULL}
   
   ASKOlist$stat.table<-ASKO_stat[,c("Test_id","contrast","gene",cola,colb,"PValue",     # adding table "stat.table" to the ASKOlist
                                     "Expression",colc,cold,cole,colf)]
-  if(mean_counts==T){                                                                   # computation of the mean of normalized counts for conditions
-    ASKOlist$stat.table<-NormCountsMean(glmfit, ASKOlist, contx1)                       # in the 1st context
-    ASKOlist$stat.table<-NormCountsMean(glmfit, ASKOlist, contx2)                       # in the 2nd context
+  if(parameters$mean_counts==T){                                                                   # computation of the mean of normalized counts for conditions
+    ASKOlist$stat.table<-NormCountsMean(fit, ASKOlist, contx1)                       # in the 1st context
+    ASKOlist$stat.table<-NormCountsMean(fit, ASKOlist, contx2)                       # in the 2nd context
   }
   
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="gene"] <- paste("is", "gene", sep="@")                  # header formatting for askomics
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
   o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                          #
-  write.table(ASKOlist$stat.table,paste(organism, contrasko, "_test.txt", sep = ""),                                    #
+  write.table(ASKOlist$stat.table,paste(parameters$organism, contrasko, "_test.txt", sep = ""),                                    #
               sep="\t", col.names = T, row.names = F)                                                                   #
-  if(csv==T){
-    write.csv(ASKOlist$stat.table,paste(organism, contrasko, "_test.txt", sep = ""),                                    #
+  if(parameters$csv==T){
+    write.csv(ASKOlist$stat.table,paste(parameters$organism, contrasko, "_test.txt", sep = ""),                                    #
               sep="\t", col.names = T, row.names = F)
   }
+  if(parameters$heatmap==TRUE){ #/!\ a faire /!\
+  cpm_gstats<-cpm(dge, log=FALSE)[o,][1:50,]
+  heatmap.2(cpm_gstats, cexRow=0.5, cexCol=0.8, scale="row", labCol=dge$samples$Name, xlab=contrast, Rowv = FALSE, dendrogram="col")
+  }
+  
   #write.table(asko, paste("result_for_asko_",organism, contrasko, "_test.txt", sep = ""),                              #
   #            sep="\t", col.names = T, row.names = F)                                                                  #
   return(ASKOlist)
@@ -392,7 +397,6 @@ GEfilt <- function(dge_list, parameters){
        las=2,
        main="B. Filtered data", xlab="Log-cpm")
   abline(v=0, lty=3) 
-  ?abline
   for (i in 2:nsamples){
     den <- density(filtered_cpm[,i])
     lines(den$x,col=as.character(dge_list$samples$color[i]), den$y, lwd=1)
@@ -426,3 +430,33 @@ GEnorm <- function(filtered_GE, parameters){
 
   return(norm_GE)
 }
+
+DEanlaysis <- function(norm_GE, data_list, parameters){
+  
+  if(parameters$glm=="lrt"){
+    fit <- glmFit(norm_GE, data_list$design, robust = T)
+    plot
+  }
+  if(parameters$glm=="qlf"){
+    fit <- glmQLFit(norm_GE, data_list$design, robust = T)
+    plotQLDisp(fit)
+  }
+
+  #plotMD.DGEGLM(fit)     
+  #plotBCV(norm_GE)
+  
+  sum<-norm_ct$genes
+  for (contrast in colnames(contrastab)){
+    if(parameters$glm=="lrt"){
+      glm_test<-glmLRT(xn_Gfit, contrast=contrastab[,contrast])
+    }
+    if(parameters$glm=="qlf"){
+      glm_test<-glmQLFTest(fit, contrast=contrastab[,contrast])
+    }
+
+    sum[,contrast]<-decideTestsDGE(lrt, adjust.method = parameters$p_adj_method, lfc=1)
+
+    AskoStats(glm_test, fit, contrast, asko, parameters)
+    print(contrast)
+  }
+} 
