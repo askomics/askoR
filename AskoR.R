@@ -342,32 +342,6 @@ loadData <- function(parameters){
   return(data)
 }
 
-loadDGE <- function(data_list){
-  
-  #####counts#####
-  data<-DGEList(counts=data_list$counts, samples=data_list$samples)                        # transformation de notre data.frame en DGEList object
-  
-  #####samples#####
-  #names_factors<-names(data_list$samples)                         # Remplissage de la partie "samples" de l'objet "countTable"
-  #for (n in 1:length(names_factors)){ # ? l'aide du fichier d?taillant les diff?rentes conditions
-  #  print(countTab$samples[n+])
-   # print(data_list$samples[n]) 
-    #countTab$samples[n+2] <- data_list$samples[n]               # du plan exp?rimental
-  #  names(countTab$samples[n+2])<-names(data_list$samples[n])
-  #}
-  #####annotation#####
-  # countTab$genes<-data.frame(row.names = rownames(annotation))
-  # 
-  # countTab$genes$Description<-annotation$Description
-  # countTab$genes$GO<-annotation$B2G_GO_IDs
-  # countTab$genes$Go_Name<-annotation$B2G_GO_Names
-  # countTab$genes$EC<-annotation$B2G_Enzyme_Codes
-  # countTab$genes$EC_Name<-annotation$B2G_Enzyme_Names
-  # countTab$genes$IP<-annotation$B2G_InterPro_IDs
-  # #countTab$genes$IP_Name<-annotation
-  # countTab$genes$e3_geneID<-annotation$Blast_e3
-  return(countTab)
-}
 
 GEfilt <- function(dge_list, parameters){
   cpm<-cpm(dge_list)
@@ -417,7 +391,8 @@ GEfilt <- function(dge_list, parameters){
 }
 
 GEnorm <- function(filtered_GE, parameters){
-  filtered_cpm <- cpm(filtered_GE, log=TRUE)                                     #nouveau calcul Cpm sur donn?es filtr?es, si log=true alors valeurs cpm en log2 
+  filtered_cpm <- cpm(filtered_GE, log=TRUE)   #nouveau calcul Cpm sur donn?es filtr?es, si log=true alors valeurs cpm en log2 
+  colnames(filtered_cpm)<-rownames(filtered_GE$samples)
   boxplot(filtered_cpm,
           col=filtered_GE$samples$color,         #boxplot des scores cpm non normalis?s
           main="A. Before normalization",
@@ -426,8 +401,9 @@ GEnorm <- function(filtered_GE, parameters){
           ylab="Log-cpm")
   
   norm_GE<-calcNormFactors(filtered_GE, method = parameters$normal_method)                      # normalisation de nos comptages par le methode TMM, estimation du taux de production d'un ARN                                                                      # en estimant l'?chelle des facteurs entre echantillons -> but : pouvoir comparer nos ech entre eux
-  logcpm_norm <- cpm(norm_GE, log=TRUE)
   
+  logcpm_norm <- cpm(norm_GE, log=TRUE)
+  colnames(logcpm_norm)<-rownames(filtered_GE$samples)
   boxplot(logcpm_norm,
           col=filtered_GE$samples$color, 
           main="B. After normalization",
@@ -437,6 +413,25 @@ GEnorm <- function(filtered_GE, parameters){
 
   return(norm_GE)
 }
+
+GEcorr <- function(dge, parameters){
+  lcpm<-cpm(dge, log=TRUE)
+  colnames(lcpm)<-rownames(dge$samples)
+  cormat<-cor(lcpm)
+ # color<- colorRampPalette(c("yellow", "white", "green"))(20)
+  color<-colorRampPalette(c("black","red","yellow","white"),space="rgb")(28)
+  heatmap(cormat, col=color, symm=TRUE,RowSideColors =as.character(dge$samples$color), ColSideColors = as.character(dge$samples$color))
+  #MDS
+  mds <- cmdscale(dist(t(lcpm)),k=3, eig=TRUE)
+  eigs<-round((mds$eig)*100/sum(mds$eig[mds$eig>0]),2)
+  ggplot(as.data.frame(mds$points), aes(V1, V2, label = rownames(mds$points))) +  geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +ylab(paste('dim 2 [', eigs[2], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
+  ggsave("mds_corr1-2.tiff")
+  ggplot(as.data.frame(mds$points), aes(V2, V3, label = rownames(mds$points))) +  geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 2 [', eigs[2], '%]')) +ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
+  ggsave("mds_corr2-3.tiff")
+  ggplot(as.data.frame(mds$points), aes(V1, V3, label = rownames(mds$points))) +  geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
+  ggsave("mds_corr1-3.tiff")
+}
+  
 
 DEanlaysis <- function(norm_GE, data_list, parameters){
   
