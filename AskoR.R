@@ -205,7 +205,7 @@ asko3c <- function(data_list){
   
   for (condition in set_condi){
     sample_name<-rownames(glmfit$samples[glmfit$samples$condition==condition,])               # retrieval of the replicate names associated to conditions
-    subset_counts<-data.frame(row.names = row.names(glmfit$genes))                            # initialization of data frame as subset of counts table
+    subset_counts<-data.frame(row.names = row.names(glmfit$counts))                            # initialization of data frame as subset of counts table
     for(name in sample_name){
       lib_sample_norm<-glmfit$samples[name,"lib.size"]*glmfit$samples[name,"norm.factors"]    # normalization computation of sample library size 
       subset_counts$c<-glmfit$counts[,name]                                                   # addition in subset of sample counts column
@@ -219,7 +219,7 @@ asko3c <- function(data_list){
   return(ASKOlist$stat.table)                                                                 # return the glm object
 }
 
-AskoStats <- function (glm_test, fit, constrast, ASKOlist, parameters) {   
+AskoStats <- function (glm_test, fit, contrast, ASKOlist, parameters) {   
   
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]         # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 1st context from Asko object 
@@ -251,24 +251,24 @@ AskoStats <- function (glm_test, fit, constrast, ASKOlist, parameters) {
   ASKOlist$stat.table<-ASKO_stat[,c("Test_id","contrast","gene",cola,colb,"PValue",     # adding table "stat.table" to the ASKOlist
                                     "Expression",colc,cold,cole,colf)]
   if(parameters$mean_counts==T){                                                                   # computation of the mean of normalized counts for conditions
-    ASKOlist$stat.table<-NormCountsMean(fit, ASKOlist, contx1)                       # in the 1st context
-    ASKOlist$stat.table<-NormCountsMean(fit, ASKOlist, contx2)                       # in the 2nd context
+    ASKOlist$stat.table<-.NormCountsMean(fit, ASKOlist, contx1)                       # in the 1st context
+    ASKOlist$stat.table<-.NormCountsMean(fit, ASKOlist, contx2)                       # in the 2nd context
   }
   
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="gene"] <- paste("is", "gene", sep="@")                  # header formatting for askomics
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
   o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                          #
-  write.table(ASKOlist$stat.table,paste(parameters$organism, contrasko, "_test.txt", sep = ""),                                    #
+  write.table(ASKOlist$stat.table,paste(parameters$organism, contrasko, "_testing.txt", sep = ""),                                    #
               sep="\t", col.names = T, row.names = F)                                                                   #
   if(parameters$csv==T){
-    write.csv(ASKOlist$stat.table,paste(parameters$organism, contrasko, "_test.txt", sep = ""),                                    #
+    write.csv(ASKOlist$stat.table,paste(parameters$organism, contrasko, "_testing.txt", sep = ""),                                    #
               sep="\t", col.names = T, row.names = F)
   }
-  if(parameters$heatmap==TRUE){ #/!\ a faire /!\
-  cpm_gstats<-cpm(dge, log=FALSE)[o,][1:50,]
-  heatmap.2(cpm_gstats, cexRow=0.5, cexCol=0.8, scale="row", labCol=dge$samples$Name, xlab=contrast, Rowv = FALSE, dendrogram="col")
-  }
+  # if(parameters$heatmap==TRUE){ #/!\ a faire /!\
+  #   cpm_gstats<-cpm(dge, log=FALSE)[o,][1:50,]
+  #   heatmap.2(cpm_gstats, cexRow=0.5, cexCol=0.8, scale="row", labCol=dge$samples$Name, xlab=contrast, Rowv = FALSE, dendrogram="col")
+  # }
   
   #write.table(asko, paste("result_for_asko_",organism, contrasko, "_test.txt", sep = ""),                              #
   #            sep="\t", col.names = T, row.names = F)                                                                  #
@@ -279,9 +279,15 @@ AskoStats <- function (glm_test, fit, constrast, ASKOlist, parameters) {
 loadData <- function(parameters){
   #####samples#####
   samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names=1,comment.char = "#")       #prise en compte des r?sultats de T2
+#  print(rownames(samples))
+  
   if(is.null(parameters$rm_sample)==FALSE){
     rm2<-match(parameters$rm_sample, rownames(samples))
     samples<-samples[-rm2,]
+  }
+  if(is.null(parameters$select_sample)==FALSE){
+    sel<-match(parameters$select_sample, rownames(samples))
+    samples<-samples[sel,]
   }
   
   condition<-unique(samples$condition)
@@ -295,19 +301,24 @@ loadData <- function(parameters){
   
   #####counts#####
   if(is.null(parameters$fileofcount)){
-    dge<-readDGE(samples$file, columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
+    dge<-readDGE(samples$file, labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
     countT<-dge$counts
   }else {
     countT<-read.table(parameters$fileofcount, header=TRUE, row.names=1)
+    if(is.null(parameters$rm_sample)==FALSE){
+      print(colnames(countT))
+      rm1<-match(parameters$rm_sample, colnames(countT))
+      print(rm1)
+      countT<-countT[,-rm1]
+    }
+    if(is.null(parameters$select_sample)==FALSE){
+      slct<-str_detect(string = colnames(foc), pattern = parameters$select_sample)
+      countT<-foc[,slct] 
+    }
+    
   }
-  if(is.null(parameters$select_sample)==FALSE){
-    slct<-str_detect(string = colnames(foc), pattern = parameters$select_sample)
-    countT<-foc[,slct] 
-  }
-  if(is.null(parameters$rm_sample)==FALSE){
-    rm1<-match(parameters$rm_sample, colnames(counts))
-    countT<-counts[,-rm1]
-  }
+  
+  ## TODO Gerer la selection des echantillons avec select_sample dans le cas readDGE
 
   
   #####design#####
@@ -336,6 +347,7 @@ loadData <- function(parameters){
   #annotation <- read.csv(parameters$annotation_file, header = T, sep = '\t', quote = "", row.names = 1)
   
   #data<-list("counts"=countT, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
+  print(countT)
   dge<-DGEList(counts=countT, samples=samples) 
   rownames(dge$samples)<-rownames(samples) # replace the renaming by files              
   data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
@@ -434,31 +446,30 @@ GEcorr <- function(dge, parameters){
   
 
 DEanlaysis <- function(norm_GE, data_list, parameters){
-  
-  if(parameters$glm=="lrt"){
-    fit <- glmFit(norm_GE, data_list$design, robust = T)
-    plot
+    if(parameters$glm=="lrt"){
+    fit <- glmFit(normGEdisp, data_list$design, robust = T)
+    
   }
   if(parameters$glm=="qlf"){
-    fit <- glmQLFit(norm_GE, data_list$design, robust = T)
+    fit <- glmQLFit(normGEdisp, data_list$design, robust = T)
     plotQLDisp(fit)
   }
 
   #plotMD.DGEGLM(fit)     
   #plotBCV(norm_GE)
   
-  sum<-norm_ct$genes
-  for (contrast in colnames(contrastab)){
+  #sum<-norm_GE$genes
+  for (contrast in colnames(data_list$contrast)){
     if(parameters$glm=="lrt"){
-      glm_test<-glmLRT(xn_Gfit, contrast=contrastab[,contrast])
+      glm_test<-glmLRT(fit, contrast=data_list$contrast[,contrast])
     }
     if(parameters$glm=="qlf"){
-      glm_test<-glmQLFTest(fit, contrast=contrastab[,contrast])
+      glm_test<-glmQLFTest(fit, contrast=data_list$contrast[,contrast])
     }
 
-    sum[,contrast]<-decideTestsDGE(lrt, adjust.method = parameters$p_adj_method, lfc=1)
+    #sum[,contrast]<-decideTestsDGE(lrt, adjust.method = parameters$p_adj_method, lfc=1)
 
-    AskoStats(glm_test, fit, contrast, asko, parameters)
-    print(contrast)
+    AskoStats(glm_test, fit, contrast, asko_list, parameters)
+    #print(glm_test)
   }
 } 
