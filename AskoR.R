@@ -278,7 +278,7 @@ AskoStats <- function (glm_test, fit, constrast, ASKOlist, parameters) {
 
 loadData <- function(parameters){
   #####samples#####
-  samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names = 1, comment.char = "#")       #prise en compte des r?sultats de T2
+  samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names=1,comment.char = "#")       #prise en compte des r?sultats de T2
   if(is.null(parameters$rm_sample)==FALSE){
     rm2<-match(parameters$rm_sample, rownames(samples))
     samples<-samples[-rm2,]
@@ -295,7 +295,8 @@ loadData <- function(parameters){
   
   #####counts#####
   if(is.null(parameters$fileofcount)){
-    countT<-readDGE(samples$file, columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
+    dge<-readDGE(samples$file, columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
+    countT<-dge$counts
   }else {
     countT<-read.table(parameters$fileofcount, header=TRUE, row.names=1)
   }
@@ -335,21 +336,25 @@ loadData <- function(parameters){
   #annotation <- read.csv(parameters$annotation_file, header = T, sep = '\t', quote = "", row.names = 1)
   
   #data<-list("counts"=countT, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
-  data<-list("counts"=countT, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
+  dge<-DGEList(counts=countT, samples=samples) 
+  rownames(dge$samples)<-rownames(samples) #Â replace the renaming by files              
+  data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
   return(data)
 }
 
 loadDGE <- function(data_list){
   
   #####counts#####
-  countTab<-DGEList(counts=data_list$counts)                        # transformation de notre data.frame en DGEList object
+  data<-DGEList(counts=data_list$counts, samples=data_list$samples)                        # transformation de notre data.frame en DGEList object
   
   #####samples#####
-  names_factors<-names(data_list$samples)                         # Remplissage de la partie "samples" de l'objet "countTable"
-  for (n in 2:length(names_factors)){                   # ? l'aide du fichier d?taillant les diff?rentes conditions
-    countTab$samples[n+2] <- data_list$samples[n]               # du plan exp?rimental
-    names(countTab$samples[n+2])<-names(data_list$samples[n])
-  }
+  #names_factors<-names(data_list$samples)                         # Remplissage de la partie "samples" de l'objet "countTable"
+  #for (n in 1:length(names_factors)){ # ? l'aide du fichier d?taillant les diff?rentes conditions
+  #  print(countTab$samples[n+])
+   # print(data_list$samples[n]) 
+    #countTab$samples[n+2] <- data_list$samples[n]               # du plan exp?rimental
+  #  names(countTab$samples[n+2])<-names(data_list$samples[n])
+  #}
   #####annotation#####
   # countTab$genes<-data.frame(row.names = rownames(annotation))
   # 
@@ -367,7 +372,8 @@ loadDGE <- function(data_list){
 GEfilt <- function(dge_list, parameters){
   cpm<-cpm(dge_list)
   logcpm<-cpm(dge_list, log=TRUE)
-  nsamples <- ncol(dge_list$counts)
+  colnames(logcpm)<-rownames(dge_list$samples)
+  nsamples <- ncol(dge_list)
   plot.new()                                                                    # cr?ation nouveau plot 
   plot(density(logcpm[,1]),
        col=as.character(dge_list$samples$color[1]),      # plot exprimant la densit? de chaque g?ne   
@@ -389,7 +395,7 @@ GEfilt <- function(dge_list, parameters){
                                                           # rowSums compte le nombre de score (cases) pour chaque colonne Sup ? 0.5
   keep.exprs <- rowSums(cpm>parameters$threshold_cpm)>=parameters$replicate_cpm      # en ajoutant >=3 cela donne un test conditionnel
   filtered_counts <- dge_list[keep.exprs,,keep.lib.sizes=F] # si le comptage respecte la condition alors renvoie TRUE
-  filtered_cpm<-cpm(filtered_counts, log=TRUE)
+  filtered_cpm<-cpm(filtered_counts$counts, log=TRUE)
 
   plot(density(filtered_cpm[,1]),
        col=as.character(dge_list$samples$color[1]),
@@ -411,15 +417,15 @@ GEfilt <- function(dge_list, parameters){
 }
 
 GEnorm <- function(filtered_GE, parameters){
-  filtered_cpm <- cpm(filtered_GE, log=TRUE)                                     #nouveau calcul Cpm sur données filtrées, si log=true alors valeurs cpm en log2 
+  filtered_cpm <- cpm(filtered_GE, log=TRUE)                                     #nouveau calcul Cpm sur donn?es filtr?es, si log=true alors valeurs cpm en log2 
   boxplot(filtered_cpm,
-          col=filtered_GE$samples$color,         #boxplot des scores cpm non normalisés
+          col=filtered_GE$samples$color,         #boxplot des scores cpm non normalis?s
           main="A. Before normalization",
           cex.axis=0.5,
           las=2,
           ylab="Log-cpm")
   
-  norm_GE<-calcNormFactors(filtered_GE, method = parameters$normal_method)                      # normalisation de nos comptages par le methode TMM, estimation du taux de production d'un ARN                                                                      # en estimant l'échelle des facteurs entre echantillons -> but : pouvoir comparer nos ech entre eux
+  norm_GE<-calcNormFactors(filtered_GE, method = parameters$normal_method)                      # normalisation de nos comptages par le methode TMM, estimation du taux de production d'un ARN                                                                      # en estimant l'?chelle des facteurs entre echantillons -> but : pouvoir comparer nos ech entre eux
   logcpm_norm <- cpm(norm_GE, log=TRUE)
   
   boxplot(logcpm_norm,
