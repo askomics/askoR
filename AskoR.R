@@ -229,7 +229,11 @@ asko3c <- function(data_list){
   return(ASKOlist$stat.table)                                                                 # return the glm object
 }
 
+<<<<<<< HEAD
 AskoStats <- function(glm_test, fit, contrast, ASKOlist, parameters){   
+=======
+AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge,parameters) {   
+>>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
   
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]         # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 1st context from Asko object 
@@ -245,6 +249,8 @@ AskoStats <- function(glm_test, fit, contrast, ASKOlist, parameters){
   ASKO_stat$Significance[ASKO_stat$logFC< -1 & ASKO_stat$FDR<=parameters$threshold_FDR] = -1       # Significance values = -1 for down regulated genes
   ASKO_stat$Significance[ASKO_stat$logFC> 1 & ASKO_stat$FDR<=parameters$threshold_FDR] = 1         # Significance values = 1 for up regulated genes
   
+  print(table(ASKO_stat$Significance))
+
   if(parameters$Expression==TRUE){
     ASKO_stat$Expression=NA                                                             # addition of column "expression" 
     ASKO_stat$Expression[ASKO_stat$Significance==-1]<-paste(contx1, contx2, sep="<")    # the value of attribute "Expression" is a string
@@ -269,16 +275,18 @@ AskoStats <- function(glm_test, fit, contrast, ASKOlist, parameters){
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
   o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                          #
-  write.table(ASKOlist$stat.table,paste(parameters$organism, contrasko, "_testing.txt", sep = ""),                                    #
+  write.table(ASKOlist$stat.table,paste(parameters$organism, contrasko, ".txt", sep = ""),                                    #
               sep="\t", col.names = T, row.names = F)                                                                   #
   if(parameters$csv==T){
-    write.csv(ASKOlist$stat.table,paste(parameters$organism, contrasko, "_testing.txt", sep = ""),                                    #
+    write.csv(ASKOlist$stat.table,paste(parameters$organism, contrasko, ".txt", sep = ""),                                    #
               sep="\t", col.names = T, row.names = F)
   }
-  # if(parameters$heatmap==TRUE){ #/!\ a faire /!\
-  #   cpm_gstats<-cpm(dge, log=FALSE)[o,][1:50,]
-  #   heatmap.2(cpm_gstats, cexRow=0.5, cexCol=0.8, scale="row", labCol=dge$samples$Name, xlab=contrast, Rowv = FALSE, dendrogram="col")
-  # }
+   
+
+  if(parameters$heatmap==TRUE){ #/!\ a faire /!\
+    cpm_gstats<-cpm(dge, log=TRUE)[o,][1:200,]
+     heatmap.2(cpm_gstats, cexRow=0.5, cexCol=0.8, scale="row", labCol=dge$samples$Name, xlab=contrast, Rowv = FALSE, dendrogram="col")
+   }
   
   #write.table(asko, paste("result_for_asko_",organism, contrasko, "_test.txt", sep = ""),                              #
   #            sep="\t", col.names = T, row.names = F)                                                                  #
@@ -287,6 +295,7 @@ AskoStats <- function(glm_test, fit, contrast, ASKOlist, parameters){
 }
 
 loadData <- function(parameters){
+<<<<<<< HEAD
   
   #####samples#####
   samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names=1, comment.char = "#")       #prise en compte des r?sultats de T2
@@ -298,6 +307,22 @@ loadData <- function(parameters){
     rms<-grep(parameters$rm_sample, rownames(samples))
     samples<-samples[-rms,]
     
+=======
+  #####samples#####
+  samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names=1,comment.char = "#")       #prise en compte des r?sultats de T2
+  
+  if(is.null(parameters$rm_sample)==FALSE){
+    for (rm in parameters$rm_sample) {
+      rm2<-grep(rm, rownames(samples))
+      samples<-samples[-rm2,]
+    }
+  }
+  if(is.null(parameters$select_sample)==FALSE){
+    for (sel in parameters$select_sample) {
+      sel<-grep(sel, rownames(samples))
+      samples<-samples[sel,]
+    }
+>>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
   }
   condition<-unique(samples$condition)
   color<-brewer.pal(length(condition), parameters$palette)
@@ -320,12 +345,17 @@ loadData <- function(parameters){
       dge$samples<-dge$samples[,slct]
     }
     if(is.null(parameters$rm_sample)==FALSE){
+<<<<<<< HEAD
       rmc<-grep(parameters$rm_count, colnames(dge$counts))
       dge$counts<-dge$counts[,-rmc]
       print(ncol(dge$counts))
       rms<-grep(parameters$rm_sample, row.names(dge$samples))
       dge$samples<-dge$samples[-rms,]
       
+=======
+      rm1<-match(parameters$rm_sample, colnames(countT))
+      countT<-countT[,-rm1]
+>>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
     }
   }else {
     if(grepl(".csv", parameters$fileofcount)==TRUE){
@@ -350,7 +380,12 @@ loadData <- function(parameters){
     dge<-DGEList(counts=countT, samples=samples) 
   }
   
+<<<<<<< HEAD
   ##a TODO Gerer la selection des echantillons avec select_sample dans le cas readDGE
+=======
+  ## TODO Tester la selection des echantillons avec select_sample dans le cas readDGE
+
+>>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
   
   #####design#####
   Group<-factor(samples$condition)
@@ -393,6 +428,10 @@ loadData <- function(parameters){
   
   #data<-list("counts"=countT, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
   #print(countT)
+<<<<<<< HEAD
+=======
+  dge<-DGEList(counts=countT, samples=samples) 
+>>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
   rownames(dge$samples)<-rownames(samples) # replace the renaming by files              
   data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
   return(data)
@@ -487,14 +526,23 @@ GEcorr <- function(dge, parameters){
   ggsave("mds_corr1-3.tiff")
 }
   
+<<<<<<< HEAD
 DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   
   normGEdisp <- estimateDisp(norm_GE, data_list$design)
   if(parameters$glm=="lrt"){
     fit <- glmFit(normGEdisp, data_list$design, robust = T)
+=======
+
+DEanalysis <- function(norm_GE, data_list, asko_list,parameters){
+  n <- estimateDisp(norm_GE, data_list$design)
+  if(parameters$glm=="lrt"){
+    fit <- glmFit(n,data_list$design, robust = T)
+    
+>>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
   }
   if(parameters$glm=="qlf"){
-    fit <- glmQLFit(normGEdisp, data_list$design, robust = T)
+    fit <- glmQLFit(n, data_list$design, robust = T)
     plotQLDisp(fit)
   }
 
@@ -502,17 +550,20 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   #plotBCV(norm_GE)
   
   #sum<-norm_GE$genes
+  
   for (contrast in colnames(data_list$contrast)){
+    print(contrast)
+    print(data_list$contrast[,contrast])
     if(parameters$glm=="lrt"){
-      glm_test<-glmLRT(fit, contrast=data_list$contrast[,contrast])
+      glm_test<-glmLRT(fit, contrast=as.numeric(data_list$contrast[,contrast]))
     }
     if(parameters$glm=="qlf"){
-      glm_test<-glmQLFTest(fit, contrast=data_list$contrast[,contrast])
+      glm_test<-glmQLFTest(fit, contrast=as.numeric(data_list$contrast[,contrast]))
     }
     
     #sum[,contrast]<-decideTestsDGE(lrt, adjust.method = parameters$p_adj_method, lfc=1)
 
-    AskoStats(glm_test, fit, contrast, asko_list, parameters)
+    AskoStats(glm_test, fit, contrast, asko_list,n, parameters)
     #print(glm_test)
   }
 } 
