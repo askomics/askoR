@@ -5,10 +5,11 @@ asko3c <- function(data_list){
   
   condition<-unique(data_list$samples$condition)                                                 # retrieval of different condition's names
   col1<-which(colnames(data_list$samples)=="condition")                                          # determination of number of the column "condition"
+  colcol<-which(colnames(data_list$samples)=="color") 
   if(is.null(parameters$fileofcount)){
     col2<-which(colnames(data_list$samples)=="file")                                          # determination of number of the column "replicate"
-    column_name<-colnames(data_list$samples[,c(-col1,-col2)])    # retrieval of column names needful to create the file condition
-  }else{column_name<-colnames(data_list$samples[,-col1])}
+    column_name<-colnames(data_list$samples[,c(-col1,-col2,-colcol)])    # retrieval of column names needful to create the file condition
+  }else{column_name<-colnames(data_list$samples[,c(-col1,-colcol)])}
   condition_asko<-data.frame(row.names=condition)                                           # initialization of the condition's data frame
   #level<-list()                                                                             # initialization of the list will contain the level
                                                                                             # of each experimental factor
@@ -49,9 +50,9 @@ asko3c <- function(data_list){
     set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]>0]  # retrieval of 1st set of condition's names implicated in a given contrast
     set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]<0] # retrieval of 2nd set of condition's names implicated in a given contrast
     parameters<-colnames(condition_asko)                                        # retrieval of names of experimental factor
-    # print(set_cond1)
+    print(paste("set_cond1 : ", set_cond1, sep = ""))
     # print(length(set_cond1))
-    # print(set_cond2)
+    print(paste("set_cond2 : ", set_cond2, sep = ""))
     # print(length(set_cond2))
     if(length(set_cond1)==1){complex1=F}else{complex1=T}# to determine if we have complex contrast (multiple conditions
     if(length(set_cond2)==1){complex2=F}else{complex2=T}# compared to multiple conditions) or not
@@ -83,8 +84,8 @@ asko3c <- function(data_list){
       }
       if(length(common_factor)>1){                                              # if there are several common factor
         common_factor<-toString(common_factor)                                  # the list is converted to string
-        contx<-str_replace_all(contx, "NULL", "")
-        contx<-str_replace(common_factor,", ","")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
+        contx<-str_replace(common_factor,", ","")
+        contx<-str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
       contrast_asko[i,"context2"]<-contx                                        # filling contrast data frame with the name of the 2nd context
       contrast_name<-paste(set_cond1,contx, sep = "vs")                         # concatenation of context names to make the contrast name 
       contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
@@ -104,14 +105,14 @@ asko3c <- function(data_list){
         facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
         l=l+1
         for(value in facteur){                                                  # for each possible values:
-          verif<-unique(str_detect(set_cond2, value))                           # verification of the presence of values in each condition contained in the set
+          verif<-unique(str_detect(set_cond1, value))                           # verification of the presence of values in each condition contained in the set
           if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor 
         }                                                                       # is added as common factor
       }
       if(length(common_factor)>1){                                              # if there are several common factor
         common_factor<-toString(common_factor)                                  # the list is converted to string
-        contx<-str_replace_all(contx, "NULL", "")
-        contx<-str_replace(common_factor2,", ","")}else{contx<-common_factor}   # and all common factor are concatenated to become the name of context
+        contx<-str_replace(common_factor,", ","")
+        contx<-str_replace_all(contx, "NULL", "")}else{contx<-common_factor}   # and all common factor are concatenated to become the name of context
       contrast_asko[i,"context1"]<-contx                                        # filling contrast data frame with the name of the 1st context
       contrast_name<-paste(contx,set_cond2, sep = "vs")                         # concatenation of context names to make the contrast name
       contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
@@ -125,13 +126,16 @@ asko3c <- function(data_list){
       n=0                                                                       #
       common_factor1=list()                                                     # list of common experimental factors shared by conditions of the 1st context
       common_factor2=list()                                                     # list of common experimental factors shared by conditions of the 2nd context
+      w=1
       for (param_names in parameters){                                          # for each experimental factor:
+        print(w)
+        w=w+1
         facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
         print(paste("facteur : ", facteur, sep=""))
         for(value in facteur){                                                  # for each possible values:
           print(value)
-          print(class(value))
-          print(set_cond1)
+          #print(class(value))
+          #print(set_cond1)
           verif1<-unique(str_detect(set_cond1, value))                          # verification of the presence of values in each condition 
                                                                                 # contained in the 1st context
           verif2<-unique(str_detect(set_cond2, value))                          # verification of the presence of values in each condition
@@ -141,14 +145,19 @@ asko3c <- function(data_list){
           if(length(verif2)==1 && verif2==TRUE){n=n+1;common_factor2[n]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
         }
       }
+      print(paste("common_factor1 : ",common_factor1,sep=""))
+      print(paste("common_factor2 : ",common_factor2,sep=""))
+      
       if(length(common_factor1)>1){                                             # if there are several common factor for conditions in the 1st context 
         common_factor1<-toString(common_factor1)                                # conversion list to string
         contx1<-str_replace(common_factor1,", ","")}else{contx1<-common_factor1}# all common factor are concatenated to become the name of context
-        contx1<-str_replace_all(contx1, "NULL", "")
+      contx1<-str_replace_all(contx1, "NULL", "")
+        print(paste("contx1 : ", contx1, sep=""))
       if(length(common_factor2)>1){                                             # if there are several common factor for conditions in the 2nd context 
         common_factor2<-toString(common_factor2)                                # conversion list to string
         contx2<-str_replace(common_factor2,", ","")}else{contx2<-common_factor2}# all common factor are concatenated to become the name of context
-        contx2<-str_replace_all(contx2, "NULL", "")
+      contx2<-str_replace_all(contx2, "NULL", "")
+      print(paste("contx2 : ", contx2, sep=""))
       contrast_asko[i,"context1"]<-contx1                                       # filling contrast data frame with the name of the 1st context
       contrast_asko[i,"context2"]<-contx2                                       # filling contrast data frame with the name of the 2nd context
       contrast_asko[i,"Contrast"]<-paste(contx1,contx2, sep = "vs")             # filling contrast data frame with the name of the contrast
@@ -264,7 +273,7 @@ AskoStats <- function(glm_test, fit, contrast, ASKOlist, parameters){
     ASKOlist$stat.table<-.NormCountsMean(fit, ASKOlist, contx1)                       # in the 1st context
     ASKOlist$stat.table<-.NormCountsMean(fit, ASKOlist, contx2)                       # in the 2nd context
   }
-  print(table(ASKO_stat$Significance))
+  print(table(ASKO_stat$Expression))
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="gene"] <- paste("is", "gene", sep="@")                  # header formatting for askomics
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
   o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
@@ -290,17 +299,29 @@ loadData <- function(parameters){
   
   #####samples#####
   samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names=1, comment.char = "#")       #prise en compte des r?sultats de T2
+  
   if(is.null(parameters$select_sample)==FALSE){
-    sel <- grep(parameters$select_sample, rownames(samples))
-    samples<-samples[sel,]
+    toselect<-parameters$select_sample[-1]
+    if(parameters$select_sample[1]==TRUE){
+      selected <- grep(toselect, rownames(samples))
+      samples<-samples[selected,]
+    }else{
+      samples<-samples[toselect,]
+    }
   }  
   if(is.null(parameters$rm_sample)==FALSE){
-    rms<-grep(parameters$rm_sample, rownames(samples))
-    samples<-samples[-rms,]
-    
+    toremove<-parameters$rm_sample[-1]
+    if(parameters$rm_sample[1]==TRUE){
+      removed<-grep(toremove, rownames(samples))
+      samples<-samples[-removed,]
+    }else{
+      samples<-samples[-toremove,]
+    }
   }
   condition<-unique(samples$condition)
+  #print(condition)
   color<-brewer.pal(length(condition), parameters$palette)
+  #print(color)
   samples$color<-NA
   j=0
   for(name in condition){
@@ -314,37 +335,41 @@ loadData <- function(parameters){
   if(is.null(parameters$fileofcount)){
     dge<-readDGE(samples$file, labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
     #countT<-dge$counts
-    if(is.null(parameters$select_sample)==FALSE){
-      slct<-grep(parameters$select_sample, colnames(countT))
-      dge$counts<-dge$counts[,slct]
-      dge$samples<-dge$samples[,slct]
-    }
-    if(is.null(parameters$rm_sample)==FALSE){
-      rmc<-grep(parameters$rm_count, colnames(dge$counts))
-      dge$counts<-dge$counts[,-rmc]
-      print(ncol(dge$counts))
-      rms<-grep(parameters$rm_sample, row.names(dge$samples))
-      dge$samples<-dge$samples[-rms,]
-      
-    }
+    # if(is.null(parameters$select_sample)==FALSE){
+    #   slct<-grep(parameters$select_sample, colnames(countT))
+    #   dge$counts<-dge$counts[,slct]
+    #   dge$samples<-dge$samples[,slct]
+    # }
+    # if(is.null(parameters$rm_sample)==FALSE){
+    #   rmc<-grep(parameters$rm_count, colnames(dge$counts))
+    #   dge$counts<-dge$counts[,-rmc]
+    #   print(ncol(dge$counts))
+    #   rms<-grep(parameters$rm_sample, row.names(dge$samples))
+    #   dge$samples<-dge$samples[-rms,]
+    # }
   }else {
     if(grepl(".csv", parameters$fileofcount)==TRUE){
-      count<-read.csv(parameters$fileofcount, header=TRUE, sep = "\t", row.names=1)
+      count<-read.csv(parameters$fileofcount, header=TRUE, sep = "\t", row.names = parameters$col_genes)
+      row.names(count)
     }
     if(grepl(".txt", parameters$fileofcount)==TRUE){
-      count<-read.table(parameters$fileofcount, header=TRUE, sep = "\t", row.names=1)
+      count<-read.table(parameters$fileofcount, header=TRUE, sep = "\t", row.names = parameters$col_genes)
     }
-    countT<-count[,c(parameters$col_counts:length(colnames(count)))]
-    if(is.null(parameters$select_sample)==FALSE){
-      slct<-grep(parameters$select_sample, colnames(countT))
-      countT<-countT[,slct] 
-    }
-    if(is.null(parameters$rm_count)==FALSE){
-      rms<-grep(parameters$rm_count, colnames(countT))
-      #print(rms)
-      countT<-countT[,-rms]
-      
-    }
+    select_counts<-row.names(samples)
+    #countT<-count[,c(parameters$col_counts:length(colnames(count)))]
+    countT<-count[,select_counts]
+    
+    
+    # if(is.null(parameters$select_sample)==FALSE){
+    #   slct<-grep(parameters$select_sample, colnames(countT))
+    #   countT<-countT[,slct] 
+    # }
+    # if(is.null(parameters$rm_count)==FALSE){
+    #   rms<-grep(parameters$rm_count, colnames(countT))
+    #   #print(rms)
+    #   countT<-countT[,-rms]
+    #   
+    # }
     #print(nrow(samples))
     #print(ncol(countT))
     dge<-DGEList(counts=countT, samples=samples) 
@@ -366,14 +391,14 @@ loadData <- function(parameters){
   colnum<-c()
   for(c in colnames(contrast_table)){
     mat<-grep("0",contrast_table[,c])
-    print(mat)
+    #print(mat)
     if(length(mat)==length(rownames(contrast_table))){
       num<-which(colnames(contrast_table)==c)
       colnum<-append(colnum, num)
-      print(colnum)
+      #print(colnum)
     }
   }
-  contrast_table<-contrast_table[,-colnum]
+  if(is.null(colnum)==FALSE){contrast_table<-contrast_table[,-colnum]}
   for(contrast in colnames(contrast_table)){
     set_cond1<-row.names(contrast_table)[contrast_table[,contrast]==1]
     #print(set_cond1)
@@ -455,7 +480,7 @@ GEnorm <- function(filtered_GE, parameters){
           las=2,
           ylab="Log-cpm")
   
-  norm_GE<-calcNormFactors(filtered_GE, method = parameters$normal_method)                      # normalisation de nos comptages par le methode TMM, estimation du taux de production d'un ARN                                                                      # en estimant l'?chelle des facteurs entre echantillons -> but : pouvoir comparer nos ech entre eux
+  norm_GE<-calcNormFactors(filtered_GE, method = "TMM")                      # normalisation de nos comptages par le methode TMM, estimation du taux de production d'un ARN                                                                      # en estimant l'?chelle des facteurs entre echantillons -> but : pouvoir comparer nos ech entre eux
   
   logcpm_norm <- cpm(norm_GE, log=TRUE)
   colnames(logcpm_norm)<-rownames(filtered_GE$samples)
@@ -497,22 +522,26 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     fit <- glmQLFit(normGEdisp, data_list$design, robust = T)
     plotQLDisp(fit)
   }
-
+  
   #plotMD.DGEGLM(fit)     
   #plotBCV(norm_GE)
   
   #sum<-norm_GE$genes
   for (contrast in colnames(data_list$contrast)){
+    print(data_list$contrast[,contrast])
     if(parameters$glm=="lrt"){
       glm_test<-glmLRT(fit, contrast=data_list$contrast[,contrast])
     }
     if(parameters$glm=="qlf"){
       glm_test<-glmQLFTest(fit, contrast=data_list$contrast[,contrast])
     }
+    print(class(glm_test))
+    glm<-as.list(glm_test)
     
-    #sum[,contrast]<-decideTestsDGE(lrt, adjust.method = parameters$p_adj_method, lfc=1)
-
-    AskoStats(glm_test, fit, contrast, asko_list, parameters)
+    sum[,contrast]<-decideTestsDGE(glm, adjust.method = parameters$p_adj_method, lfc=1)
+    #print(table(sum[,contrast]))
+    #AskoStats(glm_test, fit, contrast, asko_list, parameters)
     #print(glm_test)
+    #return(glm_test)
   }
 } 
