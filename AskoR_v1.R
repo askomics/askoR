@@ -306,7 +306,7 @@ loadData <- function(parameters){
       selected <- grep(toselect, rownames(samples))
       samples<-samples[selected,]
     }else{
-      samples<-samples[toselect,]
+      samples<-samples[selected,]
     }
   }  
   if(is.null(parameters$rm_sample)==FALSE){
