@@ -2,27 +2,33 @@
 ##                Parameters                ##  
 ##############################################
 parameters<-list(
-  #title_output_pdf = "DGE analysis on T2 Pb samples without T2MD6TB.pdf",
-  #dir_path = "C:\\Users\\Sylvin\\Desktop\\Stage_INRA\\DEG_analysis",
-  organism = "Pb",
-  fileofcount = "SousSetComptagesPlasmo.txt",
+  ####Inputs Outputs####
+  title_output_pdf = "",
+  dir_path = "",
+  organism = "Asko",
+  fileofcount = NULL,
   col_genes = NULL,
   col_counts = NULL,
-  select_sample="T2",
-  rm_sample=list("T2MD6TBR"),
-  rm_count=list("T2MD6TB"),
-  #annotation_file = "annotation_Pb.txt",
-  sample_file = "Sample_Herniome_T2.txt",
-  contrast_file = "real_contrast_T2.txt",
+  sep="\t",
+  annotation_file = "annotation.txt",
+  sample_file = "Samples.txt",
+  contrast_file = "Contrasts.txt",
+  #### Color palette ####
+  palette ="Set2",
+  ####Selection####
+  select_sample=NULL,
+  rm_sample=NULL,
+  #### Filtration #####
   threshold_cpm = 0.5,
   replicate_cpm = 3,
   threshold_FDR = 0.05,
+  #### Normalisation ####
   normal_method = "TMM",
+  #### Test ####
   p_adj_method = "BH",
   context ="auto",
-  palette ="Set1",
   glm = "lrt",
-  ########result_table_option######
+  ####result_table_option####
   logFC = TRUE,
   FC = TRUE, 
   logCPM = FALSE, 
@@ -32,5 +38,6 @@ parameters<-list(
   Expression = TRUE, 
   mean_counts = TRUE, 
   csv = FALSE,
-  heatmap = TRUE
+  heatmap = TRUE,
+  numhigh = 50
 )
