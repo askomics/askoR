@@ -363,8 +363,7 @@ loadData <- function(parameters){
     select_counts<-row.names(samples)
     #countT<-count[,c(parameters$col_counts:length(colnames(count)))]
     countT<-count[,select_counts]
-    
-    
+    dge<-DGEList(counts=countT, samples=samples) 
     # if(is.null(parameters$select_sample)==FALSE){
     #   slct<-grep(parameters$select_sample, colnames(countT))
     #   countT<-countT[,slct] 
@@ -377,7 +376,6 @@ loadData <- function(parameters){
     # }
     #print(nrow(samples))
     #print(ncol(countT))
-    dge<-DGEList(counts=countT, samples=samples) 
   }
 
   #####design#####
@@ -408,20 +406,22 @@ loadData <- function(parameters){
   colnum<-c()
  
   for(contrast in colnames(contrast_table)){
-    set_cond1<-row.names(contrast_table)[contrast_table[,contrast]==1]
+    set_cond1<-row.names(contrast_table)[contrast_table[,contrast]=="+"]
     #print(set_cond1)
-    set_cond2<-row.names(contrast_table)[contrast_table[,contrast]==-1]
+    set_cond2<-row.names(contrast_table)[contrast_table[,contrast]=="-"]
     #print(set_cond2)
     if(length(set_cond1)!=length(set_cond2)){
-      contrast_table[,contrast][contrast_table[,contrast]==1]=signif(1/length(set_cond1),digits = 2)
-      contrast_table[,contrast][contrast_table[,contrast]==-1]=signif(-1/length(set_cond2),digits = 2)
+      contrast_table[,contrast][contrast_table[,contrast]=="+"]=signif(1/length(set_cond1),digits = 2)
+      contrast_table[,contrast][contrast_table[,contrast]=="-"]=signif(-1/length(set_cond2),digits = 2)
     }
     else {
-      contrast_table[,contrast][contrast_table[,contrast]==1]=1
-      contrast_table[,contrast][contrast_table[,contrast]==-1]=-1
+      contrast_table[,contrast][contrast_table[,contrast]=="+"]=1
+      contrast_table[,contrast][contrast_table[,contrast]=="-"]=-1
     }
+    contrast_table[,contrast]<-as.numeric(contrast_table[,contrast])
   }
-  #####annotation#####
+
+    #####annotation#####
   #annotation <- read.csv(parameters$annotation_file, header = T, sep = '\t', quote = "", row.names = 1)
   
   #data<-list("counts"=countT, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
@@ -543,12 +543,12 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     if(parameters$glm=="qlf"){
       glm_test<-glmQLFTest(fit, contrast=data_list$contrast[,contrast])
     }
-    print(class(glm_test))
-    glm<-as.list(glm_test)
+    #print(class(glm_test))
+    #glm<-as.list(glm_test)
     
-    sum[,contrast]<-decideTestsDGE(glm, adjust.method = parameters$p_adj_method, lfc=1)
+    #sum[,contrast]<-decideTestsDGE(glm, adjust.method = parameters$p_adj_method, lfc=1)
     #print(table(sum[,contrast]))
-    #AskoStats(glm_test, fit, contrast, asko_list, parameters)
+    AskoStats(glm_test, fit, contrast, asko_list, parameters)
     #print(glm_test)
     #return(glm_test)
   }
