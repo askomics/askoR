@@ -43,7 +43,7 @@ asko3c <- function(data_list){
   
   list_context<-list()                                                          # initialization of context and condition lists 
   list_condition<-list()                                                        # will be used to create the context data frame
-  if(parameters$context=="auto"){
+  if(parameters$mk_context==TRUE){
     for (contrast in colnames(data_list$contrast)){                               # for each contrast :
     i=i+1                                                                       # contrast data frame will be filled line by line
     #print(contrast)
@@ -171,7 +171,8 @@ asko3c <- function(data_list){
       }
     }  
     }
-  }else{
+  }
+  else{
     for (contrast in colnames(data_list$contrast)){
       i=i+1
       contexts=strsplit2(contrast,"vs")
@@ -238,8 +239,7 @@ asko3c <- function(data_list){
   return(ASKOlist$stat.table)                                                                 # return the glm object
 }
 
-AskoStats <- function(glm_test, fit, contrast, ASKOlist, parameters){   
-  
+AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge,parameters){   
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]         # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 1st context from Asko object 
   contx2<-ASKOlist$contrast$context2[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 2nd context from Asko object
@@ -278,19 +278,14 @@ AskoStats <- function(glm_test, fit, contrast, ASKOlist, parameters){
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
   o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                          #
-  write.table(ASKOlist$stat.table,paste(parameters$organism, contrasko, "_testing.txt", sep = ""),                                    #
-              sep="\t", col.names = T, row.names = F)                                                                   #
-  if(parameters$csv==T){
-    write.csv(ASKOlist$stat.table,paste(parameters$organism, contrasko, "_testing.txt", sep = ""),                                    #
-              sep="\t", col.names = T, row.names = F)
-  }
-  # if(parameters$heatmap==TRUE){ #/!\ a faire /!\
-  #   cpm_gstats<-cpm(dge, log=FALSE)[o,][1:50,]
-  #   heatmap.2(cpm_gstats, cexRow=0.5, cexCol=0.8, scale="row", labCol=dge$samples$Name, xlab=contrast, Rowv = FALSE, dendrogram="col")
-  # }
+  write.table(ASKOlist$stat.table,paste(parameters$organism, contrasko, ".txt", sep = ""),                                    #
+              sep=parameters$sep, col.names = T, row.names = F, quote=FALSE)
   
-  #write.table(asko, paste("result_for_asko_",organism, contrasko, "_test.txt", sep = ""),                              #
-  #            sep="\t", col.names = T, row.names = F)                                                                  #
+  if(parameters$heatmap==TRUE){
+    cpm_gstats<-cpm(dge, log=TRUE)[o,][1:parameters$numhigh,]
+    heatmap.2(cpm_gstats, cexRow=0.5, cexCol=0.8, scale="row", labCol=dge$samples$Name, xlab=contrast, Rowv = FALSE, dendrogram="col")
+  }
+  
   return(ASKOlist)
   
 }
@@ -441,8 +436,7 @@ GEfilt <- function(dge_list, parameters){
   cpm<-cpm(dge_list)
   logcpm<-cpm(dge_list, log=TRUE)
   colnames(logcpm)<-rownames(dge_list$samples)
-  nsamples <- ncol(dge_list)
-  plot.new()                                                                    # cr?ation nouveau plot 
+  nsamples <- ncol(dge_list)                                                                    # cr?ation nouveau plot 
   plot(density(logcpm[,1]),
        col=as.character(dge_list$samples$color[1]),      # plot exprimant la densit? de chaque g?ne   
        lwd=1,
@@ -494,7 +488,7 @@ GEnorm <- function(filtered_GE, parameters){
           las=2,
           ylab="Log-cpm")
   
-  norm_GE<-calcNormFactors(filtered_GE, method = "TMM")                      # normalisation de nos comptages par le methode TMM, estimation du taux de production d'un ARN                                                                      # en estimant l'?chelle des facteurs entre echantillons -> but : pouvoir comparer nos ech entre eux
+  norm_GE<-calcNormFactors(filtered_GE, method = parameters$normal_method)                      # normalisation de nos comptages par le methode TMM, estimation du taux de production d'un ARN                                                                      # en estimant l'?chelle des facteurs entre echantillons -> but : pouvoir comparer nos ech entre eux
   
   logcpm_norm <- cpm(norm_GE, log=TRUE)
   colnames(logcpm_norm)<-rownames(filtered_GE$samples)
@@ -518,12 +512,18 @@ GEcorr <- function(dge, parameters){
   #MDS
   mds <- cmdscale(dist(t(lcpm)),k=3, eig=TRUE)
   eigs<-round((mds$eig)*100/sum(mds$eig[mds$eig>0]),2)
-  ggplot(as.data.frame(mds$points), aes(V1, V2, label = rownames(mds$points))) +  geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +ylab(paste('dim 2 [', eigs[2], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
-  ggsave("mds_corr1-2.tiff")
-  ggplot(as.data.frame(mds$points), aes(V2, V3, label = rownames(mds$points))) +  geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 2 [', eigs[2], '%]')) +ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
-  ggsave("mds_corr2-3.tiff")
-  ggplot(as.data.frame(mds$points), aes(V1, V3, label = rownames(mds$points))) +  geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
-  ggsave("mds_corr1-3.tiff")
+
+  mds1<-ggplot(as.data.frame(mds$points), aes(V1, V2, label = rownames(mds$points))) + labs(title="MDS Axes 1 and 2") + geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +ylab(paste('dim 2 [', eigs[2], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
+  print(mds1)
+  #ggsave("mds_corr1-2.tiff")
+  #ggtitle("MDS Axes 2 and 3")
+  mds2<-ggplot(as.data.frame(mds$points), aes(V2, V3, label = rownames(mds$points))) + labs(title="MDS Axes 2 and 3") + geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 2 [', eigs[2], '%]')) +ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
+  print(mds2)
+  # ggtitle("MDS Axes 1 and 3")
+  #ggsave("mds_corr2-3.tiff")
+  mds3<-ggplot(as.data.frame(mds$points), aes(V1, V3, label = rownames(mds$points))) + labs(title="MDS Axes 1 and 3") + geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
+  print(mds3)
+  #ggsave("mds_corr1-3.tiff")
 }
   
 DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
@@ -549,13 +549,91 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     if(parameters$glm=="qlf"){
       glm_test<-glmQLFTest(fit, contrast=data_list$contrast[,contrast])
     }
-    #print(class(glm_test))
-    #glm<-as.list(glm_test)
     
     #sum[,contrast]<-decideTestsDGE(glm, adjust.method = parameters$p_adj_method, lfc=1)
     #print(table(sum[,contrast]))
-    AskoStats(glm_test, fit, contrast, asko_list, parameters)
-    #print(glm_test)
-    #return(glm_test)
+    AskoStats(glm_test, fit, contrast, asko_list,normGEdisp,parameters)
   }
 } 
+
+Asko_start <-function(){
+  library(limma)
+  library(statmod)
+  library(edgeR)
+  library(ggplot2)
+  library("RColorBrewer")
+  library(ggrepel)
+  library(gplots)
+  library(stringr)
+  library(optparse)
+  option_list = list(
+    make_option(c("-o", "--out"), type="character", default="out.pdf",dest="output_pdf",
+                help="output file name [default= %default]", metavar="character"),
+    make_option(c("-d", "--dir"), type="character", default=".",dest="dir_path",
+                help="data directory path [default= %default]", metavar="character"),
+    make_option(c("-org", "--org"), type="character", default="Asko", dest="organism",
+                help="Organism name [default= %default]", metavar="character"),
+    make_option(c("-f", "--fileofcount"), type="character", default=NULL, dest="fileofcount",
+                help="file of counts [default= %default]", metavar="character"),
+    make_option(c("-cg", "--col_genes"), type="integer", default=NULL, dest="col_genes",
+                help="col of ids in count files [default= %default]", metavar="integer"),
+    make_option(c("-cc", "--col_counts"), type="integer", default=NULL,dest="col_counts",
+                help="col of counts in count files [default= %default]", metavar="integer"),
+    make_option(c("-sep", "--sep"), type="character", default="\t", dest="sep",
+                help="col separator [default= %default]", metavar="character"),
+    make_option(c("-ann", "--annotation"), type="character", default="annotation.txt", dest="annotation_file",
+                help="annotation file [default= %default]", metavar="character"),
+    make_option(c("-s", "--sample"), type="character", default="Samples.txt", dest="sample_file",
+                help="Samples file [default= %default]", metavar="character"),
+    make_option(c("-c", "--contrasts"), type="character", default="Contrasts.txt",dest="contrast_file",
+                help="Contrasts file [default= %default]", metavar="character"),
+    make_option(c("-mk_cont", "--mk_context"), type="logical", default=FALSE,dest="mk_context",
+                help="generate automatically the context names [default= %default]", metavar="logical"),
+    make_option(c("-pal", "--palette"), type="character", default="Set2", dest="palette",
+                help="Color palette (ggplot)[default= %default]", metavar="character"),
+    make_option(c("-re", "--regex"), type="logical", default=FALSE, dest="regex",
+                help="use regex when selecting/removing samples [default= %default]", metavar="logical"),
+    make_option(c("-sel", "--select"), type="character", default=NULL, dest="select_sample",
+                help="selected samples [default= %default]", metavar="character"),
+    make_option(c("-rm", "--remove"), type="character", default=NULL, dest="remove_sample",
+                help="removed samples [default= %default]", metavar="character"),
+    make_option(c("-th_cpm", "--threshold_cpm"), type="double", default=0.5, dest="threshold_cpm",
+                help="CPM's threshold [default= %default]", metavar="double"),
+    make_option(c("-rep", "--replicate_count"), type="integer", default=3, dest="replicate_cpm",
+                help="Minimum number of replicates [default= %default]", metavar="integer"),
+    make_option(c("-th_FDR", "--threshold_FDR"), type="double", default=0.5, dest="threshold_FDR",
+                help="FDR threshold [default= %default]", metavar="double"),
+    make_option(c("-n", "--normalization"), type="character", default="TMM", dest="normal_method",
+                help="normalization method (TMM/RLE/upperquartile/none) [default= %default]", metavar="character"),
+    make_option(c("-adj", "--adjust"), type="character", default="fdr", dest="p_adj_method",
+                help="p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none) [default= %default]", metavar="character"),
+    make_option(c("-glm", "--glm"), type="character", default="qlf", dest="glm",
+                help=" GLM method (lrt/qlf) [default= %default]", metavar="character"),
+    make_option(c("-lfc", "--logFC"), type="logical", default="TRUE", dest="logFC",
+                help="logFC in the summary table [default= %default]", metavar="logical"),
+    make_option(c("-fc", "--fc"), type="logical", default="TRUE", dest="FC",
+                help="FC in the summary table [default= %default]", metavar="logical"),
+    make_option(c("-lcpm", "--log_cpm"), type="logical", default="FALSE", dest="logCPM",
+                help="logCPm in the summary table [default= %default]", metavar="logical"),
+    make_option(c("-fdr", "--fdr"), type="logical", default="TRUE", dest="FDR",
+                help="FDR in the summary table [default= %default]", metavar="logical"),
+    make_option(c("-lr", "--lr"), type="logical", default="FALSE", dest="LR",
+                help="LR in the summary table [default= %default]", metavar="logical"),
+    make_option(c("-sign", "--significance"), type="logical", default="TRUE", dest="Sign",
+                help="Significance (1/0/-1) in the summary table [default= %default]", metavar="logical"),
+    make_option(c("-expr", "--expression"), type="logical", default="TRUE", dest="Expression",
+                help="Significance expression in the summary table [default= %default]", metavar="logical"),
+    make_option(c("-mc", "--mean_counts"), type="logical", default="TRUE", dest="mean_counts",
+                help="Mean counts in the summary table [default= %default]", metavar="logical"),
+    make_option(c("-hm", "--heatmap"), type="logical", default="TRUE", dest="heatmap",
+                help="generation of the expression heatmap [default= %default]", metavar="logical"),
+    make_option(c("-nh", "--numhigh"), type="integer", default="50", dest="numhigh",
+                help="number of genes in the heatmap [default= %default]", metavar="integer")
+  )
+  opt_parser = OptionParser(option_list=option_list)
+  parameters = parse_args(opt_parser)
+  # TODO : gerer les listes 
+  return(parameters)
+}
+
+
