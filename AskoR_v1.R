@@ -393,7 +393,7 @@ loadData <- function(parameters){
     if(test==0){
       print(condition_name)
       rm<-grep("0", contrastab[condition_name,], invert = T)
-      if(is.null(rmcol)){rmcol==rm}else{rmcol<-append(rmcol, rm)}
+      if(is.null(rmcol)){rmcol=rm}else{rmcol<-append(rmcol, rm)}
     }
   }
   rmcol<-unlist(rmcol)
