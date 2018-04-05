@@ -1,6 +1,28 @@
 ##############################################
 ##                Parameters                ##  
 ##############################################
+# option_list = list(
+#   make_option(c("-o", "--out"), type="character", default="out.pdf", 
+#               help="output file name [default= %default]", metavar="character"),
+#   make_option(c("-d", "--dir"), type="character", default=".", 
+#               help="data directory path [default= %default]", metavar="character"),
+#   make_option(c("-o", "--org"), type="character", default="Asko", 
+#               help="Organism name [default= %default]", metavar="character"),
+#   make_option(c("-f", "--fileofcount"), type="character", default=NULL, 
+#               help="file of counts [default= %default]", metavar="character"),
+#   make_option(c("-cg", "--col_genes"), type="character", default=NULL, 
+#               help="col of ids in count files [default= %default]", metavar="integer"),
+#   make_option(c("-cc", "--col_counts"), type="character", default=NULL, 
+#               help="col of counts in count files [default= %default]", metavar="integer"),
+#   make_option(c("-sep", "--sep"), type="character", default="\t", 
+#               help="col separator [default= %default]", metavar="character"),
+#   
+# ); 
+# 
+# opt_parser = OptionParser(option_list=option_list);
+# opt = parse_args(opt_parser);
+
+
 parameters<-list(
   ####Inputs Outputs####
   title_output_pdf = "",

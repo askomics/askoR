@@ -229,12 +229,7 @@ asko3c <- function(data_list){
   return(ASKOlist$stat.table)                                                                 # return the glm object
 }
 
-<<<<<<< HEAD
-AskoStats <- function(glm_test, fit, contrast, ASKOlist, parameters){   
-=======
 AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge,parameters) {   
->>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
-  
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]         # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 1st context from Asko object 
   contx2<-ASKOlist$contrast$context2[row.names(ASKOlist$contrast)==contrast]            # to retrieve the name of 2nd context from Asko object
@@ -295,97 +290,96 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge,parameters) {
 }
 
 loadData <- function(parameters){
-<<<<<<< HEAD
-  
   #####samples#####
   samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names=1, comment.char = "#")       #prise en compte des r?sultats de T2
+  
   if(is.null(parameters$select_sample)==FALSE){
-    sel <- grep(parameters$select_sample, rownames(samples))
-    samples<-samples[sel,]
-  }  
-  if(is.null(parameters$rm_sample)==FALSE){
-    rms<-grep(parameters$rm_sample, rownames(samples))
-    samples<-samples[-rms,]
-    
-=======
-  #####samples#####
-  samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names=1,comment.char = "#")       #prise en compte des r?sultats de T2
+    if(parameters$RE==TRUE){
+      sel<-c()
+      for (s in parameters$select_sample) {
+        s2<-grep(s, rownames(samples))
+        sel<-append(sel,s2)
+      }
+      samples<-samples[sel,]
+      }
+    else{
+        samples<-samples[parameters$select_sample,]
+    }
+  }
+  
   
   if(is.null(parameters$rm_sample)==FALSE){
-    for (rm in parameters$rm_sample) {
-      rm2<-grep(rm, rownames(samples))
-      samples<-samples[-rm2,]
+    if(parameters$RE==TRUE){
+      for (rm in parameters$rm_sample) {
+         rm2<-grep(rm, rownames(samples))
+         samples<-samples[-rm2,]
+      }
+    }else{
+      for (rm in parameters$rm_sample) {
+        rm2<-match(rm, rownames(samples))
+        samples<-samples[-rm2,]
+      }
     }
   }
-  if(is.null(parameters$select_sample)==FALSE){
-    for (sel in parameters$select_sample) {
-      sel<-grep(sel, rownames(samples))
-      samples<-samples[sel,]
-    }
->>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
-  }
+  
+  print(samples)
   condition<-unique(samples$condition)
+  #print(condition)
   color<-brewer.pal(length(condition), parameters$palette)
+  #print(color)
   samples$color<-NA
   j=0
   for(name in condition){
     j=j+1
     samples$color[samples$condition==name]<-color[j]
   }
-  #print(samples)
+  print(samples)
   
   
   #####counts#####
   if(is.null(parameters$fileofcount)){
     dge<-readDGE(samples$file, labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
-    #countT<-dge$counts
-    if(is.null(parameters$select_sample)==FALSE){
-      slct<-grep(parameters$select_sample, colnames(countT))
-      dge$counts<-dge$counts[,slct]
-      dge$samples<-dge$samples[,slct]
-    }
-    if(is.null(parameters$rm_sample)==FALSE){
-<<<<<<< HEAD
-      rmc<-grep(parameters$rm_count, colnames(dge$counts))
-      dge$counts<-dge$counts[,-rmc]
-      print(ncol(dge$counts))
-      rms<-grep(parameters$rm_sample, row.names(dge$samples))
-      dge$samples<-dge$samples[-rms,]
-      
-=======
-      rm1<-match(parameters$rm_sample, colnames(countT))
-      countT<-countT[,-rm1]
->>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
-    }
+    dge<-DGEList(counts=dge$counts, samples=samples)
+    # if(is.null(parameters$select_sample)==FALSE){
+    #   slct<-grep(parameters$select_sample, colnames(countT))
+    #   dge$counts<-dge$counts[,slct]
+    #   dge$samples<-dge$samples[,slct]
+    # }
+    # if(is.null(parameters$rm_sample)==FALSE){
+    #   rmc<-grep(parameters$rm_count, colnames(dge$counts))
+    #   dge$counts<-dge$counts[,-rmc]
+    #   print(ncol(dge$counts))
+    #   rms<-grep(parameters$rm_sample, row.names(dge$samples))
+    #   dge$samples<-dge$samples[-rms,]
+    # }
   }else {
     if(grepl(".csv", parameters$fileofcount)==TRUE){
-      count<-read.csv(parameters$fileofcount, header=TRUE, sep = "\t", row.names=1)
+      count<-read.csv(parameters$fileofcount, header=TRUE, sep = "\t", row.names = parameters$col_genes)
+      row.names(count)
     }
     if(grepl(".txt", parameters$fileofcount)==TRUE){
-      count<-read.table(parameters$fileofcount, header=TRUE, sep = "\t", row.names=1)
+      count<-read.table(parameters$fileofcount, header=TRUE, sep = "\t", row.names = parameters$col_genes)
     }
-    countT<-count[,c(parameters$col_counts:length(colnames(count)))]
-    if(is.null(parameters$select_sample)==FALSE){
-      slct<-grep(parameters$select_sample, colnames(countT))
-      countT<-countT[,slct] 
-    }
-    if(is.null(parameters$rm_count)==FALSE){
-      rms<-grep(parameters$rm_count, colnames(countT))
-      #print(rms)
-      countT<-countT[,-rms]
-      
-    }
+    select_counts<-row.names(samples)
+    #countT<-count[,c(parameters$col_counts:length(colnames(count)))]
+    countT<-count[,select_counts]
+    
+    
+    # if(is.null(parameters$select_sample)==FALSE){
+    #   slct<-grep(parameters$select_sample, colnames(countT))
+    #   countT<-countT[,slct] 
+    # }
+    # if(is.null(parameters$rm_count)==FALSE){
+    #   rms<-grep(parameters$rm_count, colnames(countT))
+    #   #print(rms)
+    #   countT<-countT[,-rms]
+    #   
+    # }
     #print(nrow(samples))
     #print(ncol(countT))
     dge<-DGEList(counts=countT, samples=samples) 
   }
   
-<<<<<<< HEAD
-  ##a TODO Gerer la selection des echantillons avec select_sample dans le cas readDGE
-=======
-  ## TODO Tester la selection des echantillons avec select_sample dans le cas readDGE
-
->>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
   
   #####design#####
   Group<-factor(samples$condition)
@@ -393,34 +387,34 @@ loadData <- function(parameters){
   designExp<-model.matrix(~0+Group)
   rownames(designExp) <- row.names(samples)
   colnames(designExp) <- levels(Group)
-
+  
   #####contrast#####
   contrastab<-read.table(parameters$contrast_file, sep="\t", header=TRUE, row.names = 1,  comment.char="#", stringsAsFactors = FALSE)
   ord<-match(colnames(designExp),row.names(contrastab), nomatch = 0)
   contrast_table<-contrastab[ord,]
   colnum<-c()
   for(c in colnames(contrast_table)){
-    mat<-grep("0",contrast_table[,c])
-    print(mat)
+    mat<-match("0",contrast_table[,c])
+    #print(mat)
     if(length(mat)==length(rownames(contrast_table))){
       num<-which(colnames(contrast_table)==c)
       colnum<-append(colnum, num)
-      print(colnum)
+      #print(colnum)
     }
   }
-  contrast_table<-contrast_table[,-colnum]
+  if(is.null(colnum)==FALSE){contrast_table<-contrast_table[,-colnum]}
   for(contrast in colnames(contrast_table)){
-    set_cond1<-row.names(contrast_table)[contrast_table[,contrast]==1]
+    set_cond1<-row.names(contrast_table)[contrast_table[,contrast]=="+"]
     #print(set_cond1)
-    set_cond2<-row.names(contrast_table)[contrast_table[,contrast]==-1]
+    set_cond2<-row.names(contrast_table)[contrast_table[,contrast]=="-"]
     #print(set_cond2)
     if(length(set_cond1)!=length(set_cond2)){
-      contrast_table[,contrast][contrast_table[,contrast]==1]=signif(1/length(set_cond1),digits = 2)
-      contrast_table[,contrast][contrast_table[,contrast]==-1]=signif(-1/length(set_cond2),digits = 2)
+      contrast_table[,contrast][contrast_table[,contrast]=="+"]=signif(1/length(set_cond1),digits = 2)
+      contrast_table[,contrast][contrast_table[,contrast]=="-"]=signif(-1/length(set_cond2),digits = 2)
     }
     else {
-      contrast_table[,contrast][contrast_table[,contrast]==1]=1
-      contrast_table[,contrast][contrast_table[,contrast]==-1]=-1
+      contrast_table[,contrast][contrast_table[,contrast]=="+"]=1
+      contrast_table[,contrast][contrast_table[,contrast]=="-"]=-1
     }
   }
   #####annotation#####
@@ -428,14 +422,11 @@ loadData <- function(parameters){
   
   #data<-list("counts"=countT, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
   #print(countT)
-<<<<<<< HEAD
-=======
-  dge<-DGEList(counts=countT, samples=samples) 
->>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
   rownames(dge$samples)<-rownames(samples) # replace the renaming by files              
   data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
   return(data)
 }
+
 
 GEfilt <- function(dge_list, parameters){
   cpm<-cpm(dge_list)
@@ -526,20 +517,12 @@ GEcorr <- function(dge, parameters){
   ggsave("mds_corr1-3.tiff")
 }
   
-<<<<<<< HEAD
-DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
-  
-  normGEdisp <- estimateDisp(norm_GE, data_list$design)
-  if(parameters$glm=="lrt"){
-    fit <- glmFit(normGEdisp, data_list$design, robust = T)
-=======
+
 
 DEanalysis <- function(norm_GE, data_list, asko_list,parameters){
   n <- estimateDisp(norm_GE, data_list$design)
   if(parameters$glm=="lrt"){
     fit <- glmFit(n,data_list$design, robust = T)
-    
->>>>>>> 3d6be0c9c5aa1eb4c0ad1238cd1cc7432ecc1dfc
   }
   if(parameters$glm=="qlf"){
     fit <- glmQLFit(n, data_list$design, robust = T)

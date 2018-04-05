@@ -318,8 +318,9 @@ loadData <- function(parameters){
         if(length(removed!=0)){samples<-samples[-removed,]}
       }
     }else{
-      for(rm in parameters$select_sample){
-        samples<-samples[-rm,]
+      for (rm in parameters$rm_sample) {
+        rm2<-match(rm, rownames(samples))
+        samples<-samples[-rm2,]
       }
     }
   }
@@ -339,6 +340,8 @@ loadData <- function(parameters){
   #####counts#####
   if(is.null(parameters$fileofcount)){
     dge<-readDGE(samples$file, labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
+    dge<-DGEList(counts=dge$counts, samples=samples)
+    #  dge$samples=samples
     #countT<-dge$counts
     # if(is.null(parameters$select_sample)==FALSE){
     #   slct<-grep(parameters$select_sample, colnames(countT))
@@ -393,14 +396,17 @@ loadData <- function(parameters){
     if(test==0){
       print(condition_name)
       rm<-grep("0", contrastab[condition_name,], invert = T)
-      if(is.null(rmcol)){rmcol==rm}else{rmcol<-append(rmcol, rm)}
+      print(rm)
+      if(is.null(rmcol)){rmcol=rm}else{rmcol<-append(rmcol, rm)}
     }
   }
-  rmcol<-unlist(rmcol)
-  rmcol<-unique(rmcol)
-  rmcol=-rmcol
-  contrastab<-contrastab[,rmcol]
- 
+  if (length(rmcol)> 0){
+    rmcol<-unlist(rmcol)
+    rmcol<-unique(rmcol)
+    rmcol=-rmcol
+    contrastab<-contrastab[,rmcol]
+  }
+  
   ord<-match(colnames(designExp),row.names(contrastab), nomatch = 0)
   contrast_table<-contrastab[ord,]
   colnum<-c()
