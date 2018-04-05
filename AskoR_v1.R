@@ -595,7 +595,7 @@ Asko_start <-function(){
                 help="use regex when selecting/removing samples [default= %default]", metavar="logical"),
     make_option(c("-sel", "--select"), type="character", default=NULL, dest="select_sample",
                 help="selected samples [default= %default]", metavar="character"),
-    make_option(c("-rm", "--remove"), type="character", default=NULL, dest="remove_sample",
+    make_option(c("-rm", "--remove"), type="character", default=NULL, dest="rm_sample",
                 help="removed samples [default= %default]", metavar="character"),
     make_option(c("-th_cpm", "--threshold_cpm"), type="double", default=0.5, dest="threshold_cpm",
                 help="CPM's threshold [default= %default]", metavar="double"),
@@ -632,7 +632,17 @@ Asko_start <-function(){
   )
   opt_parser = OptionParser(option_list=option_list)
   parameters = parse_args(opt_parser)
-  # TODO : gerer les listes 
+ 
+   if(is.null(parameters$rm_sample) == FALSE ) {
+    str_replace_all(parameters$rm_sample, " ", "")
+    parameters$rm_sample<-strsplit2(parameters$rm_sample, ",")
+   }
+  
+  if(is.null(parameters$select_sample) == FALSE ) {
+    str_replace_all(parameters$select_sample, " ", "")
+    parameters$select_sample<-strsplit2(parameters$select_sample, ",")
+  }
+  
   return(parameters)
 }
 
