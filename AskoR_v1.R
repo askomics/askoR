@@ -299,23 +299,28 @@ loadData <- function(parameters){
   
   #####samples#####
   samples<-read.table(parameters$sample_file, header=TRUE, sep="\t", row.names=1, comment.char = "#")       #prise en compte des r?sultats de T2
-  
   if(is.null(parameters$select_sample)==FALSE){
-    toselect<-parameters$select_sample[-1]
-    if(parameters$select_sample[1]==TRUE){
-      selected <- grep(toselect, rownames(samples))
+    if(parameters$regex==TRUE){
+      selected<-c()
+      for(sel in parameters$select_sample){
+        select<-grep(sel, rownames(samples))
+        if(is.null(selected)){selected=select}else{selected<-append(selected, select)}
+      }
       samples<-samples[selected,]
-    }else{
-      samples<-samples[selected,]
-    }
-  }  
+    }else{samples<-samples[parameters$select_sample,]}
+  }
+  
   if(is.null(parameters$rm_sample)==FALSE){
-    toremove<-parameters$rm_sample[-1]
-    if(parameters$rm_sample[1]==TRUE){
-      removed<-grep(toremove, rownames(samples))
-      samples<-samples[-removed,]
+    if(parameters$regex==TRUE){
+      for(rm in parameters$rm_sample){
+        removed<-grep(rm, rownames(samples))
+        print(removed)
+        if(length(removed!=0)){samples<-samples[-removed,]}
+      }
     }else{
-      samples<-samples[-toremove,]
+      for(rm in parameters$select_sample){
+        samples<-samples[-rm,]
+      }
     }
   }
   condition<-unique(samples$condition)
@@ -374,31 +379,34 @@ loadData <- function(parameters){
     #print(ncol(countT))
     dge<-DGEList(counts=countT, samples=samples) 
   }
-  
-  ##a TODO Gerer la selection des echantillons avec select_sample dans le cas readDGE
-  
+
   #####design#####
   Group<-factor(samples$condition)
-  #print(Group)
   designExp<-model.matrix(~0+Group)
   rownames(designExp) <- row.names(samples)
   colnames(designExp) <- levels(Group)
 
   #####contrast#####
   contrastab<-read.table(parameters$contrast_file, sep="\t", header=TRUE, row.names = 1,  comment.char="#", stringsAsFactors = FALSE)
+
+  rmcol<-list()
+  for(condition_name in row.names(contrastab)){
+    test<-match(condition_name, colnames(designExp),nomatch = 0)
+    if(test==0){
+      print(condition_name)
+      rm<-grep("0", contrastab[condition_name,], invert = T)
+      if(is.null(rmcol)){rmcol==rm}else{rmcol<-append(rmcol, rm)}
+    }
+  }
+  rmcol<-unlist(rmcol)
+  rmcol<-unique(rmcol)
+  rmcol=-rmcol
+  contrastab<-contrastab[,rmcol]
+ 
   ord<-match(colnames(designExp),row.names(contrastab), nomatch = 0)
   contrast_table<-contrastab[ord,]
   colnum<-c()
-  for(c in colnames(contrast_table)){
-    mat<-grep("0",contrast_table[,c])
-    #print(mat)
-    if(length(mat)==length(rownames(contrast_table))){
-      num<-which(colnames(contrast_table)==c)
-      colnum<-append(colnum, num)
-      #print(colnum)
-    }
-  }
-  if(is.null(colnum)==FALSE){contrast_table<-contrast_table[,-colnum]}
+ 
   for(contrast in colnames(contrast_table)){
     set_cond1<-row.names(contrast_table)[contrast_table[,contrast]==1]
     #print(set_cond1)
