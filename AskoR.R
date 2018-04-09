@@ -212,9 +212,9 @@ asko3c <- function(data_list){
   
   ######## Files creation ########
   
-  write.table(condition_asko, paste0(parameters$outdir,"/condition.asko.txt"), sep = parameters$sep, row.names = F, quote=F)            # creation of condition file for asko 
-  write.table(context_asko,  paste0(parameters$outdir,"/context.asko.txt"), sep=parameters$sep, col.names = T, row.names = F,quote=F)            # creation of context file for asko
-  write.table(contrast_asko,  paste0(parameters$outdir,"/contrast.asko.txt"), sep=parameters$sep, col.names = T, row.names = F, quote=F)          # creation of contrast file for asko
+  write.table(condition_asko, paste0(parameters$out_dir,"/condition.asko.txt"), sep = parameters$sep, row.names = F, quote=F)            # creation of condition file for asko 
+  write.table(context_asko,  paste0(parameters$out_dir,"/context.asko.txt"), sep=parameters$sep, col.names = T, row.names = F,quote=F)            # creation of context file for asko
+  write.table(contrast_asko,  paste0(parameters$out_dir,"/contrast.asko.txt"), sep=parameters$sep, col.names = T, row.names = F, quote=F)          # creation of contrast file for asko
   return(asko)
 }
 
@@ -278,7 +278,7 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge,parameters){
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
   o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                          #
-  write.table(ASKOlist$stat.table,paste0(parameters$out_dir,parameters$organism, contrasko, ".txt"),                                    #
+  write.table(ASKOlist$stat.table,paste0(parameters$out_dir,"/", parameters$organism, contrasko, ".txt"),                                    #
               sep=parameters$sep, col.names = T, row.names = F, quote=FALSE)
   
   if(parameters$heatmap==TRUE){
@@ -352,13 +352,16 @@ loadData <- function(parameters){
     # }
   }else {
     if(grepl(".csv", parameters$fileofcount)==TRUE){
+      print(parameters$col_genes)
       count<-read.csv(parameters$fileofcount, header=TRUE, sep = "\t", row.names = parameters$col_genes)
-      row.names(count)
+      print(count)
+      print(row.names(count))
     }
     if(grepl(".txt", parameters$fileofcount)==TRUE){
       count<-read.table(parameters$fileofcount, header=TRUE, sep = "\t", row.names = parameters$col_genes)
     }
     select_counts<-row.names(samples)
+    print(select_counts)
     #countT<-count[,c(parameters$col_counts:length(colnames(count)))]
     countT<-count[,select_counts]
     dge<-DGEList(counts=countT, samples=samples) 
