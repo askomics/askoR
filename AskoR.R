@@ -212,9 +212,9 @@ asko3c <- function(data_list){
   
   ######## Files creation ########
   
-  write.table(condition_asko, "condition.asko.txt", sep = "\t", row.names = F, quote=F)            # creation of condition file for asko 
-  write.table(context_asko, "context.asko.txt", sep="\t", col.names = T, row.names = F,quote=F)            # creation of context file for asko
-  write.table(contrast_asko, "contrast.asko.txt", sep="\t", col.names = T, row.names = F, quote=F)          # creation of contrast file for asko
+  write.table(condition_asko, paste0(parameters$outdir,"/condition.asko.txt"), sep = parameters$sep, row.names = F, quote=F)            # creation of condition file for asko 
+  write.table(context_asko,  paste0(parameters$outdir,"/context.asko.txt"), sep=parameters$sep, col.names = T, row.names = F,quote=F)            # creation of context file for asko
+  write.table(contrast_asko,  paste0(parameters$outdir,"/contrast.asko.txt"), sep=parameters$sep, col.names = T, row.names = F, quote=F)          # creation of contrast file for asko
   return(asko)
 }
 
@@ -278,7 +278,7 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge,parameters){
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
   o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]                                                                          #
-  write.table(ASKOlist$stat.table,paste(parameters$organism, contrasko, ".txt", sep = ""),                                    #
+  write.table(ASKOlist$stat.table,paste0(parameters$out_dir,parameters$organism, contrasko, ".txt"),                                    #
               sep=parameters$sep, col.names = T, row.names = F, quote=FALSE)
   
   if(parameters$heatmap==TRUE){
@@ -561,7 +561,7 @@ Asko_start <-function(){
   library(statmod)
   library(edgeR)
   library(ggplot2)
-  library("RColorBrewer")
+  library(RColorBrewer)
   library(ggrepel)
   library(gplots)
   library(stringr)
@@ -571,6 +571,8 @@ Asko_start <-function(){
                 help="output file name [default= %default]", metavar="character"),
     make_option(c("-d", "--dir"), type="character", default=".",dest="dir_path",
                 help="data directory path [default= %default]", metavar="character"),
+    make_option("--outdir", type="character", default=".",dest="out_dir",
+                help="outputs directory [default= %default]", metavar="character"),
     make_option(c("-O", "--org"), type="character", default="Asko", dest="organism",
                 help="Organism name [default= %default]", metavar="character"),
     make_option(c("-f", "--fileofcount"), type="character", default=NULL, dest="fileofcount",

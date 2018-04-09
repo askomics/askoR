@@ -1,7 +1,5 @@
-source("~/local/askoR/AskoR.R")
-
-
-
+askor_path<-Sys.getenv("ASKOR_PATH")
+source(paste0(askor_path,"/AskoR.R"))
 
 ##############################################
 ##                Parameters                ##  
@@ -36,7 +34,7 @@ cat("summary of CPM by samples\n")
 summary(cpm(data$dge))
 pdf(parameters$output_pdf)
 asko_data<-asko3c(data)
-cat("Filtering genes with more than ", parameters$threshold_cpm, " CPM in ",parameters$replicate_cpm," num of samples\n")
+cat("Filtering genes with more than ", parameters$threshold_cpm, " CPM in ",parameters$replicate_cpm,"samples\n")
 asko_filt<-GEfilt(data$dge, parameters)
 cat("Total number of filtered genes : ", dim(asko_filt$counts)[1], "\n")
 asko_norm<-GEnorm(asko_filt,parameters)
