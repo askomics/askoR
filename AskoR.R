@@ -212,7 +212,7 @@ asko3c <- function(data_list){
   
   ######## Files creation ########
   
-  write.table(condition_asko, "condition.asko.txt", sep = "\t", row.names = F, quote=F)            # creation of condition file for asko 
+  write.table(data.frame("Condition"=row.names(condition_asko),condition_asko), "condition.asko.txt", sep = "\t", row.names = F, quote=F)            # creation of condition file for asko 
   write.table(context_asko, "context.asko.txt", sep="\t", col.names = T, row.names = F,quote=F)            # creation of context file for asko
   write.table(contrast_asko, "contrast.asko.txt", sep="\t", col.names = T, row.names = F, quote=F)          # creation of contrast file for asko
   return(asko)
