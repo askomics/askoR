@@ -66,44 +66,45 @@ option_list = list(
 
 opt_parser = OptionParser(option_list=option_list);
 parameters = parse_args(opt_parser);
+pdf(parameters$output_pdf)
 
 
-parameters<-list(
-  ####Inputs Outputs####
-  output_pdf = "out.pdf",
-  dir_path = "",
-  organism = "Asko",
-  fileofcount = NULL,
-  col_genes = NULL,
-  col_counts = NULL,
-  sep="\t",
-  annotation_file = "annotation.txt",
-  sample_file = "Samples.txt",
-  contrast_file = "Contrasts.txt",
-  #### Color palette ####
-  palette ="Set2",
-  ####Selection####
-  select_sample=NULL,
-  rm_sample=NULL,
-  #### Filtration #####
-  threshold_cpm = 0.5,
-  replicate_cpm = 3,
-  threshold_FDR = 0.05,
-  #### Normalisation ####
-  normal_method = "TMM",
-  #### Test ####
-  p_adj_method = "BH",
-  mk_context ="auto",
-  glm = "lrt",
-  ####result_table_option####
-  logFC = TRUE,
-  FC = TRUE, 
-  logCPM = FALSE, 
-  FDR = TRUE, 
-  LR = FALSE, 
-  Sign = TRUE,
-  Expression = TRUE, 
-  mean_counts = TRUE, 
-  heatmap = TRUE,
-  numhigh = 50
-)
+# parameters<-list(
+#   ####Inputs Outputs####
+#   output_pdf = "out.pdf",
+#   dir_path = "",
+#   organism = "Asko",
+#   fileofcount = NULL,
+#   col_genes = NULL,
+#   col_counts = NULL,
+#   sep="\t",
+#   annotation_file = "annotation.txt",
+#   sample_file = "Samples.txt",
+#   contrast_file = "Contrasts.txt",
+#   #### Color palette ####
+#   palette ="Set2",
+#   ####Selection####
+#   select_sample=NULL,
+#   rm_sample=NULL,
+#   #### Filtration #####
+#   threshold_cpm = 0.5,
+#   replicate_cpm = 3,
+#   threshold_FDR = 0.05,
+#   #### Normalisation ####
+#   normal_method = "TMM",
+#   #### Test ####
+#   p_adj_method = "BH",
+#   mk_context ="auto",
+#   glm = "lrt",
+#   ####result_table_option####
+#   logFC = TRUE,
+#   FC = TRUE, 
+#   logCPM = FALSE, 
+#   FDR = TRUE, 
+#   LR = FALSE, 
+#   Sign = TRUE,
+#   Expression = TRUE, 
+#   mean_counts = TRUE, 
+#   heatmap = TRUE,
+#   numhigh = 50
+# )
