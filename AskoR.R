@@ -212,15 +212,9 @@ asko3c <- function(data_list){
   
   ######## Files creation ########
   
-<<<<<<< HEAD
-  write.table(data.frame("Condition"=row.names(condition_asko),condition_asko), "condition.asko.txt", sep = "\t", row.names = F, quote=F)            # creation of condition file for asko 
-  write.table(context_asko, "context.asko.txt", sep="\t", col.names = T, row.names = F,quote=F)            # creation of context file for asko
-  write.table(contrast_asko, "contrast.asko.txt", sep="\t", col.names = T, row.names = F, quote=F)          # creation of contrast file for asko
-=======
-  write.table(condition_asko, paste0(parameters$out_dir,"/condition.asko.txt"), sep = parameters$sep, row.names = F, quote=F)            # creation of condition file for asko 
+  write.table(data.frame("Condition"=row.names(condition_asko),condition_asko), paste0(parameters$out_dir,"/condition.asko.txt"), sep = parameters$sep, row.names = F, quote=F)            # creation of condition file for asko 
   write.table(context_asko,  paste0(parameters$out_dir,"/context.asko.txt"), sep=parameters$sep, col.names = T, row.names = F,quote=F)            # creation of context file for asko
   write.table(contrast_asko,  paste0(parameters$out_dir,"/contrast.asko.txt"), sep=parameters$sep, col.names = T, row.names = F, quote=F)          # creation of contrast file for asko
->>>>>>> a222a36501e237b342c90e3f5c14f1d3975ad480
   return(asko)
 }
 
