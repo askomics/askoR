@@ -309,7 +309,7 @@ loadData <- function(parameters){
     if(parameters$regex==TRUE){
       for(rm in parameters$rm_sample){
         removed<-grep(rm, rownames(samples))
-        print(removed)
+#        print(removed)
         if(length(removed!=0)){samples<-samples[-removed,]}
       }
     }else{
@@ -352,16 +352,12 @@ loadData <- function(parameters){
     # }
   }else {
     if(grepl(".csv", parameters$fileofcount)==TRUE){
-      print(parameters$col_genes)
       count<-read.csv(parameters$fileofcount, header=TRUE, sep = "\t", row.names = parameters$col_genes)
-      print(count)
-      print(row.names(count))
-    }
+      }
     if(grepl(".txt", parameters$fileofcount)==TRUE){
       count<-read.table(parameters$fileofcount, header=TRUE, sep = "\t", row.names = parameters$col_genes)
     }
     select_counts<-row.names(samples)
-    print(select_counts)
     #countT<-count[,c(parameters$col_counts:length(colnames(count)))]
     countT<-count[,select_counts]
     dge<-DGEList(counts=countT, samples=samples) 
