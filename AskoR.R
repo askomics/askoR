@@ -354,7 +354,7 @@ loadData <- function(parameters){
     if(grepl(".csv", parameters$fileofcount)==TRUE){
       count<-read.csv(parameters$fileofcount, header=TRUE, sep = "\t", row.names = parameters$col_genes)
       }
-    if(grepl(".txt", parameters$fileofcount)==TRUE){
+    else{
       count<-read.table(parameters$fileofcount, header=TRUE, sep = "\t", row.names = parameters$col_genes)
     }
     select_counts<-row.names(samples)
