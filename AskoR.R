@@ -287,7 +287,7 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge,parameters){
   
   if(parameters$heatmap==TRUE){
     numhigh=parameters$numhigh
-    if (numhigh>length(o)) {numhigh=lengtgh(o)}
+    if (numhigh>length(o)) {numhigh=length(o)}
     cpm_gstats<-cpm(dge, log=TRUE)[o,][1:numhigh,]
     heatmap.2(cpm_gstats, cexRow=0.5, cexCol=0.8, scale="row", labCol=dge$samples$Name, xlab=contrast, Rowv = FALSE, dendrogram="col")
   }
