@@ -1,19 +1,20 @@
-askor_path<-Sys.getenv("ASKOR_PATH")
+#askor_path<-"/home/flegeai/workspace/askoR"
+askor_path<-"/home/flegeai/local/askoR"
 source(paste0(askor_path,"/AskoR.R"))
 #source("~/")
 ##############################################
 ##                Parameters                ##  
 ##############################################
-#setwd("/")
+setwd("/home/flegeai/workspace/askoR/Test")
 parameters<-Asko_start()
 
 # parameters$analysis_name = "" 
 # parameters$dir_path = "/"
 # parameters$organism = ""
-# parameters$fileofcount = ""
-# parameters$annotation_file = ""
-# parameters$sample_file = ""
-# parameters$contrast_file = ""
+parameters$fileofcount = "mrna.counts.txt"
+#parameters$annotation_file = "annotation.txt"
+parameters$sample_file = "Samples.txt"
+parameters$contrast_file = "Contrasts.txt"
 # parameters$sep = "\t"
 # parameters$col_genes = 1
 # parameters$col_counts = 5
@@ -37,7 +38,7 @@ parameters<-Asko_start()
 # parameters$Expression = T
 # parameters$mean_counts = T
 # 
-# parameters$palette = "Set3"
+#parameters$palette = "Set3"
 # parameters$heatmap = T
 # parameters$numhigh = 50
 # 
@@ -55,7 +56,8 @@ parameters<-Asko_start()
 ########################################
 #####load data#####
 data<-loadData(parameters)
-data$samples
+
+getdata$samples
 data$contrast
 data$design
 data$dge$counts

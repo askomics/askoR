@@ -1,24 +1,25 @@
-askor_path<-Sys.getenv("ASKOR_PATH")
+askor_path<-"/home/flegeai/workspace/askoR"
+#askor_path<-"/home/flegeai/local/askoR"
 source(paste0(askor_path,"/AskoR.R"))
 #source("~/")
 ##############################################
 ##                Parameters                ##  
 ##############################################
-#setwd("/")
+setwd("/home/flegeai/workspace/askoR/Test/")
 parameters<-Asko_start()
 
 # parameters$analysis_name = "" 
 # parameters$dir_path = "/"
 # parameters$organism = ""
-# parameters$fileofcount = ""
-# parameters$annotation_file = ""
-# parameters$sample_file = ""
-# parameters$contrast_file = ""
+parameters$fileofcount = "mrna.counts.txt"
+#parameters$annotation_file = "annotation.txt"
+parameters$sample_file = "Samples.txt"
+parameters$contrast_file = "Contrasts.txt"
 # parameters$sep = "\t"
-# parameters$col_genes = 1
-# parameters$col_counts = 5
-# parameters$select_sample = c("")                                        #
-# parameters$rm_sample = c("")                                       #
+parameters$col_genes = 1
+#parameters$col_counts = 2
+#parameters$select_sample = NULL                                        #
+#parameters$rm_sample = NULL                                       #
 # parameters$regex = T
 # parameters$mk_context = T
 # 
@@ -37,12 +38,12 @@ parameters<-Asko_start()
 # parameters$Expression = T
 # parameters$mean_counts = T
 # 
-# parameters$palette = "Set3"
+#parameters$palette = "Set3"
 # parameters$heatmap = T
 # parameters$numhigh = 50
 # 
-# parameters$VD = "both"
-# parameters$compaVD=c("")
+parameters$VD = "both"
+parameters$compaVD=c("T1AvsT1K-T2AvsT2K")
 # 
 # parameters$GSEA = "both"                                                        #
 # parameters$GSEA_filt_meth = "p.adjust"                                          #
@@ -55,6 +56,7 @@ parameters<-Asko_start()
 ########################################
 #####load data#####
 data<-loadData(parameters)
+
 data$samples
 data$contrast
 data$design
@@ -81,7 +83,11 @@ GEcorr(asko_norm,parameters)
 cat("Statistical analysis\n")
 sum_table<-DEanalysis(asko_norm, data, asko_data, parameters)
 #####Venn diagram#####
-VD(sum_table, parameters, asko_data)
-#####Enrichment Analysis#####
-mat<-GSEA(summaryDEG = sum_table, asko_list = asko_data, data_list = data)
+if (is.null(parameters$VD)==FALSE){
+  VD(sum_table, parameters, asko_data)
+}
 
+#####Enrichment Analysis#####
+if (is.null(parameters$GSEA)==FALSE){
+  mat<-GSEA(summaryDEG = sum_table, asko_list = asko_data, data_list = data)
+}

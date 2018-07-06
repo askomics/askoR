@@ -25,7 +25,7 @@ Asko_start <- function(){
                 help="col of counts in count files [default= %default (featureCounts) ]", metavar="integer"),
     make_option(c("-t", "--sep"), type="character", default="\t", dest="sep",
                 help="col separator [default= %default]", metavar="character"),
-    make_option(c("-a", "--annotation"), type="character", default="annotation.txt", dest="annotation_file",
+    make_option(c("-a", "--annotation"), type="character", default=NULL, dest="annotation_file",
                 help="annotation file [default= %default]", metavar="character"),
     make_option(c("-s", "--sample"), type="character", default="Samples.txt", dest="sample_file",
                 help="Samples file [default= %default]", metavar="character"),
@@ -37,9 +37,9 @@ Asko_start <- function(){
                 help="Color palette (ggplot)[default= %default]", metavar="character"),
     make_option(c("-R", "--regex"), type="logical", default=FALSE, dest="regex",
                 help="use regex when selecting/removing samples [default= %default]", metavar="logical"),
-    make_option(c("-S", "--select"), type="character", default="", dest="select_sample",
+    make_option(c("-S", "--select"), type="character", default=NULL, dest="select_sample",
                 help="selected samples [default= %default]", metavar="character"),
-    make_option(c("-r", "--remove"), type="character", default="", dest="rm_sample",
+    make_option(c("-r", "--remove"), type="character", default=NULL, dest="rm_sample",
                 help="removed samples [default= %default]", metavar="character"),
     make_option(c("--th_cpm"), type="double", default=0.5, dest="threshold_cpm",
                 help="CPM's threshold [default= %default]", metavar="double"),
@@ -77,7 +77,7 @@ Asko_start <- function(){
                 help = "", metavar = ""),
     make_option(c("--VDcompa"), type = "character", default = NULL, dest = "VDcompa",
                 help = "", metavar = ""),
-    make_option(c("--GSEA"), type="character", default="both", dest="GSEA",
+    make_option(c("--GSEA"), type="character", default=NULL, dest="GSEA",
                 help = "gene set chosen for analysis 'up', 'down', 'both', or NULL", metavar="character"),
     make_option(c("--GSEA_filt_meth"), type="character", default = "p.adjust", dest="GSEA_filt_meth",
                 help = "Use 'pval' to filter on nominal p-value or 'p.adjust' to filter on adjusted p-value", metavar="character"),
@@ -127,7 +127,9 @@ loadData <- function(parameters){
   }                                                                         ###
   #####samples#####
   sample_path<-paste0(input_path, parameters$sample_file)
-  samples<-read.table(sample_path, header=TRUE, sep="\t", row.names=1, comment.char = "#")
+  cat("CSV")
+  samples<-read.csv(sample_path, header=TRUE, sep="\t", row.names=1, comment.char = "#")
+  print(rownames(samples))
   if(is.null(parameters$select_sample)==FALSE){
     if(parameters$regex==TRUE){
       selected<-c()
@@ -155,15 +157,21 @@ loadData <- function(parameters){
   }
   condition<-unique(samples$condition)
   color<-brewer.pal(length(condition), parameters$palette)
+  rownames(samples)
   samples$color<-NA
   j=0
   for(name in condition){
     j=j+1
     samples$color[samples$condition==name]<-color[j]
   }
+  rownames(samples)
 
   #####counts#####
+  print(rownames(samples))
   if(is.null(parameters$fileofcount)){
+    print(samples$file)
+    print(rownames(samples))
+    print(c(parameters$col_genes,parameters$col_counts))
     dge<-readDGE(samples$file, labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
     dge<-DGEList(counts=dge$counts, samples=samples)
     #  dge$samples=samples
@@ -208,6 +216,7 @@ loadData <- function(parameters){
 
   #####design#####
   Group<-factor(samples$condition)
+  print(Group)
   designExp<-model.matrix(~0+Group)
   rownames(designExp) <- row.names(samples)
   colnames(designExp) <- levels(Group)
@@ -251,10 +260,15 @@ loadData <- function(parameters){
 
 #####annotation##### !!!!! à finir !!!!!
 
-  annotation <- read.csv(paste0(input_path, parameters$annotation_file), header = F, sep = '\t', quote = "")#, row.names = 1)
+  if(is.null(parameters$annotation)==FALSE) {
+    annotation <- read.csv(paste0(input_path, parameters$annotation_file), header = F, sep = '\t', quote = "")#, row.names = 1)
 
-  rownames(dge$samples)<-rownames(samples) #replace the renaming by files
-  data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
+    rownames(dge$samples)<-rownames(samples) #replace the renaming by files
+    data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
+  }
+  else {
+    data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
+  }
   #data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
   return(data)
 }
@@ -1038,7 +1052,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     c1 <- hclust(d1, method = "complete", members = NULL)
     c2 <- hclust(d2, method = "complete", members = NULL)
     my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
-    png(paste0("/home/masa/Documents/Bioinfo/Stage_INRA/DE_analysis","/heatmap_test.png"))
+    png(paste0(image_dir,"heatmap_test.png"))
     heatmap.2(dat.tn,                     # Tidy, normalised data
               Colv = as.dendrogram(c1),     # Experiments clusters in cols
               Rowv = as.dendrogram(c2),     # Protein clusters in rows
