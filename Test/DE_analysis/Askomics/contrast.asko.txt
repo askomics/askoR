@@ -1,5 +1,0 @@
-Contrast	context1_of@Context	context2_of@Context
-T1AvsT1K	T1A	T1K
-T2AvsT2K	T2A	T2K
-T1vsT2	T1	T2
-AvsK	A	K

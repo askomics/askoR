@@ -278,7 +278,7 @@ asko3c <- function(data_list){
   asko_dir = paste0(study_dir, "Askomics/")
   asko<-list()
 
-  ######### Condition ############
+  ##### Condition #####
   
   condition<-unique(data_list$samples$condition)                                                 # retrieval of different condition's names
   col1<-which(colnames(data_list$samples)=="condition")                                          # determination of number of the column "condition"
@@ -307,7 +307,7 @@ asko3c <- function(data_list){
   # condition_asko<-condition_asko[,order_level]                                              # order columns according to their level
   #asko$condition<-condition_asko                                                            # adding data frame of conditions to asko object
 
-  #############contrast + context##################  
+  ##### Contrast + Context #####  
   i=0
   
   contrast_asko<-data.frame(row.names = colnames(data_list$contrast))           # initialization of the contrast's data frame
@@ -467,11 +467,25 @@ asko3c <- function(data_list){
   colnames(contrast_asko)[colnames(contrast_asko)=="context1"]<-paste("context1_of", "Context", sep="@")    # header formatting for askomics
   colnames(contrast_asko)[colnames(contrast_asko)=="context2"]<-paste("context2_of", "Context", sep="@")    # header formatting for askomics
   
-  ######## Files creation ########
+  ##### Files creation #####
   
-  write.table(data.frame("Condition"=row.names(condition_asko),condition_asko), paste0(asko_dir,"condition.asko.txt"), sep = parameters$sep, row.names = F, quote=F)            # creation of condition file for asko 
-  write.table(context_asko,  paste0(asko_dir, "context.asko.txt"), sep=parameters$sep, col.names = T, row.names = F,quote=F)            # creation of context file for asko
-  write.table(contrast_asko,  paste0(asko_dir, "contrast.asko.txt"), sep=parameters$sep, col.names = T, row.names = F, quote=F)          # creation of contrast file for asko
+  write.table(data.frame("Condition"=row.names(condition_asko),condition_asko), 
+              paste0(asko_dir,"condition.asko.txt"), 
+              sep = parameters$sep, 
+              row.names = F, 
+              quote=F)            # creation of condition file for asko 
+  write.table(context_asko,  
+              paste0(asko_dir, "context.asko.txt"), 
+              sep=parameters$sep, 
+              col.names = T, 
+              row.names = F,
+              quote=F)            # creation of context file for asko
+  write.table(contrast_asko,  
+              paste0(asko_dir, "contrast.asko.txt"), 
+              sep=parameters$sep, 
+              col.names = T, 
+              row.names = F, 
+              quote=F)          # creation of contrast file for asko
   return(asko)
 }
 
@@ -479,7 +493,7 @@ GEfilt <- function(data_list, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
   image_dir = paste0(study_dir, "images/")
   
-#####plot density before filtering#####
+##### plot density before filtering #####
   cpm<-cpm(data_list$dge)
   logcpm<-cpm(data_list$dge, log=TRUE)
   
@@ -526,7 +540,7 @@ GEfilt <- function(data_list, parameters){
          text.width=6,
          cex=0.5)
   dev.off()
-#####histogram cpm values distribution before filtering#####
+##### histogram cpm values distribution before filtering #####
   png(paste0(image_dir,parameters$analysis_name,"_read_count_distrib_before_filtering.png"))
   countNotNull <- data_list$dge$counts[-which(rowSums(data_list$dge$counts) == 0),]
   #hist(log2(countNotNull+1),
@@ -535,7 +549,7 @@ GEfilt <- function(data_list, parameters){
        xlab = "log2(cpm)",
        col = "grey")
   dev.off()
-#####histogram cpm values distribution after filtering#####
+##### histogram cpm values distribution after filtering #####
   png(paste0(image_dir,parameters$analysis_name,"_read_count_distrib_after_filtering.png"))
   #hist(log2(filtered_counts$counts+1), 
   hist(filtered_cpm,
@@ -544,7 +558,7 @@ GEfilt <- function(data_list, parameters){
        xlab = "log2(cpm)",
        col = "grey")
   dev.off()
-#####boxplot cpm values distribution before filtering##### 
+##### boxplot cpm values distribution before filtering ##### 
   png(paste0(image_dir,parameters$analysis_name,"_boxplot_read_count_distrib1.png"))
   #boxplot(log(countNotNull+1),
   boxplot(logcpm,
@@ -554,7 +568,7 @@ GEfilt <- function(data_list, parameters){
           las=2,
           ylab="log2(cpm)")
   dev.off()
-#####boxplot cpm values distribution after filtering#####
+##### boxplot cpm values distribution after filtering #####
   png(paste0(image_dir,parameters$analysis_name,"_boxplot_read_count_distrib2.png"))
   #boxplot(log(filtered_counts$counts+1),
   boxplot(filtered_cpm,
@@ -564,7 +578,7 @@ GEfilt <- function(data_list, parameters){
           las=2,
           ylab="log2(cpm)")
   dev.off()
-#####histogram libsize before normalization#####
+##### histogram libsize before normalization #####
   png(paste0(image_dir,parameters$analysis_name,"_barplot_libsize.png"))
   barplot(filtered_counts$sample$lib.size,
           main = "Distribution of library sizes per samples",
@@ -587,7 +601,7 @@ GEnorm <- function(filtered_GE, parameters){
   
   filtered_cpm <- cpm(filtered_GE, log=TRUE)   #nouveau calcul Cpm sur donnees filtrees, si log=true alors valeurs cpm en log2 
   colnames(filtered_cpm)<-rownames(filtered_GE$samples)
-  #####boxplot log2(cpm) values before normalization#####
+  ##### boxplot log2(cpm) values before normalization #####
   png(paste0(image_dir, parameters$analysis_name,"_boxplot_logcpm_before_norm.png"))
   boxplot(filtered_cpm,
           col=filtered_GE$samples$color,         #boxplot des scores cpm non normalis?s
@@ -599,7 +613,7 @@ GEnorm <- function(filtered_GE, parameters){
   
   norm_GE<-calcNormFactors(filtered_GE, method = parameters$normal_method)                      # normalisation de nos comptages par le methode TMM, estimation du taux de production d'un ARN                                                                      # en estimant l'?chelle des facteurs entre echantillons -> but : pouvoir comparer nos ech entre eux
   
-  #####boxplot log2(cpm) values after normalization#####
+  ##### boxplot log2(cpm) values after normalization #####
   logcpm_norm <- cpm(norm_GE, log=TRUE)
   colnames(logcpm_norm)<-rownames(filtered_GE$samples)
   png(paste0(image_dir, parameters$analysis_name,"_boxplot_logcpm_after_norm.png"))
@@ -610,7 +624,7 @@ GEnorm <- function(filtered_GE, parameters){
           las=2,
           ylab="Log-cpm")
   dev.off()
-  #####histogram libsize after normalization#####
+  ##### histogram libsize after normalization PAS BON A REFAIRE ##### 
   library.size <- norm_GE$samples$lib.size * norm_GE$samples$norm.factors
   png(paste0(image_dir,parameters$analysis_name,"_barplot_effective_libsize.png"))
   barplot(library.size,
@@ -1042,7 +1056,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     AskoStats(glm_test, fit, contrast, asko_list,normGEdisp,parameters)
   }
   #####heatmap cpm value per sample #####
-  if(nrow(norm_GE) <= 30000){
+  if(nrow(norm_GE) <= 100000){
     cpm_norm <- cpm(norm_GE, log = F)
     dat.n <- scale(t(cpm_norm))
     dim(dat.n)
@@ -1071,52 +1085,44 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
               margins = c(15,0))     # Amend row and column label fonts
     
     dev.off()
-  }else{
-    nb_hm = nrow(norm_GE)%/%30000 + 1
-    cpm_norm <- cpm(norm_GE, log = F)
-    dat.n <- scale(t(cpm_norm))
-    d1 <- dist(dat.n,method = "euclidean", diag = FALSE, upper = FALSE)
-    c1 <- hclust(d1, method = "complete", members = NULL)
-    for(i in 1:nb_hm){
-      if(i==1){gene_interval1 = 1}else{gene_interval1 = (i-1) * 30000 + 1}
-      if(i==nb_hm){gene_interval2 = nrow(norm_GE)}else{gene_interval2 = i * 30000}
-      dat.tn <- t(dat.n[,gene_interval1:gene_interval2])
-      d2 <- dist(dat.tn,method = "euclidean", diag = FALSE, upper = TRUE)
-      c2 <- hclust(d2, method = "complete", members = NULL)
-      my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
-      png(paste0("/home/masa/Documents/Bioinfo/Stage_INRA/DE_analysis","/heatmap_test_",i,".png"))
-      heatmap.2(dat.tn,
-                Colv = as.dendrogram(c1),
-                Rowv = as.dendrogram(c2),
-                trace = "none",
-                col = my_palette,
-                cexRow = 0.1,
-                cexCol = 1,
-                xlab = "samples",
-                lwid = c(2, 8),
-                lhei = c(2, 8),
-                ColSideColors = norm_GE$samples$color,
-                main = paste0("gene ", gene_interval1, " to ", gene_interval2),
-                margins = c(7,1))     
-      
-      dev.off()
-    }
   }
+  # }else{
+  #   nb_hm = nrow(norm_GE)%/%30000 + 1
+  #   cpm_norm <- cpm(norm_GE, log = F)
+  #   dat.n <- scale(t(cpm_norm))
+  #   d1 <- dist(dat.n,method = "euclidean", diag = FALSE, upper = FALSE)
+  #   c1 <- hclust(d1, method = "complete", members = NULL)
+  #   for(i in 1:nb_hm){
+  #     if(i==1){gene_interval1 = 1}else{gene_interval1 = (i-1) * 30000 + 1}
+  #     if(i==nb_hm){gene_interval2 = nrow(norm_GE)}else{gene_interval2 = i * 30000}
+  #     dat.tn <- t(dat.n[,gene_interval1:gene_interval2])
+  #     d2 <- dist(dat.tn,method = "euclidean", diag = FALSE, upper = TRUE)
+  #     c2 <- hclust(d2, method = "complete", members = NULL)
+  #     my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
+  #     png(paste0("/home/masa/Documents/Bioinfo/Stage_INRA/DE_analysis","/heatmap_test_",i,".png"))
+  #     heatmap.2(dat.tn,
+  #               Colv = as.dendrogram(c1),
+  #               Rowv = as.dendrogram(c2),
+  #               trace = "none",
+  #               col = my_palette,
+  #               cexRow = 0.1,
+  #               cexCol = 1,
+  #               xlab = "samples",
+  #               lwid = c(2, 8),
+  #               lhei = c(2, 8),
+  #               ColSideColors = norm_GE$samples$color,
+  #               main = paste0("gene ", gene_interval1, " to ", gene_interval2),
+  #               margins = c(7,1))     
+  #     
+  #     dev.off()
+  #   }
+  # }
   
   #####heatmap per condition#####
   n_count<-.NormCountsMean(fit, ASKOlist = asko_list)
   cpm_condition<-cpm(n_count)
   print(head(cpm_condition))
 
-  # condi_exp<-unique(data_list$sample$condition)
-  # condi_color<-unique(data_list$sample$color)
-  # mean_count_table<-data.frame()
-  # for(condition in condi_exp){
-  #   samp<-row.names(data_list$sample)[data_list$sample$condition==condition]
-  #   print(samp[1])
-    
-    
-  #}
   #return(glm_test) 
   return(sum)
   #VD(sum, parameters, asko_list)
@@ -1210,57 +1216,24 @@ GSEA <- function(summaryDEG, asko_list, data_list){
     
   }
   if(parameters$GSEA=="both" | parameters$GSEA=="up"){
-    # png(paste0(image_dir,parameters$analysis_name,"enrich_heatmap_up.png"))#,
-    #     #width = 1500,height = 1200)
-    #   
-    # try(plotHeatmap(enrichment_matrixUP,
-    #               hclust_resultsUP,
-    #               clustersUP,
-    #               cluster_labelsUP,
-    #               min_num_terms = parameters$GSEA_min_num_terms,
-    #               dendrogram_width=0.5,
-    #               cluster_label_width=0.8,
-    #               cluster_label_cex=2, 
-    #               sample_label_cex=3,
-    #               dendrogram_lwd=0.5,
-    #               header_lwd=0.5,
-    #               header_height=0.3))
-    #   dev.off()
-      png(paste0(image_dir,parameters$analysis_name,"enrich_heatmap_up2.png"))#,
+    png(paste0(image_dir,parameters$analysis_name,"enrich_heatmap_up2.png"))#,
           #width = 2000,height = 2000)
-      try(plotHeatmap(enrichment_matrixUP,
-                      hclust_resultsUP, 
-                      clustersUP,
-                      cluster_labelsUP,
-                      min_num_terms = parameters$GSEA_min_num_terms,
-                      dendrogram_width=0.5,
-                      cluster_label_width=0.8,
-                      cluster_label_cex=2, 
-                      sample_label_cex=3,
-                      dendrogram_lwd=0.5,
-                      header_lwd=0.5,
-                      header_height=0.3,
-                      heatmap_colors = "extra"))
-      dev.off()
+    try(plotHeatmap(enrichment_matrixUP,
+                    hclust_resultsUP, 
+                    clustersUP,
+                    cluster_labelsUP,
+                    min_num_terms = parameters$GSEA_min_num_terms,
+                    dendrogram_width=0.5,
+                    cluster_label_width=0.8,
+                    cluster_label_cex=2, 
+                    sample_label_cex=3,
+                    dendrogram_lwd=0.5,
+                    header_lwd=0.5,
+                    header_height=0.3,
+                    heatmap_colors = "extra"))
+    dev.off()
   }
   if(parameters$GSEA=="both" | parameters$GSEA=="down"){
-    # png(paste0(image_dir,parameters$analysis_name,"enrich_heatmap_down.png"),
-    #     width = 1500,
-    #     height = 1200)
-    # try(plotHeatmap(enrichment_matrixDOWN,
-    #             hclust_resultsDOWN, 
-    #             clustersDOWN,
-    #             cluster_labelsDOWN,
-    #             min_num_terms = parameters$GSEA_min_num_terms,
-    #             dendrogram_width=0.5,
-    #             cluster_label_width=0.8,
-    #             cluster_label_cex=3, 
-    #             sample_label_cex=3,
-    #             dendrogram_lwd=0.5,
-    #             header_lwd=0.5,
-    #             header_height=0.3,
-    #             heatmap_colors = "auto"))
-    # dev.off()
     png(paste0(image_dir,parameters$analysis_name,"enrich_heatmap_down2.png"),
         width = 1500,
         height = 1200)
@@ -1281,7 +1254,14 @@ GSEA <- function(summaryDEG, asko_list, data_list){
   }
   matrix <- list("enrich_up"=enrichment_matrixUP,
                  "enrich_down"=enrichment_matrixDOWN,
+                 "clustersUP"=clustersUP,
+                 "clustersDOWN"=clustersDOWN,
                  "label_cluster_up"=cluster_labelsUP,
-                 "label_cluster_down"=cluster_labelsDOWN)
+                 "label_cluster_down"=cluster_labelsDOWN,
+                 "hclust_resultsUP"=hclust_resultsUP,
+                 "hclust_resultsDOWN"=hclust_resultsDOWN,
+                 "gene_listUP"=gene_listUP,
+                 "gene_listDOWN"=gene_listDOWN,
+                 "go_list"=go_list)
   return(matrix)
 }
