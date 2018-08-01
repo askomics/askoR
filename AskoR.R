@@ -172,7 +172,7 @@ loadData <- function(parameters){
     print(samples$file)
     print(rownames(samples))
     print(c(parameters$col_genes,parameters$col_counts))
-    dge<-readDGE(samples$file, labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
+    dge<-readDGE(paste0(input_path,samples$file), labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
     dge<-DGEList(counts=dge$counts, samples=samples)
     #  dge$samples=samples
     #countT<-dge$counts
@@ -936,8 +936,8 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   ASKO_stat$FDR<-p.adjust(ASKO_stat$PValue, method=parameters$p_adj_method)                                # computation of False Discovery Rate
   
   ASKO_stat$Significance=0                                                              # Between context1 and context2 :
-  ASKO_stat$Significance[ASKO_stat$logFC< 0 & ASKO_stat$FDR<=parameters$threshold_FDR] = -1       # Significance values = -1 for down regulated genes
-  ASKO_stat$Significance[ASKO_stat$logFC> 0 & ASKO_stat$FDR<=parameters$threshold_FDR] = 1         # Significance values = 1 for up regulated genes
+  ASKO_stat$Significance[ASKO_stat$logFC< -1 & ASKO_stat$FDR<=parameters$threshold_FDR] = -1       # Significance values = -1 for down regulated genes
+  ASKO_stat$Significance[ASKO_stat$logFC> 1 & ASKO_stat$FDR<=parameters$threshold_FDR] = 1         # Significance values = 1 for up regulated genes
   
   if(parameters$Expression==TRUE){
     ASKO_stat$Expression=NA                                                             # addition of column "expression" 
@@ -1037,7 +1037,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
       glm_test<-glmQLFTest(fit, contrast=data_list$contrast[,contrast])
     }
     
-    sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method)
+    sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=1)
     print(table(sum[,contrast]))
     AskoStats(glm_test, fit, contrast, asko_list,normGEdisp,parameters)
   }
