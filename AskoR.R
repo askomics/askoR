@@ -55,6 +55,8 @@ Asko_start <- function(){
                 help=" GLM method (lrt/qlf) [default= %default]", metavar="character"),
     make_option(c("--lfc"), type="logical", default="TRUE", dest="logFC",
                 help="logFC in the summary table [default= %default]", metavar="logical"),
+    make_option(c("--th_lfc"), type="double", default=1, dest="threshold_logFC",
+                help="logFC threshold [default= %default]", metavar="double"),
     make_option("--fc", type="logical", default="TRUE", dest="FC",
                 help="FC in the summary table [default= %default]", metavar="logical"),
     make_option(c("--lcpm"), type="logical", default="FALSE", dest="logCPM",
@@ -75,7 +77,7 @@ Asko_start <- function(){
                  help="number of genes in the heatmap [default= %default]", metavar="integer"),
     make_option(c("--VD"), type = "character", default = NULL, dest = "VD",
                 help = "", metavar = ""),
-    make_option(c("--VDcompa"), type = "character", default = NULL, dest = "VDcompa",
+    make_option(c("--VDcompa"), type = "character", default = NULL, dest = "compaVD",
                 help = "", metavar = ""),
     make_option(c("--GSEA"), type="character", default=NULL, dest="GSEA",
                 help = "gene set chosen for analysis 'up', 'down', 'both', or NULL", metavar="character"),
@@ -725,171 +727,8 @@ VD <- function(decideTestTable, parameters, asko_list){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")  #
   venn_dir = paste0(study_dir, "vennDiagram/") 
   
-  if(is.null(parameters$VD)==TRUE){
-    name<-c()
-    title<-c()
-    input<-list()
-    for(comparaison in parameters$compaVD){
-      compa<-strsplit2(comparaison, "-")
-      nbCompa <- length(compa)
-      for(n in 1:nbCompa){
-        col_num <- which(colnames(decideTestTable)==compa[n])
-        na <- asko_list$contrast$Contrast[col_num]
-        print(na)
-        name <- append(name, na)
-        ti <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[n]]
-        print(ti)
-        title <- append(title, ti)
-        upNdown <- rownames(decideTestTable)[decideTestTable[col_num]!=0]
-        input[[n]] <- append(input, upNdown)
-      }
-      print(length(input))
-      if(nbCompa==2){
-        input_list = list(c1=input[[1]] ,c2=input[[2]])
-        color<-c("palegreen","skyblue")
-      }
-      if(nbCompa==3){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]])}
-      if(nbCompa==4){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]])}
-      if(nbCompa==5){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]], c5=input[[5]])}
-      
-      color <- brewer.pal(nbCompa, parameters$palette)
-      title_file <- paste(title, sep = "-")
-      print(name)
-      #filename <- title_file
-      venn.diagram(input_list, main=title_file,
-                   filename=paste0(venn_dir ,title_file, ".png"),
-                   imagetype = "png",
-                   fill = color,
-                   cex = 1.5,
-                   cat.cax = 1.2,
-                   category.names = name,
-                   col=0,euler.d = FALSE,scaled=FALSE)
-    }
-  }
-  if(parameters$VD == "both"){
-    for(comparaison in parameters$compaVD){
-      compa<-strsplit2(comparaison, "-")
-      column1<-which(colnames(decideTestTable)==compa[1])
-      column2<-which(colnames(decideTestTable)==compa[2])
-  
-      na1<-paste0(asko_list$contrast$context1[column1],"<",asko_list$contrast$context2[column1])
-      na2<-paste0(asko_list$contrast$context1[column1],">",asko_list$contrast$context2[column1])
-      na3<-paste0(asko_list$contrast$context1[column2],"<",asko_list$contrast$context2[column2])
-      na4<-paste0(asko_list$contrast$context1[column2],">",asko_list$contrast$context2[column2])
-      
-      name_c1<-asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[1]]
-      name_c2<-asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[2]]
-      
-      Gup_c1<-rownames(decideTestTable)[decideTestTable[,column1]==-1]
-      Gdown_c1<-rownames(decideTestTable)[decideTestTable[,column1]==1]
-      Gup_c2<-rownames(decideTestTable)[decideTestTable[,column2]==-1]
-      Gdown_c2<-rownames(decideTestTable)[decideTestTable[,column2]==1]
-      input<-list(up_1=Gup_c1,
-                  down_1=Gdown_c1,
-                  up_2=Gup_c2,
-                  down_2=Gdown_c2)
-      
-      filename = paste0(name_c1,"-",name_c2)
-      print(filename)
-      venn<-venn.diagram(input, main=paste(name_c1, name_c2, sep = "/"),
-                   filename=paste0(venn_dir, filename, ".png"),
-                   height = 3000,
-                   width = 3000,
-                   imagetype = "png",
-                   main.cex = 1.5,
-                   cat.cex = 1.2,
-                   cex=1.5,
-                   cat.dist = c(-0.4,-0.4,0.1,0.1),
-                   cat.col = c( "red1","royalblue1", "red3", "royalblue4"),
-                   category.names = c(na1, na2, na3, na4),
-                   col=c( "red1","royalblue1", "red3", "royalblue4"),
-                   euler.d = FALSE,
-                   scaled=FALSE)
-    }
-  }
-  if(parameters$VD == "up"){
-    for(comparaison in parameters$compaVD){
-      name<-c()
-      title<-c()
-      input<-list()
-      compa<-strsplit2(comparaison, "-")
-      nbCompa <- length(compa)
-      print(nbCompa)
-      for(n in 1:nbCompa){
-        col_num <- which(colnames(decideTestTable)==compa[n])
-        na <- paste0(asko_list$contrast$context1[col_num],"<",asko_list$contrast$context2[col_num])
-        name <- append(name, na)
-        
-        ti <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[n]]
-        title <- append(title, ti)
-        up <- rownames(decideTestTable)[decideTestTable[,col_num]==-1]
-        print(length(up))
-        input[[n]] <- append(input, up)
-        
-      }
-      if(nbCompa==2){
-        input_list = list(c1=input[[1]] ,c2=input[[2]])
-        color<-c("palegreen","skyblue")
-      }
-      if(nbCompa==3){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]])}
-      if(nbCompa==4){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]])}
-      if(nbCompa==5){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]], c5=input[[5]])}
-      color <- brewer.pal(nbCompa, parameters$palette)
-      title_file <- paste(title, sep = "-", collapse = "-")
-      filename <- paste0(title_file,"up")
-      print(name)
-      venn.diagram(input_list, main=title_file,
-                   filename=paste0(venn_dir, filename, ".png"),
-                   imagetype = "png",
-                   fill = color,
-                   cex=1.5,
-                   cat.cex=1,
-                   category.names = name,
-                   col=0,euler.d = FALSE,scaled=FALSE
-                   )
-    }
-  }
-  if(parameters$VD == "down"){
-    for(comparaison in parameters$compaVD){
-      name<-c()
-      title<-c()
-      input<-list()
-      compa<-strsplit2(comparaison, "-")
-      nbCompa <- length(compa)
-      for(n in 1:nbCompa){
-        col_num <- which(colnames(decideTestTable)==compa[n])
-        na <- paste0(asko_list$contrast$context1[col_num],">",asko_list$contrast$context2[col_num])
-        name <- append(name, na)
-        ti <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[n]]
-        title <- append(title, ti)
-        down <- rownames(decideTestTable)[decideTestTable[,col_num]==1]
-        print(length(down))
-        input[[n]] <- append(input, down)
-        
-      }
-      if(nbCompa==2){
-        input_list = list(c1=input[[1]] ,c2=input[[2]])
-        color<-c("palegreen","skyblue")
-      }
-      if(nbCompa==3){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]])}
-      if(nbCompa==4){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]])}
-      if(nbCompa==5){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]], c5=input[[5]])}
-      color <- brewer.pal(nbCompa, parameters$palette)
-      title_file <- paste(title, sep = "-", collapse = "-")
-      filename <- paste0(title_file,"down")
-      venn.diagram(input_list, main=title_file,
-                   filename=paste0(venn_dir, filename, ".png"),
-                   imagetype = "png",
-                   fill = color,
-                   cex=1.5,
-                   cat.cex=1,
-                   category.names = name,
-                   col=0,euler.d = FALSE,scaled=FALSE
-      )
-    }
-  }
-  if(parameters$VD == "all"){
-
+  if(is.null(parameters$VD)==TRUE || parameters$VD=="" || parameters$VD == "all"){
+    
     for(comparaison in parameters$compaVD){
       name<-c()
       title<-c()
@@ -932,6 +771,128 @@ VD <- function(decideTestTable, parameters, asko_list){
       )
     }
   }
+  else if(parameters$VD == "both"){
+    for(comparaison in parameters$compaVD){
+      compa<-strsplit2(comparaison, "-")
+      column1<-which(colnames(decideTestTable)==compa[1])
+      column2<-which(colnames(decideTestTable)==compa[2])
+  
+      na1<-paste0(asko_list$contrast$context1[column1],"<",asko_list$contrast$context2[column1])
+      na2<-paste0(asko_list$contrast$context1[column1],">",asko_list$contrast$context2[column1])
+      na3<-paste0(asko_list$contrast$context1[column2],"<",asko_list$contrast$context2[column2])
+      na4<-paste0(asko_list$contrast$context1[column2],">",asko_list$contrast$context2[column2])
+      
+      name_c1<-asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[1]]
+      name_c2<-asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[2]]
+      
+      Gup_c1<-rownames(decideTestTable)[decideTestTable[,column1]==-1]
+      Gdown_c1<-rownames(decideTestTable)[decideTestTable[,column1]==1]
+      Gup_c2<-rownames(decideTestTable)[decideTestTable[,column2]==-1]
+      Gdown_c2<-rownames(decideTestTable)[decideTestTable[,column2]==1]
+      input<-list(up_1=Gup_c1,
+                  down_1=Gdown_c1,
+                  up_2=Gup_c2,
+                  down_2=Gdown_c2)
+      
+      filename = paste0(name_c1,"-",name_c2)
+      print(filename)
+      venn<-venn.diagram(input, main=paste(name_c1, name_c2, sep = "/"),
+                   filename=paste0(venn_dir, filename, ".png"),
+                   height = 3000,
+                   width = 3000,
+                   imagetype = "png",
+                   main.cex = 1.5,
+                   cat.cex = 1.2,
+                   cex=1.5,
+                   cat.dist = c(-0.4,-0.4,0.1,0.1),
+                   cat.col = c( "red1","royalblue1", "red3", "royalblue4"),
+                   category.names = c(na1, na2, na3, na4),
+                   col=c( "red1","royalblue1", "red3", "royalblue4"),
+                   euler.d = FALSE,
+                   scaled=FALSE)
+    }
+  }
+  else if(parameters$VD == "up"){
+    for(comparaison in parameters$compaVD){
+      name<-c()
+      title<-c()
+      input<-list()
+      compa<-strsplit2(comparaison, "-")
+      nbCompa <- length(compa)
+      print(nbCompa)
+      for(n in 1:nbCompa){
+        col_num <- which(colnames(decideTestTable)==compa[n])
+        na <- paste0(asko_list$contrast$context1[col_num],"<",asko_list$contrast$context2[col_num])
+        name <- append(name, na)
+        
+        ti <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[n]]
+        title <- append(title, ti)
+        up <- rownames(decideTestTable)[decideTestTable[,col_num]==-1]
+        print(length(up))
+        input[[n]] <- append(input, up)
+        
+      }
+      if(nbCompa==2){
+        input_list = list(c1=input[[1]] ,c2=input[[2]])
+        color<-c("palegreen","skyblue")
+      }
+      if(nbCompa==3){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]])}
+      if(nbCompa==4){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]])}
+      if(nbCompa==5){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]], c5=input[[5]])}
+      color <- brewer.pal(nbCompa, parameters$palette)
+      title_file <- paste(title, sep = "-", collapse = "-")
+      filename <- paste0(title_file,"up")
+      print(name)
+      venn.diagram(input_list, main=title_file,
+                   filename=paste0(venn_dir, filename, ".png"),
+                   imagetype = "png",
+                   fill = color,
+                   cex=1.5,
+                   cat.cex=1,
+                   category.names = name,
+                   col=0,euler.d = FALSE,scaled=FALSE
+                   )
+    }
+  }
+  else if(parameters$VD == "down"){
+    for(comparaison in parameters$compaVD){
+      name<-c()
+      title<-c()
+      input<-list()
+      compa<-strsplit2(comparaison, "-")
+      nbCompa <- length(compa)
+      for(n in 1:nbCompa){
+        col_num <- which(colnames(decideTestTable)==compa[n])
+        na <- paste0(asko_list$contrast$context1[col_num],">",asko_list$contrast$context2[col_num])
+        name <- append(name, na)
+        ti <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[n]]
+        title <- append(title, ti)
+        down <- rownames(decideTestTable)[decideTestTable[,col_num]==1]
+        print(length(down))
+        input[[n]] <- append(input, down)
+        
+      }
+      if(nbCompa==2){
+        input_list = list(c1=input[[1]] ,c2=input[[2]])
+        color<-c("palegreen","skyblue")
+      }
+      if(nbCompa==3){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]])}
+      if(nbCompa==4){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]])}
+      if(nbCompa==5){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]], c5=input[[5]])}
+      color <- brewer.pal(nbCompa, parameters$palette)
+      title_file <- paste(title, sep = "-", collapse = "-")
+      filename <- paste0(title_file,"down")
+      venn.diagram(input_list, main=title_file,
+                   filename=paste0(venn_dir, filename, ".png"),
+                   imagetype = "png",
+                   fill = color,
+                   cex=1.5,
+                   cat.cex=1,
+                   category.names = name,
+                   col=0,euler.d = FALSE,scaled=FALSE
+      )
+    }
+  }
 }
 
 AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
@@ -950,8 +911,8 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   ASKO_stat$FDR<-p.adjust(ASKO_stat$PValue, method=parameters$p_adj_method)                                # computation of False Discovery Rate
   
   ASKO_stat$Significance=0                                                              # Between context1 and context2 :
-  ASKO_stat$Significance[ASKO_stat$logFC< -1 & ASKO_stat$FDR<=parameters$threshold_FDR] = -1       # Significance values = -1 for down regulated genes
-  ASKO_stat$Significance[ASKO_stat$logFC> 1 & ASKO_stat$FDR<=parameters$threshold_FDR] = 1         # Significance values = 1 for up regulated genes
+  ASKO_stat$Significance[ASKO_stat$logFC < -parameters$threshold_logFC & ASKO_stat$FDR <= parameters$threshold_FDR] = -1       # Significance values = -1 for down regulated genes
+  ASKO_stat$Significance[ASKO_stat$logFC > parameters$threshold_logFC  & ASKO_stat$FDR <= parameters$threshold_FDR] = 1        # Significance values =  1 for up regulated genes
   
   if(parameters$Expression==TRUE){
     ASKO_stat$Expression=NA                                                             # addition of column "expression" 
@@ -1051,7 +1012,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
       glm_test<-glmQLFTest(fit, contrast=data_list$contrast[,contrast])
     }
     
-    sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=1)
+    sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC)
     print(table(sum[,contrast]))
     AskoStats(glm_test, fit, contrast, asko_list,normGEdisp,parameters)
   }
