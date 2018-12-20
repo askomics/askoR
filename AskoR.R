@@ -1,15 +1,10 @@
 Asko_start <- function(){
-  library(limma)
-  library(statmod)
-  library(edgeR)
-  library(VennDiagram)
-  library(ggplot2)
-  library(RColorBrewer)
-  library(ggrepel)
-  library(gplots)
-  library(stringr)
-  library(optparse)
-  library(goSTAG)
+  # chargement des libraries sans messages qui s'affiche (sauf les messages d'erreurs) 
+  pkgs<-c("limma","statmod","edgeR","VennDiagram","RColorBrewer",
+          "ggplot2","ggrepel","gplots","stringr","optparse","goSTAG")
+  for(p in pkgs) suppressPackageStartupMessages(library(p, quietly=TRUE, character.only=TRUE))
+  
+  # liste des options
   option_list = list(
     make_option(c("-o", "--out"), type="character", default="DE_analysis",dest="analysis_name",
                 help="output directory name [default= %default]", metavar="character"),
@@ -25,7 +20,13 @@ Asko_start <- function(){
                 help="col of counts in count files [default= %default (featureCounts) ]", metavar="integer"),
     make_option(c("-t", "--sep"), type="character", default="\t", dest="sep",
                 help="col separator [default= %default]", metavar="character"),
-    make_option(c("-a", "--annotation"), type="character", default=NULL, dest="annotation_file",
+    make_option(c("--GO_MF"), type="character", default=NULL, dest="GO_MF",
+                help="GO Molecular Fonction annotation file [default= %default]", metavar="character"),
+    make_option(c("--GO_BP"), type="character", default=NULL, dest="GO_BP",
+                help="GO Biological Process annotation file [default= %default]", metavar="character"),
+    make_option(c("--GO_CC"), type="character", default=NULL, dest="GO_CC",
+                help="GO Cellular Component annotation file [default= %default]", metavar="character"),
+    make_option(c("-a", "--annotation"), type="character", default=NULL, dest="annotation",
                 help="annotation file [default= %default]", metavar="character"),
     make_option(c("-s", "--sample"), type="character", default="Samples.txt", dest="sample_file",
                 help="Samples file [default= %default]", metavar="character"),
@@ -77,27 +78,27 @@ Asko_start <- function(){
                  help="number of genes in the heatmap [default= %default]", metavar="integer"),
     make_option(c("--VD"), type = "character", default = NULL, dest = "VD",
                 help = "", metavar = ""),
-    make_option(c("--VDcompa"), type = "character", default = NULL, dest = "compaVD",
+    make_option(c("--compaVD"), type = "character", default = NULL, dest = "compaVD",
                 help = "", metavar = ""),
-    make_option(c("--GSEA"), type="character", default=NULL, dest="GSEA",
-                help = "gene set chosen for analysis 'up', 'down', 'both', or NULL", metavar="character"),
-    make_option(c("--GSEA_filt_meth"), type="character", default = "p.adjust", dest="GSEA_filt_meth",
+    make_option(c("--GO"), type="character", default=NULL, dest="GO",
+                help = "gene set chosen for GO enrichment analysis 'up', 'down', 'both', or NULL", metavar="character"),
+    make_option(c("--GO_filt_meth"), type="character", default = "p.adjust", dest="GO_filt_meth",
                 help = "Use 'pval' to filter on nominal p-value or 'p.adjust' to filter on adjusted p-value", metavar="character"),
-    make_option(c("--GSEA_padj_meth"), type="character", default = "BH", dest="GSEA_padj_meth",
+    make_option(c("--GO_padj_meth"), type="character", default = "BH", dest="GO_padj_meth",
                 help = "correction method used to adjust p-values; available option : 'holm', 'hochberg', 'hommel', 'bonferroni', 'BH', 'BY', 'fdr', 'none'", metavar = "character"),
-    make_option(c("--GSEA_threshold"), type="numeric", default = "0.05", dest="GSEA_threshold",
+    make_option(c("--GO_threshold"), type="numeric", default = "0.05", dest="GO_threshold",
                 help = "the significant threshold used to filter p-values", metavar = "integer"),
-    make_option(c("--GSEA_min_num_terms"), type="integer", default = "10", dest="GSEA_min_num_terms",
+    make_option(c("--GO_min_num_terms"), type="integer", default = "10", dest="GO_min_num_terms",
                 help = "the minimum number of GO terms required to plot a cluster label", metavar = "integer")
-    )
+  )
   opt_parser = OptionParser(option_list=option_list)
   parameters = parse_args(opt_parser)
  
-   if(is.null(parameters$rm_sample) == FALSE ) {
+  if(is.null(parameters$rm_sample) == FALSE ) {
     str_replace_all(parameters$rm_sample, " ", "")
     parameters$rm_sample<-strsplit2(parameters$rm_sample, ",")
-   }
-  
+  }
+
   if(is.null(parameters$select_sample) == FALSE ) {
     str_replace_all(parameters$select_sample, " ", "")
     parameters$select_sample<-strsplit2(parameters$select_sample, ",")
@@ -107,27 +108,32 @@ Asko_start <- function(){
 }
 
 loadData <- function(parameters){
-  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")  #
-  input_path = paste0(parameters$dir_path, "/input/")                         #                                 # initializing 
-  image_dir = paste0(study_dir, "images/")                                    #
+  # initialise le répertoire de travail
+  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
+  
+  # Dossiers pour les fichiers de sortie
+  #---------------------------------------------------------
+  # initialise les noms des dossiers
+  cat("\n\nCreate directories:\n")
+  image_dir = paste0(study_dir, "images/") 
   print(image_dir)
-  venn_dir = paste0(study_dir, "vennDiagram/")                                # of each directory path
+  venn_dir = paste0(study_dir, "vennDiagram/") 
   print(venn_dir)
-  asko_dir = paste0(study_dir, "Askomics/")                                   #
-  print(asko_dir)                                                           ###
-  if(dir.exists(study_dir)==FALSE){                                           #
-    dir.create(study_dir)                                                     # 
-  }                                                                           #
-  if(dir.exists(image_dir)==FALSE){                                           #
-    dir.create(image_dir)                                                     # 
-  }                                                                           #
-  if(dir.exists(venn_dir)==FALSE){                                            # creating directories
-    dir.create(venn_dir)                                                      # if they not exist
-  }                                                                           #
-  if(dir.exists(asko_dir)==FALSE){                                            #
-    dir.create(asko_dir)                                                      #
-  }                                                                         ###
-  #####samples#####
+  asko_dir = paste0(study_dir, "Askomics/") 
+  print(asko_dir)
+  
+  # crée les dossiers si ils n'existent pas
+  if(dir.exists(study_dir)==FALSE){ dir.create(study_dir) }  
+  if(dir.exists(image_dir)==FALSE){ dir.create(image_dir) }  
+  if(dir.exists(venn_dir)==FALSE){ dir.create(venn_dir) }                                                                           #
+  if(dir.exists(asko_dir)==FALSE){ dir.create(asko_dir) }                                                                         ###
+  
+  # Gestions des fichiers d'entrée 
+  #---------------------------------------------------------
+  # répertoire contenant les fichiers d'entrée
+  input_path = paste0(parameters$dir_path, "/input/") 
+  
+  # fichier décrivant les échantillons
   sample_path<-paste0(input_path, parameters$sample_file)
   cat("CSV")
   samples<-read.csv(sample_path, header=TRUE, sep="\t", row.names=1, comment.char = "#")
@@ -259,19 +265,39 @@ loadData <- function(parameters){
     }
     contrast_table[,contrast]<-as.numeric(contrast_table[,contrast])
   }
+  data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
 
-#####annotation##### !!!!! à finir !!!!!
-
-  if(is.null(parameters$annotation)==FALSE) {
-    annotation <- read.csv(paste0(input_path, parameters$annotation_file), header = F, sep = '\t', quote = "")#, row.names = 1)
-
-    rownames(dge$samples)<-rownames(samples) #replace the renaming by files
-    data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "annot"=annotation, "design"=designExp)
+  #####annotation##### !!!!! à finir !!!!!
+  if(is.null(parameters$annotation)==FALSE){
+    annot<-read.csv(paste0(input_path, parameters$annotation), header = F, row.names = 1, sep = '\t', quote = "")
+    data[["annot"]]=annot
   }
-  else {
-    data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
+
+  if(is.null(parameters$GO_MF)==FALSE) {
+    goMF<-read.csv(paste0(input_path, parameters$GO_MF), header = F, sep = '\t', quote = "")
+    data[["GO_MF"]]=goMF
   }
-  #data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
+
+  if(is.null(parameters$GO_BP)==FALSE) {
+    goBP<-read.csv(paste0(input_path, parameters$GO_BP), header = F, sep = '\t', quote = "")
+    data[["GO_BP"]]=goBP
+  }
+
+  if(is.null(parameters$GO_CC)==FALSE) {
+    goCC<-read.csv(paste0(input_path, parameters$GO_CC), header = F, sep = '\t', quote = "")
+    data[["GO_CC"]]=goCC
+  }
+  
+  
+  # if(is.null(parameters$GOannotation)==FALSE) {
+  #   GOannotation <- read.csv(paste0(input_path, parameters$GOannotation), header = F, sep = '\t', quote = "")
+  # 
+  #   rownames(dge$samples)<-rownames(samples) 
+  #   data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "GOannot"=GOannotation, "design"=designExp)
+  # }
+  # else {
+  #   data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
+  # }
   return(data)
 }
 
@@ -652,26 +678,26 @@ GEcorr <- function(dge, parameters){
   cormat<-cor(lcpm)
  # color<- colorRampPalette(c("yellow", "white", "green"))(20)
   color<-colorRampPalette(c("black","red","yellow","white"),space="rgb")(35)
-  png(paste0(image_dir, parameters$analysis_name, "heatmap_of_sample_correlation.png"))
+  png(paste0(image_dir, parameters$analysis_name, "_heatmap_of_sample_correlation.png"))
   heatmap(cormat, col=color, symm=TRUE,RowSideColors =as.character(dge$samples$color), ColSideColors = as.character(dge$samples$color))
   dev.off()
   #MDS
   mds <- cmdscale(dist(t(lcpm)),k=3, eig=TRUE)
   eigs<-round((mds$eig)*100/sum(mds$eig[mds$eig>0]),2)
   
-  png(paste0(image_dir, parameters$analysis_name, "MDS_corr_axe1_2.png"))
+  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_2.png"))
   mds1<-ggplot(as.data.frame(mds$points), aes(V1, V2, label = rownames(mds$points))) + labs(title="MDS Axes 1 and 2") + geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +ylab(paste('dim 2 [', eigs[2], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
   print(mds1)
   dev.off()
   #ggsave("mds_corr1-2.tiff")
   #ggtitle("MDS Axes 2 and 3")
-  png(paste0(image_dir, parameters$analysis_name, "MDS_corr_axe2_3.png"))
+  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe2_3.png"))
   mds2<-ggplot(as.data.frame(mds$points), aes(V2, V3, label = rownames(mds$points))) + labs(title="MDS Axes 2 and 3") + geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 2 [', eigs[2], '%]')) +ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
   print(mds2)
   dev.off()
   # ggtitle("MDS Axes 1 and 3")
   #ggsave("mds_corr2-3.tiff")
-  png(paste0(image_dir, parameters$analysis_name, "MDS_corr_axe1_3.png"))
+  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_3.png"))
   mds3<-ggplot(as.data.frame(mds$points), aes(V1, V3, label = rownames(mds$points))) + labs(title="MDS Axes 1 and 3") + geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
   print(mds3)
   dev.off()
@@ -680,7 +706,7 @@ GEcorr <- function(dge, parameters){
   #####hierarchical clustering##### 
   mat.dist <- dist(t(asko_norm$counts), method = "euclidean")
   clustering <- hclust(mat.dist, method = "complete")
-  png(paste0(image_dir,"/hclust.png"))
+  png(paste0(image_dir, parameters$analysis_name, "_hclust.png"))
   plot(clustering,
        main = 'cluster dendrogram',
        hang = -1)
@@ -953,7 +979,7 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]
   
  
-  write.table(ASKOlist$stat.table,paste0(asko_dir, parameters$organism, contrasko, ".txt"),                                    #
+  write.table(ASKOlist$stat.table,paste0(asko_dir, parameters$organism, "_", contrasko, ".txt"),                                    #
               sep=parameters$sep, col.names = T, row.names = F, quote=FALSE)
   
   if(parameters$heatmap==TRUE){
@@ -998,10 +1024,11 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     fit <- glmQLFit(normGEdisp, data_list$design, robust = T)
     plotQLDisp(fit)
   }
-  #png(paste0(image_dir, "plot_BCV.png"))
-  #plotBCV(norm_GE)
-  #dev.off()
-  #plotMD.DGEGLM(fit)     
+  # png(paste0(image_dir, "plot_BCV.png"))
+  # plotBCV(norm_GE)
+  # dev.off()
+  # plotMD.DGEGLM(fit)     
+
   sum<-data.frame(row.names = rownames(fit))
   for (contrast in colnames(data_list$contrast)){
     #print(asko_list$contrast$Contrast[rownames(asko_list$contrast)==contrast])
@@ -1027,7 +1054,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     c1 <- hclust(d1, method = "complete", members = NULL)
     c2 <- hclust(d2, method = "complete", members = NULL)
     my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
-    png(paste0(image_dir,"heatmap_test.png"))
+    png(paste0(image_dir, parameters$analysis_name, "_heatmap_test.png"))
     heatmap.2(dat.tn,                     # Tidy, normalised data
               Colv = as.dendrogram(c1),     # Experiments clusters in cols
               Rowv = as.dendrogram(c2),     # Protein clusters in rows
@@ -1084,48 +1111,108 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   cpm_condition<-cpm(n_count)
   print(head(cpm_condition))
 
+  # create summary file with annotations (if available) and contrast value for each gene
+  if(is.null(data_list$annot)==FALSE)
+  {
+    rnames<-row.names(sum)                        # récupère les noms des gènes DE
+    annDE<-as.matrix(data_list$annot[rnames,])    # récupère les annotations correspondante
+    rownames(annDE)<-rnames                       # replace les idgenes en nom de lignes
+    colnames(annDE)<-c("Description")             # annotation défini comme description
+    
+    SumMat<-cbind(annDE,sum)                      # merge les deux matrices
+    write.table(SumMat, paste0(study_dir,parameters$analysis_name,"_summary_DE.csv"), col.names=T, row.names = T, quote=F, sep='\t')
+  }
+  else
+  {
+    write.table(sum, paste0(study_dir,parameters$analysis_name,"_summary_DE.csv"), col.names=T, row.names = T, quote=F, sep='\t')
+  }
+  
   #return(glm_test) 
   return(sum)
   #VD(sum, parameters, asko_list)
 }
 
-GSEA <- function(summaryDEG, asko_list, data_list){
+
+#### Enrichment Analysis ####
+#############################
+# Function : Loop goSTAG 
+#---------------------------------------
+loopGoStag<-function(gene_list,go_list,lvl,nameGo){
+  study_dir = paste0(parameters$dir_path, "/", parameters$analysis_name, "/") 
+  image_dir = paste0(study_dir, "images/")
   
-  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
-  image_dir = paste0(study_dir, "images/")                      #
+  # Generating the Enrichment Matrix
+  cat("1st step : create a matrix of GO enrichment scores\n\n")
+  try(enrichment_matrix <- performGOEnrichment(gene_list, go_list,
+                                               filter_method = parameters$GO_filt_meth,
+                                               significance_threshold = parameters$GO_threshold,
+                                               p.adjust_method = parameters$GO_padj_meth) 
+  )
   
-  all_genes <- as.character(unique(data_list$annot[[1]]))
-  #print(length(all_genes))
-  go_all<-as.character(unique(data_list$annot[[2]]))
-  #print(length(go_all))
-  if(parameters$GSEA=="both" | parameters$GSEA=="up"){gene_listUP<-list()}
-  if(parameters$GSEA=="both" | parameters$GSEA=="down"){gene_listDOWN<-list()}
+  # Hierarchical Clustering
+  cat("2nd step : cluster the GO terms\n")
+  # Il peut prendre plus de parametres comme : distance_method="euclidean",clustering_method="complete" (cf doc goSTAG)
+  try(hclust_results <- performHierarchicalClustering(enrichment_matrix)) 
+  print(hclust_results)
+  
+  # Grouping the Clusters
+  cat("3rd step : group the GO tems into clusters\n\n")
+  try(clusters <- groupClusters(hclust_results))
+  print(clusters)
+  
+  # Annotating the Clusters
+  cat("4th step : annotate each of the clusters\n\n")
+  try(cluster_labels <- annotateClusters(clusters))
+  print(cluster_labels)
+  
+  # Plotting a Heatmap
+  GOtitle=""
+  if(nameGo=="MF"){ GOtitle="Molecular Function" }
+  if(nameGo=="BP"){ GOtitle="Biological Process" }
+  if(nameGo=="CC"){ GOtitle="Cellular Component" }
+  png(paste0(image_dir, parameters$analysis_name,"_",nameGo,"_enrich_heatmap_",lvl,".png"), width=1500, height=1200)
+  try(plotHeatmap(enrichment_matrix,
+                  hclust_results, 
+                  clusters,
+                  cluster_labels,
+                  min_num_terms = parameters$GO_min_num_terms,
+                  dendrogram_width=0.5,
+                  cluster_label_width=0.8,
+                  cluster_label_cex=2,
+                  sample_label_cex=3,
+                  dendrogram_lwd=0.5,
+                  header_lwd=0.5,
+                  header_height=0.3, 
+                  heatmap_colors = "extra"))
+  dev.off()
+  
+  # save all in matrix
+  matrix<-list()
+  matrix[[paste0(as.character(nameGo),"_enrich_",as.character(lvl))]] <- enrichment_matrix
+  matrix[[paste0(as.character(nameGo),"_clusters_",as.character(lvl))]] <- clusters
+  matrix[[paste0(as.character(nameGo),"_label_cluster_",as.character(lvl))]] <- cluster_labels
+  matrix[[paste0(as.character(nameGo),"_hclust_results_",as.character(lvl))]] <- hclust_results
+  matrix[[paste0(as.character(nameGo),"_gene_list_",as.character(lvl))]] <- gene_list
+  matrix[[paste0(as.character(nameGo),"_go_list_",as.character(lvl))]] <- go_list
+  return(matrix)
+}
+
+# Function : Running goSTAG 
+#--------------------------------------- 
+runGoStag<-function(summaryDEG, asko_list, data_go, nameGo){
+  # classe GO pour les titres
+  GOtitle=""
+  if(nameGo=="MF"){ GOtitle="Molecular Function" }
+  if(nameGo=="BP"){ GOtitle="Biological Process" }
+  if(nameGo=="CC"){ GOtitle="Cellular Component" }
+  
+  # GO terms lists
+  #----------------------------------------
+  all_genes <- as.character(unique(data_go[[1]]))
+  go_all<-as.character(unique(data_go[[2]]))
   go_list<-list()
-  
-  for(n in 1:ncol(summaryDEG)){
-    cont_name<-colnames(summaryDEG[n])    
-    condDE_name <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==cont_name]
-
-    if(parameters$GSEA=="both" | parameters$GSEA=="up"){
-      DEGup<-rownames(summaryDEG[n])[summaryDEG[n]==-1]
-      #print(paste0("DEGup: ", length(DEGup)))
-      if(length(DEGup)!=0){
-        gene_listUP$up<-DEGup
-        names(gene_listUP)[names(gene_listUP)=="up"]<-condDE_name
-      }
-
-    }
-    if(parameters$GSEA=="both" | parameters$GSEA=="down"){
-      DEGdown<-rownames(summaryDEG[n])[summaryDEG[n]==1]
-      #print(paste0("DEGdown: ", length(DEGdown)))
-      if(length(DEGdown)!=0){
-        gene_listDOWN$down<-DEGdown
-        names(gene_listDOWN)[names(gene_listDOWN)=="down"]<-condDE_name
-      }
-    }
-  }
   for(n in 1:length(go_all)){
-    gene <- data_list$annot[1][data_list$annot[2]==go_all[n]]
+    gene <- data_go[1][data_go[2]==go_all[n]]
     if(length(gene)!=0){
       go_list$g <- as.character(gene)
       Go_name <- as.character(go_all[n])
@@ -1135,94 +1222,50 @@ GSEA <- function(summaryDEG, asko_list, data_list){
   go_list$all <- as.character(all_genes)
   names(go_list)[names(go_list)=="all"]<-"ALL"
   
-  if(parameters$GSEA=="both" | parameters$GSEA=="up"){
-    print("calcul matrix UP en cours")
-    try(enrichment_matrixUP <- performGOEnrichment(gene_listUP,
-                                                   go_list,
-                                                   filter_method = parameters$GSEA_filt_meth,
-                                                   significance_threshold = parameters$GSEA_threshold,
-                                                   p.adjust_method = parameters$GSEA_padj_meth) 
-    )
-    print("calcul matrix UP terminé")
-    try(hclust_resultsUP <- performHierarchicalClustering(enrichment_matrixUP))
-    print(hclust_resultsUP)
-    try(clustersUP <- groupClusters(hclust_resultsUP))
-    print(clustersUP)
-    #lapply( head( clusters ), head )
-    print("annotation des clusters UP en cours")
-    try(cluster_labelsUP <- annotateClusters(clustersUP))
-    print(cluster_labelsUP)
-    #head( cluster_labels )
-    print("annotation des clusters UP terminé")
+  # create Gene DE lists for each contrast
+  #----------------------------------------
+  gene_listUP<-list()
+  gene_listDOWN<-list() 
+  matrixUP<-list()
+  matrixDOWN<-list()
+  
+  if(parameters$GO=="both" | parameters$GO=="up"){
+    # retrieve data and place it in list of genes by contrast
+    for(n in 1:ncol(summaryDEG)){
+      # contrast
+      contrast_name<-colnames(summaryDEG[n])    
+      contrastDE_name <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==contrast_name]
+      # all genes up for this contrast
+      DEGup<-rownames(summaryDEG[n])[summaryDEG[n]==-1] 
+      if(length(DEGup)!=0){
+        gene_listUP$up<-DEGup
+        names(gene_listUP)[names(gene_listUP)=="up"]<-contrastDE_name
+      }
+    }
+    # Make enrichment analysis for DEGenes
+    cat(GOtitle,": Enrichment Analysis for DEGenes UP\n")
+    matrixUP<-loopGoStag(gene_listUP,go_list,"up",nameGo)
   }
-  if(parameters$GSEA=="both" | parameters$GSEA=="down"){
-    print("calcul matrix DOWN en cours")
-    try(enrichment_matrixDOWN <- performGOEnrichment(gene_listDOWN, 
-                                               go_list,
-                                               filter_method = parameters$GSEA_filt_meth,
-                                               significance_threshold = parameters$GSEA_threshold, 
-                                               p.adjust_method = parameters$GSEA_padj_meth) 
-    )
-    print("calcul matrix DOWN terminé")
-    try(hclust_resultsDOWN <- performHierarchicalClustering(enrichment_matrixDOWN))
-    #print(hclust_resultsDOWN)
-    try(clustersDOWN <- groupClusters(hclust_resultsDOWN))
-    #print(clustersDOWN)
-    #lapply( head( clusters ), head )
-    print("annotation des clusters DOWN en cours")
-    try(cluster_labelsDOWN <- annotateClusters(clustersDOWN))
-    #print(cluster_labelsDOWN)
-    #head( cluster_labels )
-    print("annotation des clusters DOWN en cours")
-    
+  
+  if(parameters$GO=="both" | parameters$GO=="down"){
+    # retrieve data and place it in list of genes by contrast
+    for(n in 1:ncol(summaryDEG)){
+      # contrast
+      contrast_name<-colnames(summaryDEG[n])    
+      contrastDE_name <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==contrast_name]
+      # all genes up for this contrast
+      DEGdown<-rownames(summaryDEG[n])[summaryDEG[n]==1] 
+      if(length(DEGdown)!=0){
+        gene_listDOWN$down<-DEGdown
+        names(gene_listDOWN)[names(gene_listDOWN)=="down"]<-contrastDE_name
+      }
+    }
+    # Make enrichment analysis for DEGenes
+    cat("\n",GOtitle,": Enrichment Analysis for DEGenes DOWN\n")
+    matrixDOWN<-loopGoStag(gene_listDOWN,go_list,"down",nameGo)
   }
-  if(parameters$GSEA=="both" | parameters$GSEA=="up"){
-    png(paste0(image_dir,parameters$analysis_name,"enrich_heatmap_up2.png"))#,
-          #width = 2000,height = 2000)
-    try(plotHeatmap(enrichment_matrixUP,
-                    hclust_resultsUP, 
-                    clustersUP,
-                    cluster_labelsUP,
-                    min_num_terms = parameters$GSEA_min_num_terms,
-                    dendrogram_width=0.5,
-                    cluster_label_width=0.8,
-                    cluster_label_cex=2, 
-                    sample_label_cex=3,
-                    dendrogram_lwd=0.5,
-                    header_lwd=0.5,
-                    header_height=0.3,
-                    heatmap_colors = "extra"))
-    dev.off()
-  }
-  if(parameters$GSEA=="both" | parameters$GSEA=="down"){
-    png(paste0(image_dir,parameters$analysis_name,"enrich_heatmap_down2.png"),
-        width = 1500,
-        height = 1200)
-    try(plotHeatmap(enrichment_matrixDOWN,
-                    hclust_resultsDOWN, 
-                    clustersDOWN,
-                    cluster_labelsDOWN,
-                    min_num_terms = parameters$GSEA_min_num_terms,
-                    dendrogram_width=0.5,
-                    cluster_label_width=0.8,
-                    cluster_label_cex=3, 
-                    sample_label_cex=2,
-                    dendrogram_lwd=0.5,
-                    header_lwd=0.5,
-                    header_height=0.3,
-                    heatmap_colors = "extra"))
-    dev.off()
-  }
-  matrix <- list("enrich_up"=enrichment_matrixUP,
-                 "enrich_down"=enrichment_matrixDOWN,
-                 "clustersUP"=clustersUP,
-                 "clustersDOWN"=clustersDOWN,
-                 "label_cluster_up"=cluster_labelsUP,
-                 "label_cluster_down"=cluster_labelsDOWN,
-                 "hclust_resultsUP"=hclust_resultsUP,
-                 "hclust_resultsDOWN"=hclust_resultsDOWN,
-                 "gene_listUP"=gene_listUP,
-                 "gene_listDOWN"=gene_listDOWN,
-                 "go_list"=go_list)
-  return(matrix)
+  
+  # save and return all results
+  matrixAll<-append(matrixUP,matrixDOWN)
+  return(matrixAll)
 }
