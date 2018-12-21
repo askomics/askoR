@@ -789,7 +789,7 @@ VD <- function(decideTestTable, parameters, asko_list){
                    imagetype = "png",
                    cat.cex = 1.5,
                    cex = 1.5,
-                   cat.pos = c(340, 20, 180),
+#                   cat.pos = c(340, 20, 180),
                    fill = color,
                    category.names = name,
                    col=0,euler.d = FALSE,scaled=FALSE
@@ -1147,12 +1147,13 @@ loopGoStag<-function(gene_list,go_list,lvl,nameGo){
   
   # Generating the Enrichment Matrix
   cat("1st step : create a matrix of GO enrichment scores\n\n")
+  enrichment_matrix<-matrix()
   try(enrichment_matrix <- performGOEnrichment(gene_list, go_list,
                                                filter_method = parameters$GO_filt_meth,
                                                significance_threshold = parameters$GO_threshold,
                                                p.adjust_method = parameters$GO_padj_meth) 
   )
-  
+  if (nrow(enrichment_matrix)==1) {return(NULL)} 
   # Hierarchical Clustering
   cat("2nd step : cluster the GO terms\n")
   # Il peut prendre plus de parametres comme : distance_method="euclidean",clustering_method="complete" (cf doc goSTAG)
@@ -1226,6 +1227,7 @@ runGoStag<-function(summaryDEG, asko_list, data_go, nameGo){
   go_list$all <- as.character(all_genes)
   names(go_list)[names(go_list)=="all"]<-"ALL"
   
+ # print(go_list)
   # create Gene DE lists for each contrast
   #----------------------------------------
   gene_listUP<-list()
