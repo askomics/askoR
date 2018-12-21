@@ -180,7 +180,7 @@ loadData <- function(parameters){
     print(samples$file)
     print(rownames(samples))
     print(c(parameters$col_genes,parameters$col_counts))
-    dge<-readDGE(paste0(input_path,samples$file), labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
+    dge<-readDGE(paste0(input_path,samples$file), labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=FALSE, comment.char="#")
     dge<-DGEList(counts=dge$counts, samples=samples)
     #  dge$samples=samples
     #countT<-dge$counts
@@ -267,9 +267,8 @@ loadData <- function(parameters){
   }
   data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
 
-  #####annotation##### !!!!! à finir !!!!!
   if(is.null(parameters$annotation)==FALSE){
-    annot<-read.csv(paste0(input_path, parameters$annotation), header = F, row.names = 1, sep = '\t', quote = "")
+    annot<-read.csv(paste0(input_path, parameters$annotation), header = T, row.names = 1, sep = '\t', quote = "")
     data[["annot"]]=annot
   }
 
@@ -1043,6 +1042,8 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     print(table(sum[,contrast]))
     AskoStats(glm_test, fit, contrast, asko_list,normGEdisp,parameters)
   }
+  
+  print("Creating HeatMap")
   #####heatmap cpm value per sample #####
   if(nrow(norm_GE) <= 100000){
     cpm_norm <- cpm(norm_GE, log = F)
@@ -1112,14 +1113,19 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   print(head(cpm_condition))
 
   # create summary file with annotations (if available) and contrast value for each gene
+  print("creating summary file")
   if(is.null(data_list$annot)==FALSE)
   {
-    rnames<-row.names(sum)                        # récupère les noms des gènes DE
-    annDE<-as.matrix(data_list$annot[rnames,])    # récupère les annotations correspondante
-    rownames(annDE)<-rnames                       # replace les idgenes en nom de lignes
-    colnames(annDE)<-c("Description")             # annotation défini comme description
-    
-    SumMat<-cbind(annDE,sum)                      # merge les deux matrices
+    print(colnames(sum))
+    print(colnames(data_list$annot)) 
+    SumMat<-sum
+    # It is ugly but the R merge function uses too much memory 
+    for (i in row.names(sum)){
+      for (j in colnames(data_list$annot)) {
+        SumMat[i,j]<-data_list$annot[i,j]
+      }
+    }
+    #SumMat<-merge(sum,data_list$annot,all.x=T)
     write.table(SumMat, paste0(study_dir,parameters$analysis_name,"_summary_DE.csv"), col.names=T, row.names = T, quote=F, sep='\t')
   }
   else
@@ -1127,9 +1133,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     write.table(sum, paste0(study_dir,parameters$analysis_name,"_summary_DE.csv"), col.names=T, row.names = T, quote=F, sep='\t')
   }
   
-  #return(glm_test) 
   return(sum)
-  #VD(sum, parameters, asko_list)
 }
 
 
