@@ -77,6 +77,8 @@ Asko_start <- function(){
                 help="generation of the expression heatmap [default= %default]", metavar="logical"),
     make_option(c("--nh"), type="integer", default="50", dest="numhigh",
                  help="number of genes in the heatmap [default= %default]", metavar="integer"),
+    make_option(c("--norm_mean"), type="logical", default="FALSE", dest="norm_mean", 
+                help="generate file with mormalized mean for each condition/sample, in Askomics format [default= %default]", metavar="logical"),
     make_option(c("--VD"), type = "character", default = NULL, dest = "VD",
                 help = "", metavar = ""),
     make_option(c("--compaVD"), type = "character", default = NULL, dest = "compaVD",
@@ -514,7 +516,7 @@ GEfilt <- function(data_list, parameters){
   nsamples <- ncol(data_list$dge$counts)                                                                    # creation nouveau plot 
   png(paste0(image_dir, parameters$analysis_name, "_raw_data.png"))
   plot(density(logcpm[,1]),
-       col=as.character(data_list$dge$samples$color[1]),      # plot exprimant la densit? de chaque g?ne   
+       col=as.character(data_list$dge$samples$color[1]),      # plot exprimant la densite de chaque gene   
        lwd=1,
        ylim=c(0,0.21),
        las=2,
@@ -674,19 +676,17 @@ GEcorr <- function(dge, parameters){
   mds1<-ggplot(as.data.frame(mds$points), aes(V1, V2, label = rownames(mds$points))) + labs(title="MDS Axes 1 and 2") + geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +ylab(paste('dim 2 [', eigs[2], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
   print(mds1)
   dev.off()
-  #ggsave("mds_corr1-2.tiff")
-  #ggtitle("MDS Axes 2 and 3")
+
   png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe2_3.png"))
   mds2<-ggplot(as.data.frame(mds$points), aes(V2, V3, label = rownames(mds$points))) + labs(title="MDS Axes 2 and 3") + geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 2 [', eigs[2], '%]')) +ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
   print(mds2)
   dev.off()
-  # ggtitle("MDS Axes 1 and 3")
-  #ggsave("mds_corr2-3.tiff")
+
   png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_3.png"))
   mds3<-ggplot(as.data.frame(mds$points), aes(V1, V3, label = rownames(mds$points))) + labs(title="MDS Axes 1 and 3") + geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black',size = 3.5)
   print(mds3)
   dev.off()
-  #ggsave("mds_corr1-3.tiff")
+
   
   #####hierarchical clustering##### 
   mat.dist <- dist(t(asko_norm$counts), method = "euclidean")
@@ -1041,7 +1041,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
       }
   }
 
-  cat("\n\nCreating HeatMap\n\n")
+  cat("\n\nCreating HeatMap\n")
   #####heatmap cpm value per sample #####
   if(nrow(norm_GE) <= 100000){
     cpm_norm <- cpm(norm_GE, log = F)
@@ -1071,18 +1071,34 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
               ColSideColors = norm_GE$samples$color,
               main = paste0("gene 1 to ",nrow(norm_GE)),
               margins = c(15,0))     # Amend row and column label fonts
-    
+
     dev.off()
   }
-  
-  #####heatmap per condition#####
-  n_count<-.NormCountsMean(fit, ASKOlist = asko_list)
-  cpm_condition<-cpm(n_count)
-  cat("\n\nCPM conditions\n")
-  print(head(cpm_condition))
 
-  cat("\n\nCreate summary file\n\n")
+  # Normalized mean by conditions
+  #-------------------------------
+  # Ce n'est pas très rapide mais c'est le mieux que j'ai trouvé (les autres méthodes étaient pires !)
+  #
+  if(parameters$norm_mean==TRUE){
+    n_count<-.NormCountsMean(fit, ASKOlist = asko_list)
+    cpm_condition<-cpm(n_count)
+    # Formate outfile for Askomics
+    cat("\nFormat for Askomics: Mean Count and Normalized\nThis might take several minutes ...\n")
+    tmplist<-list()
+    for(i in row.names(cpm_condition)){
+      for(j in colnames(cpm_condition)){
+        rname<-paste0(i,"_",j)
+        tmplist[[rname]]<-c(rname,i,j,as.numeric(n_count[i,j]),as.numeric(cpm_condition[i,j]))
+      }
+    }
+    moyNorm<-matrix(unlist(tmplist), ncol=5, byrow=T)
+    colnames(moyNorm)<-c("Normalized_expr_id", "from@gene","for_a@Condition","MeanCount","CPM_MeanCount")
+    ctime<-format(Sys.time(), "%d-%m-%Y_%Hh%Mm%Ss")
+    write.table(moyNorm, paste0(study_dir,"Askomics/",parameters$organism,"_meanCounts_",ctime,".csv"), col.names=T, row.names = F, quote=F, sep='\t')
+  }
+  
   # create summary file with annotations (if available) and contrast value for each gene
+  cat("\nCreate Summary file\n\n")
   if(is.null(data_list$annot)==FALSE)
   {
     #---------------------------------
