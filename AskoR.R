@@ -1,26 +1,21 @@
-#' @title  Asko_start
-#' 
+#' @title Asko_start
+#'
 #' @description Initialize and Scans parameters from command line in a python-like style:
 #' \itemize{
 #'    \item declare options, their flags, types, default values and help messages,
 #'    \item read the arguments passed to the R script and parse them according to what has been declared in step 1.
 #' }
-#'    
-#' Parameters can be called by their names as declared in opt object.
-#' Example, if you want modify name of the input "file of count":
-#'      parameters$fileofcount = "NewFileOfCount.tsv"
-#' 
-#' @param none
-#' @return parameters, list that contains all arguments.
-#' @details see documentation for more details.
-#' 
+#'
+#' Parameters can be called by their names as declared in opt object.\cr
+
+#' @return List of parameters that contains all arguments.
+#'
 #' @examples
 #'    parameters <- Asko_start()
 #'    parameters$threshold_cpm <- 1  # Set parameters threshold cpm to new value 
-#'    ...
 #'
 #' @note All parameters were describe in README documentation
-#' 
+#'
 #' @export
 Asko_start <- function(){
   # Loading libraries in silent mode (only error messages will be displayed) 
@@ -235,14 +230,20 @@ loadData <- function(parameters){
   }
   
   # Conditions and colors 
-  condition<-unique(samples$condition)
-  if(length(condition)<3){ color=c("#FF9999","#99CCFF") }
-  else{ color<-brewer.pal(length(condition), parameters$palette) }
-  samples$color<-NA
-  j=0
-  for(name in condition){
-    j=j+1
-    samples$color[samples$condition==name]<-color[j]
+  if(is.null(samples$color)==TRUE){
+    condition<-unique(samples$condition)
+    if(length(condition)<3){ color=c("#FF9999","#99CCFF") }
+    else{ color<-colorRampPalette(brewer.pal(11,"Spectral"))(length(condition)) }
+    samples$color<-NA
+    j=0
+    for(name in condition){
+      j=j+1
+      samples$color[samples$condition==name]<-color[j]
+    }
+  }
+  else if(typeof(samples$colors)!="character"){
+    color<-as.character(unlist(samples$color))
+    samples$color<-color
   }
 
   # Count file(s).
@@ -373,10 +374,10 @@ loadData <- function(parameters){
 #' @return asko, list of data.frame contain condition, contrast and context informations
 #' 
 #' @example 
-#'    asko_data<-asko3c(data)
+#'    asko_data<-asko3c(data, parameters)
 #' 
 #' @export
-asko3c <- function(data_list){
+asko3c <- function(data_list, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   asko_dir = paste0(study_dir, "Askomics/")
   asko<-list()
@@ -451,7 +452,7 @@ asko3c <- function(data_list){
       contrast_asko[i,"context2"]<-contx                                        # filling contrast data frame with the name of the 2nd context
       contrast_name<-paste(set_cond1,contx, sep = "vs")                         # concatenation of context names to make the contrast name 
       contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
-      for(j in 1:length(set_cond2)){                                            # for each condition contained in the complex context (2nd):
+      for(j in seq_along(set_cond2)){                                            # for each condition contained in the complex context (2nd):
         list_context<-append(list_context, contx)                               # adding condition name with the context name associated 
         list_condition<-append(list_condition, set_cond2[j])                    # to their respective list
       }
@@ -478,7 +479,7 @@ asko3c <- function(data_list){
       contrast_asko[i,"context1"]<-contx                                        # filling contrast data frame with the name of the 1st context
       contrast_name<-paste(contx,set_cond2, sep = "vs")                         # concatenation of context names to make the contrast name
       contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
-      for(j in 1:length(set_cond1)){                                            # for each condition contained in the complex context (1st):
+      for(j in seq_along(set_cond1)){                                            # for each condition contained in the complex context (1st):
         list_context<-append(list_context, contx)                               # adding condition name with the context name associated
         list_condition<-append(list_condition, set_cond1[j])                    # to their respective list
       }
@@ -513,11 +514,11 @@ asko3c <- function(data_list){
       contrast_asko[i,"context1"]<-contx1                                       # filling contrast data frame with the name of the 1st context
       contrast_asko[i,"context2"]<-contx2                                       # filling contrast data frame with the name of the 2nd context
       contrast_asko[i,"Contrast"]<-paste(contx1,contx2, sep = "vs")             # filling contrast data frame with the name of the contrast
-      for(j in 1:length(set_cond1)){                                            # for each condition contained in the complex context (1st):
+      for(j in seq_along(set_cond1)){                                            # for each condition contained in the complex context (1st):
         list_context<-append(list_context, contx1)                              # verification of the presence of values in each condition
         list_condition<-append(list_condition, set_cond1[j])                    # contained in the 1st context
       }
-      for(j in 1:length(set_cond2)){                                            # for each condition contained in the complex context (2nd):
+      for(j in seq_along(set_cond2)){                                            # for each condition contained in the complex context (2nd):
         list_context<-append(list_context, contx2)                              # verification of the presence of values in each condition
         list_condition<-append(list_condition, set_cond2[j])                    # contained in the 1st context
       }
@@ -606,27 +607,37 @@ GEfilt <- function(data_list, parameters){
   #---------------------------------
   cpm<-cpm(data_list$dge)
   logcpm<-cpm(data_list$dge, log=TRUE)
-  
   colnames(logcpm)<-rownames(data_list$dge$samples)
-  nsamples <- ncol(data_list$dge$counts)              
-  png(paste0(image_dir, parameters$analysis_name, "_raw_data.png"))
-  plot(density(logcpm[,1]),
-       col=as.character(data_list$dge$samples$color[1]),    
-       lwd=1,
-       ylim=c(0,0.21),
-       las=2,
-       main="A. Raw data",
-       xlab="Log-cpm")         
-  abline(v=0, lty=3)
-  for (i in 2:nsamples){                       
-    den<-density(logcpm[,i])                                                      
-    lines(den$x, col=as.character(data_list$dge$samples$color[i]), den$y, lwd=1)   
+  nsamples <- ncol(data_list$dge$counts)   
+  
+  maxi<-c()
+  for (i in seq(nsamples)){ 
+      m=max(density(logcpm[,i])$y)
+      maxi<-c(maxi,m)
   }
-  legend("topright", rownames(data_list$dge$samples), 
-         text.col=as.character(data_list$dge$samples$color), 
-         bty="n",
-         text.width=6,
-         cex=0.5)
+  ymax<-round(max(maxi),1) + 0.02
+  sizeImg=15*nsamples
+  if(sizeImg < 480){ sizeImg=480 }
+  btm=round((nsamples/6),0)+0.5
+  
+  png(paste0(image_dir, parameters$analysis_name, "_raw_data.png"), width=sizeImg, height=sizeImg)
+  par(mar=par()$mar+c(btm,0,1,2))
+  plot(density(logcpm[,1]), 
+       col=as.character(data_list$dge$samples$color[1]),
+       lwd=1,
+       las=2,
+       ylim=c(0,ymax),
+       main="A. Raw data",
+       xlab="Log-cpm")
+  abline(v=0, lty=3)
+  for (i in 2:nsamples){
+    den<-density(logcpm[,i])
+    lines(den$x, col=as.character(data_list$dge$samples$color[i]), den$y, lwd=1)
+  }
+  
+  legend("bottom", fill=data_list$dge$samples$color, bty="n",
+          legend=rownames(data_list$dge$samples), xpd=TRUE, inset=c(0,-0.4), 
+          cex=0.8, ncol=6) 
   dev.off()
   
   # plot density after filtering
@@ -634,11 +645,20 @@ GEfilt <- function(data_list, parameters){
   keep.exprs <- rowSums(cpm>parameters$threshold_cpm)>=parameters$replicate_cpm  
   filtered_counts <- data_list$dge[keep.exprs,,keep.lib.sizes=F]         
   filtered_cpm<-cpm(filtered_counts$counts, log=TRUE)
-  png(paste0(image_dir ,parameters$analysis_name,"_filtered_data.png"))
+
+  maxi<-c()
+  for (i in seq(nsamples)){ 
+      m=max(density(filtered_cpm[,i])$y)
+      maxi<-c(maxi,m)
+  }
+  ymax<-round(max(maxi),1) + 0.02
+  
+  png(paste0(image_dir,parameters$analysis_name,"_filtered_data.png"), width=sizeImg, height=sizeImg)
+  par(mar=par()$mar+c(btm,0,1,2))
   plot(density(filtered_cpm[,1]),
        col=as.character(data_list$dge$samples$color[1]),
        lwd=1,
-       ylim=c(0,0.21),
+       ylim=c(0,ymax),
        las=2,
        main="B. Filtered data", xlab="Log-cpm")
   abline(v=0, lty=3) 
@@ -646,16 +666,14 @@ GEfilt <- function(data_list, parameters){
     den <- density(filtered_cpm[,i])
     lines(den$x,col=as.character(data_list$dge$samples$color[i]), den$y, lwd=1)
   } 
-  legend("topright", rownames(data_list$dge$samples),
-         text.col=as.character(data_list$dge$samples$col),
-         bty="n",
-         text.width=6,
-         cex=0.5)
+  legend("bottom", fill=data_list$dge$samples$color, bty="n",
+         legend=rownames(data_list$dge$samples), xpd=TRUE, inset=c(0,-0.4), 
+         cex=0.8, ncol=6) 
   dev.off()
   
   # histogram cpm values distribution before filtering 
   #------------------------------------------------------
-  png(paste0(image_dir,parameters$analysis_name,"_barplot_logcpm_before_filtering.png"))
+  png(paste0(image_dir,parameters$analysis_name,"_barplot_logcpm_before_filtering.png"), width=sizeImg, height=sizeImg)
   hist(logcpm,
        main= "A. Log2(cpm) distribution before filtering",
        xlab = "log2(cpm)",
@@ -664,7 +682,7 @@ GEfilt <- function(data_list, parameters){
   
   # histogram cpm values distribution after filtering 
   #------------------------------------------------------
-  png(paste0(image_dir,parameters$analysis_name,"_barplot_logcpm_after_filtering.png"))
+  png(paste0(image_dir,parameters$analysis_name,"_barplot_logcpm_after_filtering.png"), width=sizeImg, height=sizeImg)
   hist(filtered_cpm,
        main= "B. Log2(cpm) distribution after filtering",
        xlab = "log2(cpm)",
@@ -673,22 +691,24 @@ GEfilt <- function(data_list, parameters){
 
   # boxplot cpm values distribution before filtering 
   #------------------------------------------------------
-  png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_before_filtering.png"))
+  png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_before_filtering.png"), width=sizeImg, height=sizeImg)
+  par(oma=c(1,1,1,1))
   boxplot(logcpm,
           col=data_list$dge$samples$color,        
           main="A. Log2(cpm) distribution before filtering",
-          cex.axis=0.5,
+          cex.axis=0.8,
           las=2,
           ylab="log2(cpm)")
   dev.off()
 
   # boxplot cpm values distribution after filtering 
   #------------------------------------------------------
-  png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_filtering.png"))
+  png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_filtering.png"), width=sizeImg, height=sizeImg)
+  par(oma=c(1,1,1,1))
   boxplot(filtered_cpm,
           col=data_list$dge$samples$color,       
           main="B. Log2(cpm) distribution after filtering",
-          cex.axis=0.5,
+          cex.axis=0.8,
           las=2,
           ylab="log2(cpm)")
   dev.off()
@@ -718,6 +738,11 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
   image_dir = paste0(study_dir, "images/")
   
+  # for image size
+  nsamples <- ncol(filtered_GE$counts) 
+  sizeImg=15*nsamples
+  if(sizeImg < 480){ sizeImg=480 }
+  
   # Normalization counts
   norm_GE<-calcNormFactors(filtered_GE, method = parameters$normal_method)
   
@@ -725,61 +750,60 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
   #----------------------------------------------------
   logcpm_norm <- cpm(norm_GE, log=TRUE)
   colnames(logcpm_norm)<-rownames(filtered_GE$samples)
-  write.table(logcpm_norm, file=paste0(study_dir, parameters$analysis_name, "_logCPMNorm.csv"), col.names=T, row.names = T, quote=F, sep='\t')
+  write.table(logcpm_norm, file=paste0(study_dir, parameters$analysis_name, "_logCPMNorm.tsv"), col.names=NA, row.names = T, quote=F, sep='\t')
   
-  png(paste0(image_dir, parameters$analysis_name,"_boxplot_logcpm_after_norm.png"))
+  png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_norm.png"), width=sizeImg, height=sizeImg)
+  par(oma=c(1,1,1,1))
   boxplot(logcpm_norm,
           col=filtered_GE$samples$color, 
           main="B. Log2(cpm) distribution after normalization",
-          cex.axis=0.5,
+          cex.axis=0.8,
           las=2,
           ylab="Log2(cpm)")
   dev.off()
 
+  # heatmap visualisation
+  #----------------------------------------------------
   # heatmap cpm value per sample 
   #----------------------------------------------------
-  if(nrow(norm_GE) <= 15000){
-    cpm_norm  <- cpm(norm_GE, log=FALSE)
-    cpmscale  <- scale(t(cpm_norm))
-    tcpmscale <- t(cpmscale)
-    
-    d1 <- dist(cpmscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
-    d2 <- dist(tcpmscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
-    hc <- hclust(d1, method = parameters$hclust, members = NULL)
-    hr <- hclust(d2, method = parameters$hclust, members = NULL)
-    my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
-
-    png(paste0(image_dir, parameters$analysis_name, "_heatmap_CPMcounts_per_sample.png"), width=500, height=450)
-    par(oma=c(2,1,2,2))
-    heatmap.2(tcpmscale, Colv = as.dendrogram(hc), Rowv = as.dendrogram(hr), density.info="histogram",   
-              trace = "none", dendrogram = "column", xlab = "samples", col = my_palette, labRow = FALSE,
-              cexRow = 0.1, cexCol = 1, ColSideColors = norm_GE$samples$color, margins = c(10,1),
-              main = paste0("CPM counts per sample\nGenes 1 to ",nrow(norm_GE)))
-    dev.off()
-  }
-
+  cpm_norm  <- cpm(norm_GE, log=FALSE)
+  cpmscale  <- scale(t(cpm_norm))
+  tcpmscale <- t(cpmscale)
+  
+  d1 <- dist(cpmscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
+  d2 <- dist(tcpmscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
+  hc <- hclust(d1, method = parameters$hclust, members = NULL)
+  hr <- hclust(d2, method = parameters$hclust, members = NULL)
+  my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
+  
+  png(paste0(image_dir,parameters$analysis_name,"_heatmap_CPMcounts_per_sample.png"), width=sizeImg*1.5, height=sizeImg*1.25)
+  par(oma=c(2,1,2,2))
+  heatmap.2(tcpmscale, Colv = as.dendrogram(hc), Rowv = as.dendrogram(hr), density.info="histogram",   
+            trace = "none", dendrogram = "column", xlab = "samples", col = my_palette, labRow = FALSE,
+            cexRow = 0.1, cexCol = 1.2, ColSideColors = norm_GE$samples$color, margins = c(10,1),
+            main = paste0("CPM counts per sample\nGenes 1 to ",nrow(norm_GE)))
+  dev.off()
+  
   # Normalized mean by conditions
   #-------------------------------
   # heatmap mean counts per condition
-  if(nrow(norm_GE) <= 15000){
-    n_count <- NormCountsMean(norm_GE, ASKOlist = asko_list)
-    countscale  <- scale(t(n_count))
-    tcountscale <- t(countscale)
-    
-    d1 <- dist(countscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
-    d2 <- dist(tcountscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
-    hc <- hclust(d1, method = parameters$hclust, members = NULL)
-    hr <- hclust(d2, method = parameters$hclust, members = NULL)
-    my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
- 
-    png(paste0(image_dir, parameters$analysis_name, "_heatmap_meanCounts_per_condi.png"), width=500, height=450)
-    par(oma=c(2,1,2,2))
-    heatmap.2(tcountscale, Colv = as.dendrogram(hc), Rowv = as.dendrogram(hr), density.info="histogram",   
-              trace = "none", dendrogram = "column", xlab = "Condition", col = my_palette, labRow = FALSE,
-              cexRow = 0.1, cexCol = 1, ColSideColors = unique(norm_GE$samples$color), margins = c(10,1),
-              main = paste0("Mean count per condition\nGenes 1 to ",nrow(norm_GE)))
-    dev.off()
-  }
+  n_count <- NormCountsMean(norm_GE, ASKOlist = asko_list)
+  countscale  <- scale(t(n_count))
+  tcountscale <- t(countscale)
+  
+  d1 <- dist(countscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
+  d2 <- dist(tcountscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
+  hc <- hclust(d1, method = parameters$hclust, members = NULL)
+  hr <- hclust(d2, method = parameters$hclust, members = NULL)
+  my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
+  
+  png(paste0(image_dir,parameters$analysis_name,"_heatmap_meanCounts_per_condi.png"), width=sizeImg*1.5, height=sizeImg*1.25)
+  par(oma=c(2,1,2,2))
+  heatmap.2(tcountscale, Colv = as.dendrogram(hc), Rowv = as.dendrogram(hr), density.info="histogram",   
+            trace = "none", dendrogram = "column", xlab = "Condition", col = my_palette, labRow = FALSE,
+            cexRow = 0.1, cexCol = 1.5, ColSideColors = unique(norm_GE$samples$color), margins = c(10,1),
+            main = paste0("Mean count per condition\nGenes 1 to ",nrow(norm_GE)))
+  dev.off()
   
   # File with mean counts and normalized mean counts in Askomics format
   if(parameters$norm_mean==TRUE){
@@ -794,7 +818,7 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
     }
     moyNorm<-matrix(unlist(tmplist), ncol=5, byrow=T)
     colnames(moyNorm)<-c("Normalized_expr_id", "from@gene","for_a@Condition","MeanCount","CPM_MeanCount")
-    write.table(moyNorm, paste0(study_dir,"Askomics/",parameters$organism,"_MeanCounts.csv"), col.names=T, row.names = F, quote=F, sep='\t')
+    write.table(moyNorm, paste0(study_dir,"Askomics/",parameters$organism,"_MeanCounts.tsv"), col.names=T, row.names = F, quote=F, sep='\t')
   }
 
   return(norm_GE)
@@ -810,7 +834,7 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
 #'    \item hierarchical clustering
 #' }
 #' 
-#' @param dge, large DGEList with normalized counts by GEnorm function.
+#' @param asko_norm, large DGEList with normalized counts by GEnorm function.
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return none
 #' 
@@ -818,21 +842,26 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
 #'    GEcorr(asko_norm,parameters)
 #' 
 #' @export
-GEcorr <- function(dge, parameters){
+GEcorr <- function(asko_norm, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
   image_dir = paste0(study_dir, "images/")
   
-  lcpm<-cpm(dge, log=TRUE)
-  colnames(lcpm)<-rownames(dge$samples)
+  # for image size
+  nsamples <- ncol(asko_norm$counts) 
+  sizeImg=15*nsamples
+  if(sizeImg < 480){ sizeImg=480 }
+  
+  lcpm<-cpm(asko_norm, log=TRUE)
+  colnames(lcpm)<-rownames(asko_norm$samples)
   
   # Heatmap sample correlation
   #-----------------------------
   cormat<-cor(lcpm)
   color<-colorRampPalette(c("black","red","yellow","white"),space="rgb")(35)
-  png(paste0(image_dir, parameters$analysis_name, "_heatmap_of_sample_correlation.png"))
-  par(oma=c(2,2,4,1))
-  heatmap(cormat, col=color, symm=TRUE, RowSideColors=as.character(dge$samples$color), 
-          ColSideColors=as.character(dge$samples$color), main="")
+  png(paste0(image_dir, parameters$analysis_name, "_heatmap_of_sample_correlation.png"), width=sizeImg, height=sizeImg)
+  par(oma=c(4,2,4,2))
+  heatmap(cormat, col=color, symm=TRUE, RowSideColors=as.character(asko_norm$samples$color),   
+          cexCol=1.2, cexRow=1.2, ColSideColors=as.character(asko_norm$samples$color), main="")
   title("Sample Correlation Matrix", adj=0.5, outer=TRUE)
   dev.off()
 
@@ -840,27 +869,28 @@ GEcorr <- function(dge, parameters){
   #-----------------------------
   mds <- cmdscale(dist(t(lcpm)),k=3, eig=TRUE)
   eigs<-round((mds$eig)*100/sum(mds$eig[mds$eig>0]),2)
+  dfmds<-as.data.frame(mds$points)
   # Axe 1 and 2
-  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_2.png"))
-  mds1<-ggplot(as.data.frame(mds$points), aes(V1, V2, label=rownames(mds$points))) + labs(title="MDS Axes 1 and 2") +
+  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_2.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  mds1<-ggplot(dfmds, aes(dfmds$V1, dfmds$V2, label=rownames(mds$points))) + labs(title="MDS Axes 1 and 2") +
     theme(plot.title = element_text(hjust = 0.5)) + theme(plot.margin=margin(20,30,20,15)) +
-    geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +
+    geom_point(color =as.character(asko_norm$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +
     ylab(paste('dim 2 [', eigs[2], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black', size = 3.5)
   print(mds1)
   dev.off()
   # Axe 2 and 3
-  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe2_3.png"))
-  mds2<-ggplot(as.data.frame(mds$points), aes(V2, V3, label = rownames(mds$points))) + labs(title="MDS Axes 2 and 3") + 
+  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe2_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  mds2<-ggplot(dfmds, aes(dfmds$V2, dfmds$V3, label = rownames(mds$points))) + labs(title="MDS Axes 2 and 3") + 
     theme(plot.title = element_text(hjust = 0.5)) + theme(plot.margin=margin(20,30,20,15)) + 
-    geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 2 [', eigs[2], '%]')) + 
+    geom_point(color =as.character(asko_norm$samples$color) ) + xlab(paste('dim 2 [', eigs[2], '%]')) + 
     ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black', size = 3.5)
   print(mds2)
   dev.off()
   # Axe 1 and 3
-  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_3.png"))
-  mds3<-ggplot(as.data.frame(mds$points), aes(V1, V3, label = rownames(mds$points))) + labs(title="MDS Axes 1 and 3") + 
+  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  mds3<-ggplot(dfmds, aes(dfmds$V1, dfmds$V3, label = rownames(mds$points))) + labs(title="MDS Axes 1 and 3") + 
     theme(plot.title = element_text(hjust = 0.5)) + theme(plot.margin=margin(20,30,20,15)) +
-    geom_point(color =as.character(dge$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) + 
+    geom_point(color =as.character(asko_norm$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) + 
     ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black', size = 3.5)
   print(mds3)
   dev.off()
@@ -869,7 +899,7 @@ GEcorr <- function(dge, parameters){
   #-----------------------------
   mat.dist <- dist(t(asko_norm$counts), method = parameters$distcluts)
   clustering <- hclust(mat.dist, method=parameters$hclust)
-  png(paste0(image_dir, parameters$analysis_name, "_hclust.png"))
+  png(paste0(image_dir, parameters$analysis_name, "_hclust.png"), width=sizeImg, height=sizeImg)
   par(oma=c(1,1,1,1))
   plot(clustering,
        main = 'Distances Correlation\nHierarchical clustering', sub="",
@@ -960,11 +990,11 @@ plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
 plot_expr <- function(fit, normGE, contrast, tplot, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   image_dir = paste0(study_dir, "images/")
-  
+
   # Mean-Difference Plot
   if(tplot=="MD"){
     png(paste0(image_dir, contrast, "_MeanDifference_of_ExpressionData.png"))
-    plotMD(fit, ylab="log2FoldChange")
+    plotMD(fit, ylab="log2FoldChange",main=paste0("MD plot - ", contrast))
     dev.off()
   }
   
@@ -972,15 +1002,19 @@ plot_expr <- function(fit, normGE, contrast, tplot, parameters){
   if(tplot=="VO"){
     png(paste0(image_dir, contrast, "_VolcanoPlot.png"))
     tglm<-fit$table
-    with(tglm, plot(logFC, -log10(PValue), pch=16, xlim=c(min(tglm$logFC)-1,max(tglm$logFC)+1),
-                    ylim=c(min(-log10(tglm$PValue))-1,max(-log10(tglm$PValue))+1),
-                    main=paste0("Volcano plot - ",contrast), xlab="Log2FoldChange", ylab="-log10(pvalue)"))
-    with(subset(tglm, PValue <= parameters$threshold_FDR & logFC >=  parameters$threshold_logFC), points(logFC, -log10(PValue), pch=16, col="red"))
-    with(subset(tglm, PValue <= parameters$threshold_FDR & logFC <= -parameters$threshold_logFC), points(logFC, -log10(PValue), pch=16, col="blue"))
+
+    with(tglm, plot(tglm$logFC, -log10(tglm$PValue), pch=16, xlim=c(min(tglm$logFC)-1, max(tglm$logFC)+1),
+                    ylim=c(min(-log10(tglm$PValue))-1, max(-log10(tglm$PValue))+1),
+                    main=paste0("Volcano plot - ", contrast), xlab="Log2FoldChange", ylab="-log10(pvalue)"))
+
+    with(subset(tglm, tglm$PValue <= parameters$threshold_FDR & tglm$logFC >=  parameters$threshold_logFC), points(logFC, -log10(PValue), pch=16, col="red"))
+    with(subset(tglm, tglm$PValue <= parameters$threshold_FDR & tglm$logFC <= -parameters$threshold_logFC), points(logFC, -log10(PValue), pch=16, col="blue"))
+
     abline(h=-log10(parameters$threshold_FDR), v=c(-parameters$threshold_logFC,parameters$threshold_logFC), col="darkgreen")
     dev.off()
   }
 }
+
 
 #' @title NormCountsMean
 #' 
@@ -1065,7 +1099,12 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
   asko_dir = paste0(study_dir, "Askomics/")
   image_dir = paste0(study_dir, "images/")
-
+  
+  # for image size
+  nsamples <- ncol(dge$counts) 
+  sizeImg=15*nsamples
+  if(sizeImg < 480){ sizeImg=480 }
+  
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]   # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]      # to retrieve the name of 1st context from Asko object 
   contx2<-ASKOlist$contrast$context2[row.names(ASKOlist$contrast)==contrast]      # to retrieve the name of 2nd context from Asko object
@@ -1114,27 +1153,20 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   write.table(ASKOlist$stat.table,paste0(asko_dir, parameters$organism, "_", contrasko, ".txt"), sep=parameters$sep, col.names = T, row.names = F, quote=FALSE)
 
   # heatmap of Most Differential Genes Expression
-  if(parameters$heatmap==TRUE){
-    cpm_gstats<-cpm(dge, log=TRUE)[o,][1:parameters$numhigh,]
-    png(paste0(image_dir, contrast, "_topDGE_heatmap.png"))
+  if(parameters$heatmap==TRUE){ 
+    cpm_gstats<-cpm(dge, log=TRUE)[o,][seq(parameters$numhigh),]
+    png(paste0(image_dir, contrast, "_topDGE_heatmap.png"), width=sizeImg*1.5, height=sizeImg*1.5)
     par(oma=c(2,2,2,2))
     heatmap.2(cpm_gstats,
-              cexRow=0.8, 
+              cexRow=1, 
               cexCol=1,
-              lwid = c(3, 9),
-              lhei = c(3, 9),
               trace="none",
               scale="row", 
               labCol=dge$samples$Name, 
               main = contrasko,
               xlab = "samples",
               ColSideColors = dge$samples$color,
-              sepwidth = c(0.05,0.2),
-              srtRow = 0,
-              adjRow = c(0,0),
-              srtCol = 90,
-              adjCol = c(1,1),
-              margins = c(8,10),
+              margins = c(12,12),
               Rowv = FALSE, 
               dendrogram="col")
     dev.off()  
@@ -1159,10 +1191,15 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
   image_dir = paste0(study_dir, "images/")
   
+  # for image size
+  nsamples <- ncol(data_list$dge$counts) 
+  sizeImg=15*nsamples
+  if(sizeImg < 480){ sizeImg=480 }
+  
   # Checks Contrasts
-  c1<-levels(data$samples$condition)
+  c1<-levels(data_list$samples$condition)
   len1<-length(c1)
-  c2<-rownames(data$contrast)
+  c2<-rownames(data_list$contrast)
   len2<-length(c2)
   if(len1 > len2){
     cat("\n\n")
@@ -1179,7 +1216,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   
   # Esimate dispersions and plot BCV
   normGEdisp <- estimateDisp(norm_GE, data_list$design)
-  png(paste0(image_dir, parameters$analysis_name, "_biological_coefficient_of_variation.png"))
+  png(paste0(image_dir, parameters$analysis_name, "_biological_coefficient_of_variation.png"), width=sizeImg, height=sizeImg)
   plotBCV(normGEdisp)
   dev.off()
   
@@ -1190,7 +1227,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   # Genewise Negative Binomial Generalized Linear Models with Quasi-likelihood Tests
   if(parameters$glm=="qlf"){
     fit <- glmQLFit(normGEdisp, data_list$design, robust = T)
-    png(paste0(image_dir, parameters$analysis_name, "_quasi-likelihood_dispersion.png"))
+    png(paste0(image_dir, parameters$analysis_name, "_quasi-likelihood_dispersion.png"), width=sizeImg, height=sizeImg)
     plotQLDisp(fit)
     dev.off()
   }
@@ -1252,14 +1289,14 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     SumMat<-cbind(sum,annDE)                      # merge the two matrix
     
     ctime<-format(Sys.time(), "%d-%m-%Y_%Hh%Mm%Ss")
-    write.table(SumMat, paste0(study_dir,parameters$analysis_name,"_summary_DE_",ctime,".csv"), col.names=T, row.names = T, quote=F, sep='\t')    
+    write.table(SumMat, paste0(study_dir,parameters$analysis_name,"_summary_DE_",ctime,".tsv"), col.names=NA, row.names = T, quote=F, sep='\t')    
   }
   else
   {
     ctime<-format(Sys.time(), "%d-%m-%Y_%Hh%Mm%Ss")
-    write.table(sum, paste0(study_dir,parameters$analysis_name,"_summary_DE_",ctime,".csv"), col.names=T, row.names = T, quote=F, sep='\t')
+    write.table(sum, paste0(study_dir,parameters$analysis_name,"_summary_DE_",ctime,".tsv"), col.names=NA, row.names = T, quote=F, sep='\t')
   }
-  
+
   return(sum)
 }
 
@@ -1612,7 +1649,7 @@ runGoStag<-function(summaryDGE, asko_list, data_go, nameGo){
   all_genes <- as.character(unique(data_go[[1]]))
   go_all<-as.character(unique(data_go[[2]]))
   go_list<-list()
-  for(n in 1:length(go_all)){
+  for(n in seq_along(go_all)){
     gene <- data_go[1][data_go[2]==go_all[n]]
     if(length(gene)!=0){
       go_list$g <- as.character(gene)
@@ -1632,7 +1669,7 @@ runGoStag<-function(summaryDGE, asko_list, data_go, nameGo){
   
   if(parameters$GO=="both" | parameters$GO=="up"){
     # retrieve data and place it in list of genes by contrast
-    for(n in 1:ncol(summaryDGE)){
+    for(n in seq(ncol(summaryDGE))){
       # contrast
       contrast_name<-colnames(summaryDGE[n])    
       contrastDE_name <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==contrast_name]
@@ -1652,7 +1689,7 @@ runGoStag<-function(summaryDGE, asko_list, data_go, nameGo){
   
   if(parameters$GO=="both" | parameters$GO=="down"){
     # retrieve data and place it in list of genes by contrast
-    for(n in 1:ncol(summaryDGE)){
+    for(n in seq(ncol(summaryDGE))){
       # contrast
       contrast_name<-colnames(summaryDGE[n])    
       contrastDE_name <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==contrast_name]
