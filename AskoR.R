@@ -214,7 +214,7 @@ loadData <- function(parameters){
   
   # Sample file
   sample_path<-paste0(input_path, parameters$sample_file)
-  samples<-read.table(sample_path, header=TRUE, sep="\t", row.names=1)
+  samples<-read.csv(sample_path, header=TRUE, sep="\t", row.names=1)
 
   # Selecting some sample (select_sample parameter)
   if(is.null(parameters$select_sample)==FALSE){
@@ -708,11 +708,11 @@ GEfilt <- function(data_list, parameters){
   # boxplot cpm values distribution before filtering 
   #------------------------------------------------------
   png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_before_filtering.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(1,1,1,1))
+  par(oma=c(3,1,1,1))
   boxplot(logcpm,
           col=data_list$dge$samples$color,        
           main="A. Log2(cpm) distribution before filtering",
-          cex.axis=0.8,
+          cex.axis=1.2,
           las=2,
           ylab="log2(cpm)")
   dev.off()
@@ -720,11 +720,11 @@ GEfilt <- function(data_list, parameters){
   # boxplot cpm values distribution after filtering 
   #------------------------------------------------------
   png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_filtering.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(1,1,1,1))
+  par(oma=c(3,1,1,1))
   boxplot(filtered_cpm,
           col=data_list$dge$samples$color,       
           main="B. Log2(cpm) distribution after filtering",
-          cex.axis=0.8,
+          cex.axis=1.2,
           las=2,
           ylab="log2(cpm)")
   dev.off()
@@ -769,11 +769,11 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
   #write.table(logcpm_norm, file=paste0(study_dir, parameters$analysis_name, "_logCPMNorm.csv"), col.names=T, row.names = T, quote=F, sep='\t')
   
   png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_norm.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(1,1,1,1))
+  par(oma=c(3,1,1,1))
   boxplot(logcpm_norm,
           col=filtered_GE$samples$color, 
           main="B. Log2(cpm) distribution after normalization",
-          cex.axis=0.8,
+          cex.axis=1.2,
           las=2,
           ylab="Log2(cpm)")
   dev.off()
@@ -878,9 +878,9 @@ GEcorr <- function(asko_norm, parameters){
   cormat<-cor(lcpm)
   color<-colorRampPalette(c("black","red","yellow","white"),space="rgb")(35)
   png(paste0(image_dir, parameters$analysis_name, "_heatmap_of_sample_correlation.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(2,2,4,1))
+  par(oma=c(4,2,4,1))
   heatmap(cormat, col=color, symm=TRUE, RowSideColors=as.character(asko_norm$samples$color), 
-          ColSideColors=as.character(asko_norm$samples$color), main="")
+          ColSideColors=as.character(asko_norm$samples$color), main="", cexRow=1.5, cexCol=1.5)
   title("Sample Correlation Matrix", adj=0.5, outer=TRUE)
   dev.off()
 
