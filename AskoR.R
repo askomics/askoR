@@ -22,7 +22,7 @@ Asko_start <- function(){
   pkgs<-c("limma","statmod","edgeR","VennDiagram","RColorBrewer", "UpSetR", "grid",
           "ggplot2","ggrepel","gplots","stringr","optparse","goSTAG","Glimma")
   for(p in pkgs) suppressPackageStartupMessages(library(p, quietly=TRUE, character.only=TRUE))
-
+  
   # Specify desired options in a list
   option_list = list(
     make_option(c("-o", "--out"), type="character", default="DE_analysis",dest="analysis_name",
@@ -98,7 +98,7 @@ Asko_start <- function(){
     make_option(c("--hm"), type="logical", default=TRUE, dest="heatmap",
                 help="generation of the expression heatmap [default= %default]", metavar="logical"),
     make_option(c("--nh"), type="integer", default="50", dest="numhigh",
-                 help="number of genes in the heatmap [default= %default]", metavar="integer"),
+                help="number of genes in the heatmap [default= %default]", metavar="integer"),
     make_option(c("--norm_mean"), type="logical", default=FALSE, dest="norm_mean", 
                 help="generate file with mormalized mean for each condition/sample, in Askomics format [default= %default]", metavar="logical"),
     make_option(c("--VD"), type="character", default=NULL, dest="VD",
@@ -137,12 +137,12 @@ Asko_start <- function(){
   # Get command line options
   opt_parser = OptionParser(option_list=option_list)
   parameters = parse_args(opt_parser)
- 
+  
   if(is.null(parameters$rm_sample) == FALSE ) {
     str_replace_all(parameters$rm_sample, " ", "")
     parameters$rm_sample<-strsplit2(parameters$rm_sample, ",")
   }
-
+  
   if(is.null(parameters$select_sample) == FALSE ) {
     str_replace_all(parameters$select_sample, " ", "")
     parameters$select_sample<-strsplit2(parameters$select_sample, ",")
@@ -180,7 +180,7 @@ Asko_start <- function(){
 #'
 #' @export
 loadData <- function(parameters){
-
+  
   # Folders for output files
   #---------------------------------------------------------
   cat("\n\nCreate directories:\n")
@@ -199,9 +199,9 @@ loadData <- function(parameters){
   }
   
   if((is.null(parameters$upset_basic)==FALSE) || (is.null(parameters$upset_list)==FALSE && is.null(parameters$upset_type)==FALSE)){
-      upset_dir = paste0(study_dir, "UpSetR_graphs/") 
-      if(dir.exists(upset_dir)==FALSE){ dir.create(upset_dir) }
-      cat("\t",upset_dir,"\n")
+    upset_dir = paste0(study_dir, "UpSetR_graphs/") 
+    if(dir.exists(upset_dir)==FALSE){ dir.create(upset_dir) }
+    cat("\t",upset_dir,"\n")
   }
   
   asko_dir = paste0(study_dir, "Askomics/") 
@@ -215,7 +215,7 @@ loadData <- function(parameters){
   # Sample file
   sample_path<-paste0(input_path, parameters$sample_file)
   samples<-read.csv(sample_path, header=TRUE, sep="\t", row.names=1)
-
+  
   # Selecting some sample (select_sample parameter)
   if(is.null(parameters$select_sample)==FALSE){
     if(parameters$regex==TRUE){
@@ -228,7 +228,7 @@ loadData <- function(parameters){
     }
     else{ samples<-samples[parameters$select_sample,] }
   }
-
+  
   # Deleting some samples (rm_sample parameter)
   if(is.null(parameters$rm_sample)==FALSE){
     if(parameters$regex==TRUE){
@@ -247,21 +247,21 @@ loadData <- function(parameters){
   
   # Conditions and colors 
   if(is.null(samples$color)==TRUE){
-      condition<-unique(samples$condition)
-      if(length(condition)<3){ color=c("#FF9999","#99CCFF") }
-      else{ color<-colorRampPalette(brewer.pal(11,"Spectral"))(length(condition)) }
-      samples$color<-NA
-      j=0
-      for(name in condition){
-          j=j+1
-          samples$color[samples$condition==name]<-color[j]
-      }
+    condition<-unique(samples$condition)
+    if(length(condition)<3){ color=c("#FF9999","#99CCFF") }
+    else{ color<-colorRampPalette(brewer.pal(11,"Spectral"))(length(condition)) }
+    samples$color<-NA
+    j=0
+    for(name in condition){
+      j=j+1
+      samples$color[samples$condition==name]<-color[j]
+    }
   }
   else if(typeof(samples$colors)!="character"){
-      color<-as.character(unlist(samples$color))
-      samples$color<-color
+    color<-as.character(unlist(samples$color))
+    samples$color<-color
   }
-
+  
   # Count file(s).
   # Two possibilities: 
   #     - 1 count file per condition
@@ -297,7 +297,7 @@ loadData <- function(parameters){
     # Creates a DGEList object from a table of counts
     dge<-DGEList(counts=countT, samples=samples)
   }
-
+  
   # Experimental design
   #---------------------------------------------------------
   Group<-factor(samples$condition)
@@ -306,12 +306,12 @@ loadData <- function(parameters){
   designExp<-model.matrix(~0+Group)
   rownames(designExp) <- row.names(samples)
   colnames(designExp) <- levels(Group)
-
+  
   # Contrast for DE analysis
   #---------------------------------------------------------
   contrast_path<-paste0(input_path, parameters$contrast_file)
   contrastab<-read.table(contrast_path, sep="\t", header=TRUE, row.names = 1, comment.char="#", stringsAsFactors = FALSE)
-
+  
   # Verify if some colunms will be not use for analysis
   rmcol<-list()
   for(condition_name in row.names(contrastab)){
@@ -338,7 +338,7 @@ loadData <- function(parameters){
   }
   cat("\nContrasts:\n")
   print(contrast_table)
-
+  
   # Format contrast : convert "+" to "1" and - to "-1"
   colnum<-c()
   for(contrast in colnames(contrast_table)){
@@ -355,7 +355,7 @@ loadData <- function(parameters){
     contrast_table[,contrast]<-as.numeric(contrast_table[,contrast])
   }
   data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
-
+  
   # Annotations and GOterms files
   #---------------------------------------------------------
   # Annnotation file
@@ -378,7 +378,7 @@ loadData <- function(parameters){
     goCC<-read.csv(paste0(input_path, parameters$GO_CC), header = F, sep = '\t', quote = "")
     data[["GO_CC"]]=goCC
   }
-
+  
   return(data)
 }
 
@@ -397,7 +397,7 @@ asko3c <- function(data_list, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   asko_dir = paste0(study_dir, "Askomics/")
   asko<-list()
-
+  
   # Condition 
   #---------------
   condition<-unique(data_list$samples$condition)                       # retrieval of different condition's names
@@ -408,7 +408,7 @@ asko3c <- function(data_list, parameters){
     column_name<-colnames(data_list$samples[,c(-col1,-col2,-colcol)])  # retrieval of column names needful to create the file condition
   }else{column_name<-colnames(data_list$samples[,c(-col1,-colcol)])}
   condition_asko<-data.frame(row.names=condition)                      # initialization of the condition's data frame
-
+  
   for (name in column_name){                                           # for each experimental factor :
     condition_asko$n<-NA                                               # initialization of new column in the condition's data frame
     colnames(condition_asko)[colnames(condition_asko)=="n"]<-name      # to rename the new column with the name of experimental factor
@@ -416,7 +416,7 @@ asko3c <- function(data_list, parameters){
       condition_asko[condition_name,name]<-as.character(unique(data_list$samples[data_list$samples$condition==condition_name, name]))
     }                                                                  # filling the condition's data frame
   }
-
+  
   # Contrast + Context 
   #--------------------------
   i=0
@@ -429,116 +429,116 @@ asko3c <- function(data_list, parameters){
   list_condition<-list()                                                        # will be used to create the context data frame
   if(parameters$mk_context==TRUE){
     for (contrast in colnames(data_list$contrast)){                             # for each contrast :
-    i=i+1                                                                       # contrast data frame will be filled line by line
-    set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]>0]   # retrieval of 1st set of condition's names implicated in a given contrast
-    set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]<0]   # retrieval of 2nd set of condition's names implicated in a given contrast
-    set_condition<-colnames(condition_asko)                                     # retrieval of names of experimental factor
-
-    if(length(set_cond1)==1){complex1=F}else{complex1=T}                        # to determine if we have complex contrast (multiple conditions
-    if(length(set_cond2)==1){complex2=F}else{complex2=T}                        # compared to multiple conditions) or not
-    if(complex1==F && complex2==F){                                             # Case 1: one condition against one condition
-      contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
-      contrast_asko[i,"context2"]<-set_cond2                                    # filling contrast data frame with the name of the 2nd context
-      contrast_name<-paste(set_cond1,set_cond2, sep = "vs")                     # creation of contrast name by associating the names of contexts
-      contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with contrast name
-      list_context<-append(list_context, set_cond1)                             #
-      list_condition<-append(list_condition, set_cond1)                         # adding respectively to the lists "context" and "condition" the context name
-      list_context<-append(list_context, set_cond2)                             # and the condition name associated
-      list_condition<-append(list_condition, set_cond2)                         #
-    }
-    if(complex1==F && complex2==T){                                             # Case 2: one condition against multiple condition
-      contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
-      list_context<-append(list_context, set_cond1)                             # adding respectively to the lists "context" and "condition" the 1st context
-      list_condition<-append(list_condition, set_cond1)                         # name and the condition name associated
-      l=0
-                                                                                # "common_factor" will contain the common experimental factors shared by
-      common_factor=list()                                                      # conditions belonging to the complex context
-      for (param_names in set_condition){                                       # for each experimental factor 
-        facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
-        l=l+1                                                                   #
-        for(value in facteur){                                                  # for each possible values
-          verif<-unique(str_detect(set_cond2, value))                           # verification of the presence of values in each condition contained in the set
-          if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor 
-        }                                                                       # is added as common factor
+      i=i+1                                                                       # contrast data frame will be filled line by line
+      set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]>0]   # retrieval of 1st set of condition's names implicated in a given contrast
+      set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]<0]   # retrieval of 2nd set of condition's names implicated in a given contrast
+      set_condition<-colnames(condition_asko)                                     # retrieval of names of experimental factor
+      
+      if(length(set_cond1)==1){complex1=F}else{complex1=T}                        # to determine if we have complex contrast (multiple conditions
+      if(length(set_cond2)==1){complex2=F}else{complex2=T}                        # compared to multiple conditions) or not
+      if(complex1==F && complex2==F){                                             # Case 1: one condition against one condition
+        contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
+        contrast_asko[i,"context2"]<-set_cond2                                    # filling contrast data frame with the name of the 2nd context
+        contrast_name<-paste(set_cond1,set_cond2, sep = "vs")                     # creation of contrast name by associating the names of contexts
+        contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with contrast name
+        list_context<-append(list_context, set_cond1)                             #
+        list_condition<-append(list_condition, set_cond1)                         # adding respectively to the lists "context" and "condition" the context name
+        list_context<-append(list_context, set_cond2)                             # and the condition name associated
+        list_condition<-append(list_condition, set_cond2)                         #
       }
-      if(length(common_factor)>1){                                              # if there are several common factor
-        common_factor<-toString(common_factor)                                  # the list is converted to string
-        contx<-str_replace(common_factor,", ","")
-        contx<-str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
-      contrast_asko[i,"context2"]<-contx                                        # filling contrast data frame with the name of the 2nd context
-      contrast_name<-paste(set_cond1,contx, sep = "vs")                         # concatenation of context names to make the contrast name 
-      contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
-      for(j in seq_along(set_cond2)){                                            # for each condition contained in the complex context (2nd):
-        list_context<-append(list_context, contx)                               # adding condition name with the context name associated 
-        list_condition<-append(list_condition, set_cond2[j])                    # to their respective list
-      }
-    }
-    if(complex1==T && complex2==F){                                             # Case 3: multiple conditions against one condition
-      contrast_asko[i,"context2"]<-set_cond2                                    # filling contrast data frame with the name of the 2nd context
-      list_context<-append(list_context, set_cond2)                             # adding respectively to the lists "context" and "condition" the 2nd context
-      list_condition<-append(list_condition, set_cond2)                         # name and the 2nd condition name associated
-      l=0
-                                                                                # "common_factor" will contain the common experimental factors shared by
-      common_factor=list()                                                      # conditions belonging to the complex context
-      for (param_names in set_condition){                                       # for each experimental factor:
-        facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
-        l=l+1
-        for(value in facteur){                                                  # for each possible values:
-          verif<-unique(str_detect(set_cond1, value))                           # verification of the presence of values in each condition contained in the set
-          if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor 
-        }                                                                       # is added as common factor
-      }
-      if(length(common_factor)>1){                                              # if there are several common factor
-        common_factor<-toString(common_factor)                                  # the list is converted to string
-        contx<-str_replace(common_factor,", ","")
-        contx<-str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
-      contrast_asko[i,"context1"]<-contx                                        # filling contrast data frame with the name of the 1st context
-      contrast_name<-paste(contx,set_cond2, sep = "vs")                         # concatenation of context names to make the contrast name
-      contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
-      for(j in seq_along(set_cond1)){                                            # for each condition contained in the complex context (1st):
-        list_context<-append(list_context, contx)                               # adding condition name with the context name associated
-        list_condition<-append(list_condition, set_cond1[j])                    # to their respective list
-      }
-    }
-    if(complex1==T && complex2==T){                                             # Case 4: multiple conditions against multiple conditions
-      m=0                                                                       # 
-      n=0                                                                       #
-      common_factor1=list()                                                     # list of common experimental factors shared by conditions of the 1st context
-      common_factor2=list()                                                     # list of common experimental factors shared by conditions of the 2nd context
-      w=1
-      for (param_names in set_condition){                                       # for each experimental factor:
-        print(w)
-        w=w+1
-        facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
-
-        for(value in facteur){                                                  # for each possible values:
-          verif1<-unique(str_detect(set_cond1, value))                          # verification of the presence of values in each condition contained in the 1st context
-          verif2<-unique(str_detect(set_cond2, value))                          # verification of the presence of values in each condition contained in the 2nd context
-
-          if(length(verif1)==1 && verif1==TRUE){m=m+1;common_factor1[m]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
-          if(length(verif2)==1 && verif2==TRUE){n=n+1;common_factor2[n]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
+      if(complex1==F && complex2==T){                                             # Case 2: one condition against multiple condition
+        contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
+        list_context<-append(list_context, set_cond1)                             # adding respectively to the lists "context" and "condition" the 1st context
+        list_condition<-append(list_condition, set_cond1)                         # name and the condition name associated
+        l=0
+        # "common_factor" will contain the common experimental factors shared by
+        common_factor=list()                                                      # conditions belonging to the complex context
+        for (param_names in set_condition){                                       # for each experimental factor 
+          facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
+          l=l+1                                                                   #
+          for(value in facteur){                                                  # for each possible values
+            verif<-unique(str_detect(set_cond2, value))                           # verification of the presence of values in each condition contained in the set
+            if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor 
+          }                                                                       # is added as common factor
+        }
+        if(length(common_factor)>1){                                              # if there are several common factor
+          common_factor<-toString(common_factor)                                  # the list is converted to string
+          contx<-str_replace(common_factor,", ","")
+          contx<-str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
+        contrast_asko[i,"context2"]<-contx                                        # filling contrast data frame with the name of the 2nd context
+        contrast_name<-paste(set_cond1,contx, sep = "vs")                         # concatenation of context names to make the contrast name 
+        contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
+        for(j in seq_along(set_cond2)){                                            # for each condition contained in the complex context (2nd):
+          list_context<-append(list_context, contx)                               # adding condition name with the context name associated 
+          list_condition<-append(list_condition, set_cond2[j])                    # to their respective list
         }
       }
-      if(length(common_factor1)>1){                                             # if there are several common factor for conditions in the 1st context 
-        common_factor1<-toString(common_factor1)                                # conversion list to string
-        contx1<-str_replace(common_factor1,", ","")}else{contx1<-common_factor1}# all common factor are concatenated to become the name of context
-      contx1<-str_replace_all(contx1, "NULL", "")
-      if(length(common_factor2)>1){                                             # if there are several common factor for conditions in the 2nd context 
-        common_factor2<-toString(common_factor2)                                # conversion list to string
-        contx2<-str_replace(common_factor2,", ","")}else{contx2<-common_factor2}# all common factor are concatenated to become the name of context
-      contx2<-str_replace_all(contx2, "NULL", "")
-      contrast_asko[i,"context1"]<-contx1                                       # filling contrast data frame with the name of the 1st context
-      contrast_asko[i,"context2"]<-contx2                                       # filling contrast data frame with the name of the 2nd context
-      contrast_asko[i,"Contrast"]<-paste(contx1,contx2, sep = "vs")             # filling contrast data frame with the name of the contrast
-      for(j in seq_along(set_cond1)){                                            # for each condition contained in the complex context (1st):
-        list_context<-append(list_context, contx1)                              # verification of the presence of values in each condition
-        list_condition<-append(list_condition, set_cond1[j])                    # contained in the 1st context
+      if(complex1==T && complex2==F){                                             # Case 3: multiple conditions against one condition
+        contrast_asko[i,"context2"]<-set_cond2                                    # filling contrast data frame with the name of the 2nd context
+        list_context<-append(list_context, set_cond2)                             # adding respectively to the lists "context" and "condition" the 2nd context
+        list_condition<-append(list_condition, set_cond2)                         # name and the 2nd condition name associated
+        l=0
+        # "common_factor" will contain the common experimental factors shared by
+        common_factor=list()                                                      # conditions belonging to the complex context
+        for (param_names in set_condition){                                       # for each experimental factor:
+          facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
+          l=l+1
+          for(value in facteur){                                                  # for each possible values:
+            verif<-unique(str_detect(set_cond1, value))                           # verification of the presence of values in each condition contained in the set
+            if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor 
+          }                                                                       # is added as common factor
+        }
+        if(length(common_factor)>1){                                              # if there are several common factor
+          common_factor<-toString(common_factor)                                  # the list is converted to string
+          contx<-str_replace(common_factor,", ","")
+          contx<-str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
+        contrast_asko[i,"context1"]<-contx                                        # filling contrast data frame with the name of the 1st context
+        contrast_name<-paste(contx,set_cond2, sep = "vs")                         # concatenation of context names to make the contrast name
+        contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
+        for(j in seq_along(set_cond1)){                                            # for each condition contained in the complex context (1st):
+          list_context<-append(list_context, contx)                               # adding condition name with the context name associated
+          list_condition<-append(list_condition, set_cond1[j])                    # to their respective list
+        }
       }
-      for(j in seq_along(set_cond2)){                                            # for each condition contained in the complex context (2nd):
-        list_context<-append(list_context, contx2)                              # verification of the presence of values in each condition
-        list_condition<-append(list_condition, set_cond2[j])                    # contained in the 1st context
-      }
-    }  
+      if(complex1==T && complex2==T){                                             # Case 4: multiple conditions against multiple conditions
+        m=0                                                                       # 
+        n=0                                                                       #
+        common_factor1=list()                                                     # list of common experimental factors shared by conditions of the 1st context
+        common_factor2=list()                                                     # list of common experimental factors shared by conditions of the 2nd context
+        w=1
+        for (param_names in set_condition){                                       # for each experimental factor:
+          print(w)
+          w=w+1
+          facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
+          
+          for(value in facteur){                                                  # for each possible values:
+            verif1<-unique(str_detect(set_cond1, value))                          # verification of the presence of values in each condition contained in the 1st context
+            verif2<-unique(str_detect(set_cond2, value))                          # verification of the presence of values in each condition contained in the 2nd context
+            
+            if(length(verif1)==1 && verif1==TRUE){m=m+1;common_factor1[m]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
+            if(length(verif2)==1 && verif2==TRUE){n=n+1;common_factor2[n]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
+          }
+        }
+        if(length(common_factor1)>1){                                             # if there are several common factor for conditions in the 1st context 
+          common_factor1<-toString(common_factor1)                                # conversion list to string
+          contx1<-str_replace(common_factor1,", ","")}else{contx1<-common_factor1}# all common factor are concatenated to become the name of context
+        contx1<-str_replace_all(contx1, "NULL", "")
+        if(length(common_factor2)>1){                                             # if there are several common factor for conditions in the 2nd context 
+          common_factor2<-toString(common_factor2)                                # conversion list to string
+          contx2<-str_replace(common_factor2,", ","")}else{contx2<-common_factor2}# all common factor are concatenated to become the name of context
+        contx2<-str_replace_all(contx2, "NULL", "")
+        contrast_asko[i,"context1"]<-contx1                                       # filling contrast data frame with the name of the 1st context
+        contrast_asko[i,"context2"]<-contx2                                       # filling contrast data frame with the name of the 2nd context
+        contrast_asko[i,"Contrast"]<-paste(contx1,contx2, sep = "vs")             # filling contrast data frame with the name of the contrast
+        for(j in seq_along(set_cond1)){                                            # for each condition contained in the complex context (1st):
+          list_context<-append(list_context, contx1)                              # verification of the presence of values in each condition
+          list_condition<-append(list_condition, set_cond1[j])                    # contained in the 1st context
+        }
+        for(j in seq_along(set_cond2)){                                            # for each condition contained in the complex context (2nd):
+          list_context<-append(list_context, contx2)                              # verification of the presence of values in each condition
+          list_condition<-append(list_condition, set_cond2[j])                    # contained in the 1st context
+        }
+      }  
     }
   }
   else{
@@ -628,8 +628,8 @@ GEfilt <- function(data_list, parameters){
   
   maxi<-c()
   for (i in seq(nsamples)){ 
-      m=max(density(logcpm[,i])$y)
-      maxi<-c(maxi,m)
+    m=max(density(logcpm[,i])$y)
+    maxi<-c(maxi,m)
   }
   ymax<-round(max(maxi),1) + 0.02
   
@@ -653,7 +653,7 @@ GEfilt <- function(data_list, parameters){
   }
   
   legend("bottom", fill=data_list$dge$samples$color, bty="n", ncol=6,
-          legend=rownames(data_list$dge$samples), xpd=TRUE, inset=-parameters$densinset) 
+         legend=rownames(data_list$dge$samples), xpd=TRUE, inset=-parameters$densinset) 
   dev.off()
   
   # plot density after filtering
@@ -661,11 +661,11 @@ GEfilt <- function(data_list, parameters){
   keep.exprs <- rowSums(cpm>parameters$threshold_cpm)>=parameters$replicate_cpm  
   filtered_counts <- data_list$dge[keep.exprs,,keep.lib.sizes=F]         
   filtered_cpm<-cpm(filtered_counts$counts, log=TRUE)
-
+  
   maxi<-c()
   for (i in seq(nsamples)){ 
-      m=max(density(filtered_cpm[,i])$y)
-      maxi<-c(maxi,m)
+    m=max(density(filtered_cpm[,i])$y)
+    maxi<-c(maxi,m)
   }
   ymax<-round(max(maxi),1) + 0.02
   
@@ -704,31 +704,31 @@ GEfilt <- function(data_list, parameters){
        xlab = "log2(cpm)",
        col = "grey")
   dev.off()
-
+  
   # boxplot cpm values distribution before filtering 
   #------------------------------------------------------
   png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_before_filtering.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(3,1,1,1))
+  par(oma=c(1,1,1,1))
   boxplot(logcpm,
           col=data_list$dge$samples$color,        
           main="A. Log2(cpm) distribution before filtering",
-          cex.axis=1.2,
+          cex.axis=0.8,
           las=2,
           ylab="log2(cpm)")
   dev.off()
-
+  
   # boxplot cpm values distribution after filtering 
   #------------------------------------------------------
   png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_filtering.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(3,1,1,1))
+  par(oma=c(1,1,1,1))
   boxplot(filtered_cpm,
           col=data_list$dge$samples$color,       
           main="B. Log2(cpm) distribution after filtering",
-          cex.axis=1.2,
+          cex.axis=0.8,
           las=2,
           ylab="log2(cpm)")
   dev.off()
-
+  
   return(filtered_counts)
 }
 
@@ -769,59 +769,59 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
   #write.table(logcpm_norm, file=paste0(study_dir, parameters$analysis_name, "_logCPMNorm.csv"), col.names=T, row.names = T, quote=F, sep='\t')
   
   png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_norm.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(3,1,1,1))
+  par(oma=c(1,1,1,1))
   boxplot(logcpm_norm,
           col=filtered_GE$samples$color, 
           main="B. Log2(cpm) distribution after normalization",
-          cex.axis=1.2,
+          cex.axis=0.8,
           las=2,
           ylab="Log2(cpm)")
   dev.off()
-
+  
   # heatmap visualisation
   #----------------------------------------------------
   if(nrow(filtered_GE$counts) <= 30000)
   {
-      # heatmap cpm value per sample 
-      #----------------------------------------------------
-      cpm_norm  <- cpm(norm_GE, log=FALSE)
-      cpmscale  <- scale(t(cpm_norm))
-      tcpmscale <- t(cpmscale)
-      
-      d1 <- dist(cpmscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
-      d2 <- dist(tcpmscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
-      hc <- hclust(d1, method = parameters$hclust, members = NULL)
-      hr <- hclust(d2, method = parameters$hclust, members = NULL)
-      my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
-      
-      png(paste0(image_dir,parameters$analysis_name,"_heatmap_CPMcounts_per_sample.png"), width=sizeImg*1.5, height=sizeImg*1.25)
-      par(oma=c(2,1,2,2))
-      heatmap.2(tcpmscale, Colv = as.dendrogram(hc), Rowv = as.dendrogram(hr), density.info="histogram",   
-                trace = "none", dendrogram = "column", xlab = "samples", col = my_palette, labRow = FALSE,
-                cexRow = 0.1, cexCol = 1.25, ColSideColors = norm_GE$samples$color, margins = c(10,1),
-                main = paste0("CPM counts per sample\nGenes 1 to ",nrow(norm_GE)))
-      dev.off()
-      
-      # Normalized mean by conditions
-      #-------------------------------
-      # heatmap mean counts per condition
-      n_count <- NormCountsMean(norm_GE, ASKOlist = asko_list)
-      countscale  <- scale(t(n_count))
-      tcountscale <- t(countscale)
-      
-      d1 <- dist(countscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
-      d2 <- dist(tcountscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
-      hc <- hclust(d1, method = parameters$hclust, members = NULL)
-      hr <- hclust(d2, method = parameters$hclust, members = NULL)
-      my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
-      
-      png(paste0(image_dir,parameters$analysis_name,"_heatmap_meanCounts_per_condi.png"), width=sizeImg*1.5, height=sizeImg*1.25)
-      par(oma=c(2,1,2,2))
-      heatmap.2(tcountscale, Colv = as.dendrogram(hc), Rowv = as.dendrogram(hr), density.info="histogram",   
-                trace = "none", dendrogram = "column", xlab = "Condition", col = my_palette, labRow = FALSE,
-                cexRow = 0.1, cexCol = 1.5, ColSideColors = unique(norm_GE$samples$color), margins = c(10,1),
-                main = paste0("Mean count per condition\nGenes 1 to ",nrow(norm_GE)))
-      dev.off()
+    # heatmap cpm value per sample 
+    #----------------------------------------------------
+    cpm_norm  <- cpm(norm_GE, log=FALSE)
+    cpmscale  <- scale(t(cpm_norm))
+    tcpmscale <- t(cpmscale)
+    
+    d1 <- dist(cpmscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
+    d2 <- dist(tcpmscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
+    hc <- hclust(d1, method = parameters$hclust, members = NULL)
+    hr <- hclust(d2, method = parameters$hclust, members = NULL)
+    my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
+    
+    png(paste0(image_dir,parameters$analysis_name,"_heatmap_CPMcounts_per_sample.png"), width=sizeImg*1.5, height=sizeImg*1.25)
+    par(oma=c(2,1,2,2))
+    heatmap.2(tcpmscale, Colv = as.dendrogram(hc), Rowv = as.dendrogram(hr), density.info="histogram",   
+              trace = "none", dendrogram = "column", xlab = "samples", col = my_palette, labRow = FALSE,
+              cexRow = 0.1, cexCol = 1.25, ColSideColors = norm_GE$samples$color, margins = c(10,1),
+              main = paste0("CPM counts per sample\nGenes 1 to ",nrow(norm_GE)))
+    dev.off()
+    
+    # Normalized mean by conditions
+    #-------------------------------
+    # heatmap mean counts per condition
+    n_count <- NormCountsMean(norm_GE, ASKOlist = asko_list)
+    countscale  <- scale(t(n_count))
+    tcountscale <- t(countscale)
+    
+    d1 <- dist(countscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
+    d2 <- dist(tcountscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
+    hc <- hclust(d1, method = parameters$hclust, members = NULL)
+    hr <- hclust(d2, method = parameters$hclust, members = NULL)
+    my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
+    
+    png(paste0(image_dir,parameters$analysis_name,"_heatmap_meanCounts_per_condi.png"), width=sizeImg*1.5, height=sizeImg*1.25)
+    par(oma=c(2,1,2,2))
+    heatmap.2(tcountscale, Colv = as.dendrogram(hc), Rowv = as.dendrogram(hr), density.info="histogram",   
+              trace = "none", dendrogram = "column", xlab = "Condition", col = my_palette, labRow = FALSE,
+              cexRow = 0.1, cexCol = 1.5, ColSideColors = unique(norm_GE$samples$color), margins = c(10,1),
+              main = paste0("Mean count per condition\nGenes 1 to ",nrow(norm_GE)))
+    dev.off()
   }
   
   # File with mean counts and normalized mean counts in Askomics format
@@ -839,7 +839,7 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
     colnames(moyNorm)<-c("Normalized_expr_id", "from@gene","for_a@Condition","MeanCount","CPM_MeanCount")
     write.table(moyNorm, paste0(study_dir,"Askomics/",parameters$organism,"_MeanCounts.csv"), col.names=NA, row.names = F, quote=F, sep='\t')
   }
-
+  
   return(norm_GE)
 }
 
@@ -880,10 +880,10 @@ GEcorr <- function(asko_norm, parameters){
   png(paste0(image_dir, parameters$analysis_name, "_heatmap_of_sample_correlation.png"), width=sizeImg, height=sizeImg)
   par(oma=c(4,2,4,1))
   heatmap(cormat, col=color, symm=TRUE, RowSideColors=as.character(asko_norm$samples$color), 
-          ColSideColors=as.character(asko_norm$samples$color), main="", cexRow=1.5, cexCol=1.5)
+          ColSideColors=as.character(asko_norm$samples$color), main="")
   title("Sample Correlation Matrix", adj=0.5, outer=TRUE)
   dev.off()
-
+  
   # MDS Plot
   #-----------------------------
   mds <- cmdscale(dist(t(lcpm)),k=3, eig=TRUE)
@@ -913,7 +913,7 @@ GEcorr <- function(asko_norm, parameters){
     ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black', size = 3.5)
   print(mds3)
   dev.off()
-
+  
   # hierarchical clustering
   #-----------------------------
   mat.dist <- dist(t(asko_norm$counts), method = parameters$distcluts)
@@ -1011,17 +1011,17 @@ plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
 plot_expr <- function(fit, normGE, resDE, contrast, tplot, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   image_dir = paste0(study_dir, "images/")
-    
+  
   
   
   # Mean-Difference Plot
   if(tplot=="MD"){
     png(paste0(image_dir, contrast, "_MeanDifference_of_ExpressionData.png"))
     plotMD.DGELRT(fit, xlab="Average log CPM", ylab="log-fold-change", main=paste0("MD plot - ", contrast), 
-                    cex=0.5, status=resDE[,contrast], values=c("-1","1"), col=c("blue","red"))
+                  cex=0.5, status=resDE[,contrast], values=c("-1","1"), col=c("blue","red"))
     dev.off()
   }
-
+  
   # Volcano plot
   if(tplot=="VO"){
     tglm<-fit$table
@@ -1066,7 +1066,7 @@ NormCountsMean <- function(glmfit, ASKOlist, context=NULL){
     set_condi<-ASKOlist$context$condition[ASKOlist$context$context==context]                  # retrieval of condition names associated to context
   }
   table_c_norm <- data.frame(row.names = row.names(glmfit$counts))
-
+  
   for (condition in set_condi){
     sample_name<-rownames(glmfit$samples[glmfit$samples$condition==condition,])               # retrieval of the replicate names associated to conditions
     subset_counts<-data.frame(row.names = row.names(glmfit$counts))                           # initialization of data frame as subset of counts table
@@ -1120,22 +1120,22 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
   asko_dir = paste0(study_dir, "Askomics/")
   image_dir = paste0(study_dir, "images/")
-
+  
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]   # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]      # to retrieve the name of 1st context from Asko object 
   contx2<-ASKOlist$contrast$context2[row.names(ASKOlist$contrast)==contrast]      # to retrieve the name of 2nd context from Asko object
-
+  
   ASKO_stat<-glm_test$table
   ASKO_stat$Test_id<-paste(contrasko, rownames(ASKO_stat), sep = "_")             # addition of Test_id column = unique ID
   ASKO_stat$contrast<-contrasko                                                   # addition of the contrast of the test
   ASKO_stat$gene <- row.names(ASKO_stat)                                          # addition of gene column = gene ID
   ASKO_stat$FDR<-p.adjust(ASKO_stat$PValue, method=parameters$p_adj_method)       # computation of False Discovery Rate
- 
+  
   # Between context1 and context2 :
   ASKO_stat$Significance=0 
   ASKO_stat$Significance[ASKO_stat$logFC < -parameters$threshold_logFC & ASKO_stat$FDR <= parameters$threshold_FDR] = -1  # Significance values = -1 for down regulated genes
   ASKO_stat$Significance[ASKO_stat$logFC > parameters$threshold_logFC  & ASKO_stat$FDR <= parameters$threshold_FDR] = 1   # Significance values =  1 for up regulated genes
-
+  
   # addition of column "expression" 
   ASKO_stat$Expression=NA 
   ASKO_stat$Expression[ASKO_stat$Significance==-1]<-paste(contx1, contx2, sep="<")  # the value of attribute "Expression" is a string
@@ -1150,7 +1150,7 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   if(parameters$logCPM==T){cold="logCPM"}else{cold=NULL}
   if(parameters$LR==T){cole="LR"}else{cole=NULL}
   if(parameters$FDR==T){colf="FDR"}else{colf=NULL}
-
+  
   # adding table "stat.table" to the ASKOlist  
   ASKOlist$stat.table<-ASKO_stat[,c("Test_id","contrast","gene",cola,colb,"PValue",colg,colc,cold,cole,colf)]
   
@@ -1167,7 +1167,7 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]
   
   write.table(ASKOlist$stat.table,paste0(asko_dir, parameters$organism, "_", contrasko, ".txt"), sep=parameters$sep, col.names = T, row.names = F, quote=FALSE)
-
+  
   # for image size
   nsamples<-ncol(dge$counts)
   sizeImg=15*nsamples
@@ -1288,7 +1288,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
       }
       sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC)
       AskoStats(glm_test, fit, contrast, asko_list, normGEdisp, parameters)
-
+      
       # display grahes (volcano or/and MD)
       if(parameters$plotMD==TRUE) { plot_expr(glm_test, normGEdisp, sum, contrast, "MD", parameters) } 
       if(parameters$plotVO==TRUE) { plot_expr(glm_test, normGEdisp, sum, contrast, "VO", parameters) }
@@ -1296,7 +1296,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
       if(parameters$glimVO==TRUE) { plot_glimma(glm_test, normGEdisp, sum, contrast, "VO", parameters) }
     }
   }
-
+  
   # Create summary file with annotations (if available) and contrast value for each gene
   #---------------------------------------------------------------------------------------
   cat("\nCreate Summary file\n\n")
@@ -1333,212 +1333,212 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
 #' 
 #' @export 
 UpSetGraph <- function(resDEG, data_list, parameters){
-    study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
-    image_dir = paste0(study_dir, "UpSetR_graphs/") 
-    if(dir.exists(image_dir)==FALSE){ 
-        dir.create(image_dir) 
-        cat("\nDirectory: ",image_dir," created\n")
+  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
+  image_dir = paste0(study_dir, "UpSetR_graphs/") 
+  if(dir.exists(image_dir)==FALSE){ 
+    dir.create(image_dir) 
+    cat("\nDirectory: ",image_dir," created\n")
+  }
+  
+  # Global UpsetR
+  #---------------------------------------------------------------------------------------
+  imgwidth  = 1280
+  imgheight = 1024
+  if(is.null(parameters$upset_basic)==FALSE){
+    cat("\nCreated Global UpSetR Charts\n")
+    nelem<-ncol(resDEG)
+    if(nelem > 10){ print("Warning: you have a lot of contrasts, the readability of the chart is not guaranteed.") }
+    if(nelem <= 6){
+      imgwidth  = 1024
+      imgheight = 768
     }
-
-    # Global UpsetR
-    #---------------------------------------------------------------------------------------
-    imgwidth  = 1280
-    imgheight = 1024
-    if(is.null(parameters$upset_basic)==FALSE){
-        cat("\nCreated Global UpSetR Charts\n")
-        nelem<-ncol(resDEG)
-        if(nelem > 10){ print("Warning: you have a lot of contrasts, the readability of the chart is not guaranteed.") }
-        if(nelem <= 6){
-            imgwidth  = 1024
-            imgheight = 768
-        }
-        if (parameters$upset_basic == "all"){
-            test<-ncol(resDEG[,colSums(abs(resDEG))!=0])
-            if(test <= 1){ 
-                cat("\nGlobal UpSetR Charts type all : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-                next 
-            }
-            
-            # all genes differentially expressed
-            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_allDEG.png"), width=imgwidth, height=imgheight)
-            upset(data=abs(resDEG), sets=rev(colnames(resDEG)), nsets=ncol(resDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-            grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
-            dev.off()
-        }
-        else if(parameters$upset_basic == "up"){
-            # table with Down Expressed Genes
-            upDEG<-resDEG
-            upDEG[upDEG==-1]<-0
-            colnames(upDEG)<-gsub("vs"," > ",colnames(resDEG))
-            test<-ncol(upDEG[,colSums(abs(upDEG))!=0])
-            if(test <= 1){ 
-                cat("\nGlobal UpSetR Charts type up : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-                next 
-            }
-            
-            # record upsetR graph for Down Expressed Genes
-            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_upDEG.png"), width=imgwidth, height=imgheight)
-            upset(data=upDEG, sets=rev(colnames(upDEG)), nsets=ncol(upDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-            grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-            dev.off()  
-        }
-        else if(parameters$upset_basic == "down"){
-            # table with Up Expressed Genes
-            downDEG<-resDEG
-            downDEG[downDEG==1]<-0
-            downDEG[downDEG==-1]<-1
-            colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
-            test<-ncol(downDEG[,colSums(abs(downDEG))!=0])
-            if(test <= 1){ 
-                cat("\nGlobal UpSetR Charts type down : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-                next 
-            }
-            
-            # record upsetR graph for Up Expressed Genes
-            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_downDEG.png"), width=imgwidth, height=imgheight)
-            upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-            grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-            dev.off()
-        }
-        else if(parameters$upset_basic == "mixed"){
-            # table with Up Expressed Genes
-            upDEG<-resDEG
-            upDEG[upDEG==-1]<-0
-            colnames(upDEG)<-gsub("vs"," > ",colnames(upDEG))
-            
-            # table with Down Expressed Genes
-            downDEG<-resDEG
-            downDEG[downDEG==1]<-0
-            downDEG[downDEG==-1]<-1
-            colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
-            
-            # table mixed up and down
-            mixDEG<-cbind(upDEG,downDEG)
-            metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
-            sets<-as.vector(rbind(colnames(upDEG),colnames(downDEG)))
-            names(metadata)<-c("sets", "SENS")
-            test<-ncol(mixDEG[,colSums(abs(mixDEG))!=0])
-            if(test <= 1){ 
-                cat("\nGlobal UpSetR Charts type mixed : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-                next 
-            }
-            
-            # record upsetR graph for Up and Down Expressed Genes
-            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_mixedDEG.png"), width=1280, height=1024)
-            upset(data=mixDEG, sets=rev(sets), nsets=ncol(mixDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
-                  text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5))))
-            grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-            dev.off()  
-        }
+    if (parameters$upset_basic == "all"){
+      test<-ncol(resDEG[,colSums(abs(resDEG))!=0])
+      if(test <= 1){ 
+        cat("\nGlobal UpSetR Charts type all : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+        next 
+      }
+      
+      # all genes differentially expressed
+      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_allDEG.png"), width=imgwidth, height=imgheight)
+      upset(data=abs(resDEG), sets=rev(colnames(resDEG)), nsets=ncol(resDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
+      grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
+      dev.off()
     }
-    # Multiple graphs UpSetR
-    #---------------------------------------------------------------------------------------
-    imgwidth  = 1280
-    imgheight = 1024
+    else if(parameters$upset_basic == "up"){
+      # table with Down Expressed Genes
+      upDEG<-resDEG
+      upDEG[upDEG==-1]<-0
+      colnames(upDEG)<-gsub("vs"," > ",colnames(resDEG))
+      test<-ncol(upDEG[,colSums(abs(upDEG))!=0])
+      if(test <= 1){ 
+        cat("\nGlobal UpSetR Charts type up : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+        next 
+      }
+      
+      # record upsetR graph for Down Expressed Genes
+      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_upDEG.png"), width=imgwidth, height=imgheight)
+      upset(data=upDEG, sets=rev(colnames(upDEG)), nsets=ncol(upDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
+      grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+      dev.off()  
+    }
+    else if(parameters$upset_basic == "down"){
+      # table with Up Expressed Genes
+      downDEG<-resDEG
+      downDEG[downDEG==1]<-0
+      downDEG[downDEG==-1]<-1
+      colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
+      test<-ncol(downDEG[,colSums(abs(downDEG))!=0])
+      if(test <= 1){ 
+        cat("\nGlobal UpSetR Charts type down : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+        next 
+      }
+      
+      # record upsetR graph for Up Expressed Genes
+      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_downDEG.png"), width=imgwidth, height=imgheight)
+      upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
+      grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+      dev.off()
+    }
+    else if(parameters$upset_basic == "mixed"){
+      # table with Up Expressed Genes
+      upDEG<-resDEG
+      upDEG[upDEG==-1]<-0
+      colnames(upDEG)<-gsub("vs"," > ",colnames(upDEG))
+      
+      # table with Down Expressed Genes
+      downDEG<-resDEG
+      downDEG[downDEG==1]<-0
+      downDEG[downDEG==-1]<-1
+      colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
+      
+      # table mixed up and down
+      mixDEG<-cbind(upDEG,downDEG)
+      metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
+      sets<-as.vector(rbind(colnames(upDEG),colnames(downDEG)))
+      names(metadata)<-c("sets", "SENS")
+      test<-ncol(mixDEG[,colSums(abs(mixDEG))!=0])
+      if(test <= 1){ 
+        cat("\nGlobal UpSetR Charts type mixed : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+        next 
+      }
+      
+      # record upsetR graph for Up and Down Expressed Genes
+      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_mixedDEG.png"), width=1280, height=1024)
+      upset(data=mixDEG, sets=rev(sets), nsets=ncol(mixDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
+            text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5))))
+      grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+      dev.off()  
+    }
+  }
+  # Multiple graphs UpSetR
+  #---------------------------------------------------------------------------------------
+  imgwidth  = 1280
+  imgheight = 1024
+  
+  cat("Created UpSetR Charts for each element in \"upset_list\"\n")
+  if(is.null(parameters$upset_type)==TRUE && is.null(parameters$upset_list)==FALSE){
+    stop("upset_type must be not empty\n")
+  }
+  else if(is.null(parameters$upset_type)==FALSE && is.null(parameters$upset_list)==TRUE){
+    stop("upset_list must be not empty\n")
+  }
+  
+  for(comparaison in parameters$upset_list){
+    compa<-strsplit2(comparaison, "-")
+    subDEG<-resDEG[,compa]
     
-    cat("Created UpSetR Charts for each element in \"upset_list\"\n")
-    if(is.null(parameters$upset_type)==TRUE && is.null(parameters$upset_list)==FALSE){
-        stop("upset_type must be not empty\n")
-    }
-    else if(is.null(parameters$upset_type)==FALSE && is.null(parameters$upset_list)==TRUE){
-        stop("upset_list must be not empty\n")
+    # image size
+    if(ncol(subDEG) <= 6){
+      imgwidth  = 1024
+      imgheight = 768
     }
     
-    for(comparaison in parameters$upset_list){
-        compa<-strsplit2(comparaison, "-")
-        subDEG<-resDEG[,compa]
-
-        # image size
-        if(ncol(subDEG) <= 6){
-            imgwidth  = 1024
-            imgheight = 768
-        }
-        
-        # all genes differentially expressed
-        if (parameters$upset_type == "all"){
-            test<-ncol(subDEG[,colSums(abs(subDEG))!=0])
-            if(test <= 1){ 
-                cat("\nUpSetR Charts type all for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-                next 
-            }
-            
-            # record upsetR graph for all Differentially Expressed Genes
-            cat("\nUpSetR Charts type all for ",comparaison,"\n")
-            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_allDEG.png"), width=imgwidth, height=imgheight)
-            upset(data=abs(subDEG), sets=rev(colnames(subDEG)), nsets=ncol(subDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-            grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
-            dev.off()
-        }
-        # up expressed genes
-        else if(parameters$upset_type == "up"){
-            upDEG<-subDEG
-            upDEG[upDEG==-1]<-0
-            colnames(upDEG)<-gsub("vs"," > ",colnames(subDEG))
-            test<-ncol(upDEG[,colSums(abs(upDEG))!=0])
-            if(test <= 1){ 
-                cat("\nUpSetR Charts type up for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-                next 
-            }
-            
-            # record upsetR graph for Up Expressed Genes
-            cat("\nUpSetR Charts type up for ",comparaison,"\n")
-            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_upDEG.png"), width=imgwidth, height=imgheight)
-            upset(data=upDEG, sets=rev(colnames(upDEG)), nsets=ncol(upDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-            grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-            dev.off()
-        }
-        # down expressed genes
-        else if(parameters$upset_type == "down"){
-            downDEG<-subDEG
-            downDEG[downDEG==1]<-0
-            downDEG[downDEG==-1]<-1
-            colnames(downDEG)<-gsub("vs"," < ",colnames(subDEG))
-            test<-ncol(downDEG[,colSums(abs(downDEG))!=0])
-            if(test <= 1){ 
-                cat("\nUpSetR Charts type down for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-                next 
-            }
-            
-            # record upsetR graph for Down Expressed Genes
-            cat("\nUpSetR Charts type down for ",comparaison,"\n")
-            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_downDEG.png"), width=imgwidth, height=imgheight)
-            upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-            grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-            dev.off()  
-        }
-        # mixed up and down expressed genes
-        else if(parameters$upset_type == "mixed"){
-            # table with Up Expressed Genes
-            upDEG<-subDEG
-            upDEG[upDEG==-1]<-0
-            colnames(upDEG)<-gsub("vs"," > ",colnames(upDEG))
-            
-            # table with Down Expressed Genes
-            downDEG<-subDEG
-            downDEG[downDEG==1]<-0
-            downDEG[downDEG==-1]<-1
-            colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
-
-            # table mixed up and down
-            mixDEG<-cbind(upDEG,downDEG)
-            metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
-            sets<-as.vector(rbind(colnames(upDEG),colnames(downDEG)))
-            names(metadata)<-c("sets", "SENS")
-            test<-ncol(mixDEG[,colSums(abs(mixDEG))!=0])
-            if(test <= 1){ 
-                cat("\nUpSetR Charts type mixed for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-                next 
-            }
-            
-            # record upsetR graph for Up and Down Expressed Genes
-            cat("\nUpSetR Charts type mixed for ",comparaison,"\n")
-            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_mixedDEG.png"), width=1280, height=1024)
-            upset(data=mixDEG, sets=rev(sets), nsets=ncol(mixDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
-                  text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5))))
-            grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-            dev.off()  
-        }
+    # all genes differentially expressed
+    if (parameters$upset_type == "all"){
+      test<-ncol(subDEG[,colSums(abs(subDEG))!=0])
+      if(test <= 1){
+        cat("\nUpSetR Charts type all for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")
+        next
+      }
+      
+      # record upsetR graph for all Differentially Expressed Genes
+      cat("\nUpSetR Charts type all for ",comparaison,"\n")
+      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_allDEG.png"), width=imgwidth, height=imgheight)
+      upset(data=abs(subDEG), sets=rev(colnames(subDEG)), nsets=ncol(subDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
+      grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
+      dev.off()
     }
+    # up expressed genes
+    else if(parameters$upset_type == "up"){
+      upDEG<-subDEG
+      upDEG[upDEG==-1]<-0
+      colnames(upDEG)<-gsub("vs"," > ",colnames(subDEG))
+      test<-ncol(upDEG[,colSums(abs(upDEG))!=0])
+      if(test <= 1){ 
+        cat("\nUpSetR Charts type up for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+        next 
+      }
+      
+      # record upsetR graph for Up Expressed Genes
+      cat("\nUpSetR Charts type up for ",comparaison,"\n")
+      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_upDEG.png"), width=imgwidth, height=imgheight)
+      upset(data=upDEG, sets=rev(colnames(upDEG)), nsets=ncol(upDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
+      grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+      dev.off()
+    }
+    # down expressed genes
+    else if(parameters$upset_type == "down"){
+      downDEG<-subDEG
+      downDEG[downDEG==1]<-0
+      downDEG[downDEG==-1]<-1
+      colnames(downDEG)<-gsub("vs"," < ",colnames(subDEG))
+      test<-ncol(downDEG[,colSums(abs(downDEG))!=0])
+      if(test <= 1){ 
+        cat("\nUpSetR Charts type down for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+        next 
+      }
+      
+      # record upsetR graph for Down Expressed Genes
+      cat("\nUpSetR Charts type down for ",comparaison,"\n")
+      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_downDEG.png"), width=imgwidth, height=imgheight)
+      upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
+      grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+      dev.off()  
+    }
+    # mixed up and down expressed genes
+    else if(parameters$upset_type == "mixed"){
+      # table with Up Expressed Genes
+      upDEG<-subDEG
+      upDEG[upDEG==-1]<-0
+      colnames(upDEG)<-gsub("vs"," > ",colnames(upDEG))
+      
+      # table with Down Expressed Genes
+      downDEG<-subDEG
+      downDEG[downDEG==1]<-0
+      downDEG[downDEG==-1]<-1
+      colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
+      
+      # table mixed up and down
+      mixDEG<-cbind(upDEG,downDEG)
+      metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
+      sets<-as.vector(rbind(colnames(upDEG),colnames(downDEG)))
+      names(metadata)<-c("sets", "SENS")
+      test<-ncol(mixDEG[,colSums(abs(mixDEG))!=0])
+      if(test <= 1){ 
+        cat("\nUpSetR Charts type mixed for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+        next 
+      }
+      
+      # record upsetR graph for Up and Down Expressed Genes
+      cat("\nUpSetR Charts type mixed for ",comparaison,"\n")
+      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_mixedDEG.png"), width=1280, height=1024)
+      upset(data=mixDEG, sets=rev(sets), nsets=ncol(mixDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
+            text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5))))
+      grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+      dev.off()  
+    }
+  }
 }
 
 #' @title VD
@@ -1565,8 +1565,8 @@ VD <- function(decideTestTable, parameters, asko_list){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   venn_dir = paste0(study_dir, "vennDiagram/") 
   if(dir.exists(venn_dir)==FALSE){ 
-      dir.create(venn_dir) 
-      cat("Directory: ",venn_dir," created\n")
+    dir.create(venn_dir) 
+    cat("Directory: ",venn_dir," created\n")
   }
   
   # don't write log file
@@ -1731,7 +1731,7 @@ VD <- function(decideTestTable, parameters, asko_list){
 loopGoStag<-function(gene_list,go_list,lvl,nameGo){
   study_dir = paste0(parameters$dir_path, "/", parameters$analysis_name, "/") 
   image_dir = paste0(study_dir, "images/")
-
+  
   # GO titles (for graphs)
   GOtitle=""
   if(nameGo=="MF"){ GOtitle="Molecular Function" }
@@ -1748,7 +1748,7 @@ loopGoStag<-function(gene_list,go_list,lvl,nameGo){
   )
   if (nrow(enrichment_matrix)==1) {return(NULL)} 
   testOrder<-enrichment_matrix[order(rowSums(enrichment_matrix != 0),decreasing=F),order(colSums(enrichment_matrix != 0),decreasing=F)]
-
+  
   # Hierarchical Clustering
   cat("2nd step: cluster the GO terms\n")
   # try(hclust_results <- performHierarchicalClustering(enrichment_matrix)) 
@@ -1764,7 +1764,7 @@ loopGoStag<-function(gene_list,go_list,lvl,nameGo){
   cat("4th step: annotate each of the clusters\n\n")
   try(cluster_labels <- annotateClusters(clusters))
   print(cluster_labels)
-
+  
   # Plotting a Heatmap
   GOtitle=""
   if(nameGo=="MF"){ GOtitle="Molecular Function" }
@@ -1773,22 +1773,22 @@ loopGoStag<-function(gene_list,go_list,lvl,nameGo){
   png(paste0(image_dir, parameters$analysis_name,"_",nameGo,"_enrich_heatmap_",lvl,".png"), width=1500, height=1200)
   par(oma=c(2,2,4,2))
   try(plotHeatmap(#enrichment_matrix,
-                  testOrder,
-                  hclust_results, 
-                  clusters,
-                  cluster_labels,
-                  min_num_terms = parameters$GO_min_num_terms,
-                  dendrogram_width=0.5,
-                  cluster_label_width=0.6,
-                  cluster_label_cex=1.2,
-                  sample_label_cex=1.2,
-                  dendrogram_lwd=0.5,
-                  header_lwd=0.5,
-                  header_height=0.3, 
-                  heatmap_colors = "extra"))
+    testOrder,
+    hclust_results, 
+    clusters,
+    cluster_labels,
+    min_num_terms = parameters$GO_min_num_terms,
+    dendrogram_width=0.5,
+    cluster_label_width=0.6,
+    cluster_label_cex=1.2,
+    sample_label_cex=1.2,
+    dendrogram_lwd=0.5,
+    header_lwd=0.5,
+    header_height=0.3, 
+    heatmap_colors = "extra"))
   title(paste0(GOtitle," heatmap for genes expressed ",toupper(lvl)), adj=0.5, outer=TRUE, cex.main=3.2)
   dev.off()
-
+  
   # save all in matrix
   matrix<-list()
   matrix[[paste0(as.character(nameGo),"_enrich_",as.character(lvl))]] <- enrichment_matrix
