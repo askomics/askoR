@@ -214,7 +214,7 @@ loadData <- function(parameters){
   
   # Sample file
   sample_path<-paste0(input_path, parameters$sample_file)
-  samples<-read.csv(sample_path, header=TRUE, sep="\t", row.names=1, comment.char = "#")
+  samples<-read.table(sample_path, header=TRUE, sep="\t", row.names=1)
 
   # Selecting some sample (select_sample parameter)
   if(is.null(parameters$select_sample)==FALSE){
@@ -284,10 +284,10 @@ loadData <- function(parameters){
     print(rownames(samples))
     count_path<-paste0(input_path, parameters$fileofcount)
     if(grepl(".csv", parameters$fileofcount)==TRUE){
-      count<-read.csv(count_path, header=TRUE, sep = "\t", row.names = parameters$col_genes)
+      count<-read.csv(count_path, header=TRUE, sep = "\t", row.names = parameters$col_genes, comment.char="#")
     }
     else{
-      count<-read.table(count_path, header=TRUE, sep = "\t", row.names = parameters$col_genes)
+      count<-read.table(count_path, header=TRUE, sep = "\t", row.names = parameters$col_genes, comment.char="#")
     }
     
     # If you ask for some samples were removed for analysis
@@ -766,7 +766,7 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
   #----------------------------------------------------
   logcpm_norm <- cpm(norm_GE, log=TRUE)
   colnames(logcpm_norm)<-rownames(filtered_GE$samples)
-  write.table(logcpm_norm, file=paste0(study_dir, parameters$analysis_name, "_logCPMNorm.csv"), col.names=T, row.names = T, quote=F, sep='\t')
+  #write.table(logcpm_norm, file=paste0(study_dir, parameters$analysis_name, "_logCPMNorm.csv"), col.names=T, row.names = T, quote=F, sep='\t')
   
   png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_norm.png"), width=sizeImg, height=sizeImg)
   par(oma=c(1,1,1,1))
@@ -1288,7 +1288,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
       }
       sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC)
       AskoStats(glm_test, fit, contrast, asko_list, normGEdisp, parameters)
-      
+
       # display grahes (volcano or/and MD)
       if(parameters$plotMD==TRUE) { plot_expr(glm_test, normGEdisp, sum, contrast, "MD", parameters) } 
       if(parameters$plotVO==TRUE) { plot_expr(glm_test, normGEdisp, sum, contrast, "VO", parameters) }
@@ -1344,73 +1344,93 @@ UpSetGraph <- function(resDEG, data_list, parameters){
     #---------------------------------------------------------------------------------------
     imgwidth  = 1280
     imgheight = 1024
-    cat("\nCreated Global UpSetR Charts\n")
     if(is.null(parameters$upset_basic)==FALSE){
+        cat("\nCreated Global UpSetR Charts\n")
         nelem<-ncol(resDEG)
         if(nelem > 10){ print("Warning: you have a lot of contrasts, the readability of the chart is not guaranteed.") }
         if(nelem <= 6){
             imgwidth  = 1024
             imgheight = 768
         }
+        if (parameters$upset_basic == "all"){
+            test<-ncol(resDEG[,colSums(abs(resDEG))!=0])
+            if(test <= 1){ 
+                cat("\nGlobal UpSetR Charts type all : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+                next 
+            }
+            
+            # all genes differentially expressed
+            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_allDEG.png"), width=imgwidth, height=imgheight)
+            upset(data=abs(resDEG), sets=rev(colnames(resDEG)), nsets=ncol(resDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
+            grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
+            dev.off()
+        }
+        else if(parameters$upset_basic == "up"){
+            # table with Down Expressed Genes
+            upDEG<-resDEG
+            upDEG[upDEG==-1]<-0
+            colnames(upDEG)<-gsub("vs"," > ",colnames(resDEG))
+            test<-ncol(upDEG[,colSums(abs(upDEG))!=0])
+            if(test <= 1){ 
+                cat("\nGlobal UpSetR Charts type up : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+                next 
+            }
+            
+            # record upsetR graph for Down Expressed Genes
+            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_upDEG.png"), width=imgwidth, height=imgheight)
+            upset(data=upDEG, sets=rev(colnames(upDEG)), nsets=ncol(upDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
+            grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+            dev.off()  
+        }
+        else if(parameters$upset_basic == "down"){
+            # table with Up Expressed Genes
+            downDEG<-resDEG
+            downDEG[downDEG==1]<-0
+            downDEG[downDEG==-1]<-1
+            colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
+            test<-ncol(downDEG[,colSums(abs(downDEG))!=0])
+            if(test <= 1){ 
+                cat("\nGlobal UpSetR Charts type down : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+                next 
+            }
+            
+            # record upsetR graph for Up Expressed Genes
+            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_downDEG.png"), width=imgwidth, height=imgheight)
+            upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
+            grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+            dev.off()
+        }
+        else if(parameters$upset_basic == "mixed"){
+            # table with Up Expressed Genes
+            upDEG<-resDEG
+            upDEG[upDEG==-1]<-0
+            colnames(upDEG)<-gsub("vs"," > ",colnames(upDEG))
+            
+            # table with Down Expressed Genes
+            downDEG<-resDEG
+            downDEG[downDEG==1]<-0
+            downDEG[downDEG==-1]<-1
+            colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
+            
+            # table mixed up and down
+            mixDEG<-cbind(upDEG,downDEG)
+            metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
+            sets<-as.vector(rbind(colnames(upDEG),colnames(downDEG)))
+            names(metadata)<-c("sets", "SENS")
+            test<-ncol(mixDEG[,colSums(abs(mixDEG))!=0])
+            if(test <= 1){ 
+                cat("\nGlobal UpSetR Charts type mixed : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+                next 
+            }
+            
+            # record upsetR graph for Up and Down Expressed Genes
+            png(paste0(image_dir, parameters$analysis_name,"_UpSetR_mixedDEG.png"), width=1280, height=1024)
+            upset(data=mixDEG, sets=rev(sets), nsets=ncol(mixDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
+                  text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5))))
+            grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+            dev.off()  
+        }
     }
-    if (parameters$upset_basic == "all"){
-        # all genes differentially expressed
-        png(paste0(image_dir, parameters$analysis_name,"_UpSetR_allDEG.png"), width=imgwidth, height=imgheight)
-        upset(data=abs(resDEG), sets=rev(colnames(resDEG)), nsets=ncol(resDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-        grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
-        dev.off()
-    }
-    else if(parameters$upset_basic == "up"){
-        # table with Down Expressed Genes
-        upDEG<-resDEG
-        upDEG[upDEG==-1]<-0
-        colnames(upDEG)<-gsub("vs"," > ",colnames(resDEG))
-        
-        # record upsetR graph for Down Expressed Genes
-        png(paste0(image_dir, parameters$analysis_name,"_UpSetR_upDEG.png"), width=imgwidth, height=imgheight)
-        upset(data=upDEG, sets=rev(colnames(upDEG)), nsets=ncol(upDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-        grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-        dev.off()  
-    }
-    else if(parameters$upset_basic == "down"){
-        # table with Up Expressed Genes
-        downDEG<-resDEG
-        downDEG[downDEG==1]<-0
-        downDEG[downDEG==-1]<-1
-        colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
-    
-        # record upsetR graph for Up Expressed Genes
-        png(paste0(image_dir, parameters$analysis_name,"_UpSetR_downDEG.png"), width=imgwidth, height=imgheight)
-        upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-        grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-        dev.off()
-    }
-    else if(parameters$upset_basic == "mixed"){
-        # table with Up Expressed Genes
-        upDEG<-resDEG
-        upDEG[upDEG==-1]<-0
-        colnames(upDEG)<-gsub("vs"," > ",colnames(upDEG))
-        
-        # table with Down Expressed Genes
-        downDEG<-resDEG
-        downDEG[downDEG==1]<-0
-        downDEG[downDEG==-1]<-1
-        colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
-        
-        # table mixed up and down
-        mixDEG<-cbind(upDEG,downDEG)
-        metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
-        sets<-as.vector(rbind(colnames(upDEG),colnames(downDEG)))
-        names(metadata)<-c("sets", "SENS")
-    
-        # record upsetR graph for Up and Down Expressed Genes
-        png(paste0(image_dir, parameters$analysis_name,"_UpSetR_mixedDEG.png"), width=1280, height=1024)
-        upset(data=mixDEG, sets=rev(sets), nsets=ncol(mixDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
-            text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5))))
-        grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-        dev.off()  
-    }
-    
     # Multiple graphs UpSetR
     #---------------------------------------------------------------------------------------
     imgwidth  = 1280
@@ -1418,16 +1438,16 @@ UpSetGraph <- function(resDEG, data_list, parameters){
     
     cat("Created UpSetR Charts for each element in \"upset_list\"\n")
     if(is.null(parameters$upset_type)==TRUE && is.null(parameters$upset_list)==FALSE){
-        print("upset_type must be not empty\n")
+        stop("upset_type must be not empty\n")
     }
     else if(is.null(parameters$upset_type)==FALSE && is.null(parameters$upset_list)==TRUE){
-        print("upset_list must be not empty\n")
+        stop("upset_list must be not empty\n")
     }
     
     for(comparaison in parameters$upset_list){
         compa<-strsplit2(comparaison, "-")
         subDEG<-resDEG[,compa]
-        
+
         # image size
         if(ncol(subDEG) <= 6){
             imgwidth  = 1024
@@ -1436,6 +1456,14 @@ UpSetGraph <- function(resDEG, data_list, parameters){
         
         # all genes differentially expressed
         if (parameters$upset_type == "all"){
+            test<-ncol(subDEG[,colSums(abs(subDEG))!=0])
+            if(test <= 1){ 
+                cat("\nUpSetR Charts type all for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+                next 
+            }
+            
+            # record upsetR graph for all Differentially Expressed Genes
+            cat("\nUpSetR Charts type all for ",comparaison,"\n")
             png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_allDEG.png"), width=imgwidth, height=imgheight)
             upset(data=abs(subDEG), sets=rev(colnames(subDEG)), nsets=ncol(subDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
             grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
@@ -1446,8 +1474,14 @@ UpSetGraph <- function(resDEG, data_list, parameters){
             upDEG<-subDEG
             upDEG[upDEG==-1]<-0
             colnames(upDEG)<-gsub("vs"," > ",colnames(subDEG))
+            test<-ncol(upDEG[,colSums(abs(upDEG))!=0])
+            if(test <= 1){ 
+                cat("\nUpSetR Charts type up for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+                next 
+            }
             
             # record upsetR graph for Up Expressed Genes
+            cat("\nUpSetR Charts type up for ",comparaison,"\n")
             png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_upDEG.png"), width=imgwidth, height=imgheight)
             upset(data=upDEG, sets=rev(colnames(upDEG)), nsets=ncol(upDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
             grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
@@ -1459,8 +1493,14 @@ UpSetGraph <- function(resDEG, data_list, parameters){
             downDEG[downDEG==1]<-0
             downDEG[downDEG==-1]<-1
             colnames(downDEG)<-gsub("vs"," < ",colnames(subDEG))
+            test<-ncol(downDEG[,colSums(abs(downDEG))!=0])
+            if(test <= 1){ 
+                cat("\nUpSetR Charts type down for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+                next 
+            }
             
             # record upsetR graph for Down Expressed Genes
+            cat("\nUpSetR Charts type down for ",comparaison,"\n")
             png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_downDEG.png"), width=imgwidth, height=imgheight)
             upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
             grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
@@ -1484,8 +1524,14 @@ UpSetGraph <- function(resDEG, data_list, parameters){
             metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
             sets<-as.vector(rbind(colnames(upDEG),colnames(downDEG)))
             names(metadata)<-c("sets", "SENS")
+            test<-ncol(mixDEG[,colSums(abs(mixDEG))!=0])
+            if(test <= 1){ 
+                cat("\nUpSetR Charts type mixed for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
+                next 
+            }
             
             # record upsetR graph for Up and Down Expressed Genes
+            cat("\nUpSetR Charts type mixed for ",comparaison,"\n")
             png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_mixedDEG.png"), width=1280, height=1024)
             upset(data=mixDEG, sets=rev(sets), nsets=ncol(mixDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
                   text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5))))
@@ -1520,223 +1566,145 @@ VD <- function(decideTestTable, parameters, asko_list){
   venn_dir = paste0(study_dir, "vennDiagram/") 
   if(dir.exists(venn_dir)==FALSE){ 
       dir.create(venn_dir) 
-      cat("Directory: ",venn_dir," created")
+      cat("Directory: ",venn_dir," created\n")
   }
   
   # don't write log file
   futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
   
-  cat("\nCreate VennDiagrams ")
+  cat("Create VennDiagrams ")
   if(parameters$VD == "all"){
-    cat("for all differentially expressed genes\n")
+    cat("for all differentially expressed genes\n  List of comparisons:\n")
     for(comparaison in parameters$compaVD){
-      name<-c()
-      title<-c()
-      input<-list()
       compa<-strsplit2(comparaison, "-")
-      nbCompa <- length(compa)
-      cat("\nNumber of comparison: ",nbCompa,"\n")
+      nbCompa<-length(compa)
+      input<-list()
       
-      for(n in 1:nbCompa){
-        col_num <- which(colnames(decideTestTable)==compa[n])
-        na <- paste0(asko_list$contrast$context1[col_num],"/",asko_list$contrast$context2[col_num])
-        name <- append(name, na)
-        ti <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[n]]
-        title <- append(title, ti)
-        all <- rownames(decideTestTable)[decideTestTable[,col_num]!=0]
-        input[[n]] <- append(input, all)
+      if(nbCompa > 4) {
+        cat("Comp : ",comparaison," - Accepts up to 4 comparisons!\n")
+        next
       }
-      if(nbCompa==2){
-        input_list = list(c1=input[[1]] ,c2=input[[2]])
-        color<-c("palegreen","skyblue")
-      }
-      if(nbCompa==3){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]])}
-      if(nbCompa==4){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]])}
-      if(nbCompa==5){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]], c5=input[[5]])}
       
-      # display numbers common for each comparisons
-      for (n in 1:(nbCompa-1)){
-        for (i in (n+1):nbCompa){
-          comm<-intersect(input[[n]],input[[i]])
-          lab1<-name[n]
-          lab2<-name[i]
-          cat("Genes common between",lab1,"and",lab2,":",length(comm),"\n")
-        }
+      cat("    -> ",comparaison,"\n")
+      for(n in compa){
+        listDEG<-rownames(resDEG[apply(resDEG[,n], 1, function(x) !all(x==0)),])
+        nameDEG<-gsub("vs", "/", n)
+        input[[nameDEG]]<-listDEG
       }
-      # display common all
-      comm<-Reduce(intersect,input)
-      cat("Genes common between",paste(name, collapse=" and "),":",length(comm),"\n")
-
-      # Venn diagram plot
+      
       color <- brewer.pal(nbCompa, parameters$palette)
-      title_file <- paste(title, sep = "-", collapse = "-")
-      filename <- paste0(title_file,"_all")
-      venn.diagram(input_list,
+      venn.diagram(input,
                    main="All differentially expressed genes (up+down)",
-                   filename=paste0(venn_dir, filename, ".png"),
+                   filename=paste0(venn_dir, "/", comparaison, "_all.png"),
                    imagetype = "png",
                    main.cex = 1,
                    cat.cex = 0.8,
                    cex = 0.8,
                    fill = color,
-                   category.names = name,
-                   col=0,euler.d = FALSE,scaled=FALSE
-      )
+                   category.names = labels(input),
+                   col=0,euler.d = FALSE,scaled=FALSE)
     }
   }
   else if(parameters$VD == "both"){
-    cat("for genes expressed UP and DOWN:\n")
+    cat("for genes expressed UP and DOWN:\n  List of comparisons:\n")
     for(comparaison in parameters$compaVD){
       compa<-strsplit2(comparaison, "-")
-      column1<-which(colnames(decideTestTable)==compa[1])
-      column2<-which(colnames(decideTestTable)==compa[2])
-      cat("\tComparison between",compa[1],"and",compa[2],"\n")
+      nbCompa<-length(compa)
+      input<-list()
       
-      na1<-paste0(asko_list$contrast$context1[column1],"<",asko_list$contrast$context2[column1])
-      na2<-paste0(asko_list$contrast$context1[column1],">",asko_list$contrast$context2[column1])
-      na3<-paste0(asko_list$contrast$context1[column2],"<",asko_list$contrast$context2[column2])
-      na4<-paste0(asko_list$contrast$context1[column2],">",asko_list$contrast$context2[column2])
+      if(nbCompa != 2) {
+        cat("Comp : ",comparaison," - Accepts only 2 comparisons!\n")
+        next
+      }
       
-      name_c1<-asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[1]]
-      name_c2<-asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[2]]
       
-      Gdown_c1<-rownames(decideTestTable)[decideTestTable[,column1]==-1]
-      Gup_c1<-rownames(decideTestTable)[decideTestTable[,column1]==1]
-      Gdown_c2<-rownames(decideTestTable)[decideTestTable[,column2]==-1]
-      Gup_c2<-rownames(decideTestTable)[decideTestTable[,column2]==1]
-      input<-list(up_1=Gup_c1,
-                  down_1=Gdown_c1,
-                  up_2=Gup_c2,
-                  down_2=Gdown_c2)
-      
-      filename = paste0(name_c1,"-",name_c2)
+      cat("    -> ",comparaison,"\n")
+      for(n in compa){
+        listUp<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==1)),])
+        listDown<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==-1)),])
+        nameUp<-gsub("vs", " > ", n)
+        nameDown<-gsub("vs", " < ", n)
+        input[[nameUp]]<-listUp
+        input[[nameDown]]<-listDown
+      }
       venn<-venn.diagram(input, main="Genes expressed \"UP\" and \"DOWN\"",
-                         filename=paste0(venn_dir, filename, ".png"), 
+                         filename=paste0(venn_dir, "/", comparaison, "_mixed.png"), 
                          imagetype = "png",
                          main.cex = 1,
                          cat.cex = 0.8,
                          cex=0.8,
                          cat.dist = c(-0.4,-0.4,0.1,0.1),
                          cat.col = c( "red1","royalblue1", "red3", "royalblue4"),
-                         category.names = c(na1, na2, na3, na4),
+                         category.names = labels(input),
                          col=c( "red1","royalblue1", "red3", "royalblue4"),
                          euler.d = FALSE,
                          scaled=FALSE)
     }
   }
   else if(parameters$VD == "up"){
-    cat("for genes expressed UP\n")
+    cat("for genes expressed UP\n  List of comparisons:\n")
     for(comparaison in parameters$compaVD){
-      name<-c()
-      title<-c()
-      input<-list()
       compa<-strsplit2(comparaison, "-")
-      nbCompa <- length(compa)
-      cat("\nNumber of comparison: ",nbCompa,"\n")
+      nbCompa<-length(compa)
+      input<-list()
       
-      for(n in 1:nbCompa){
-        col_num <- which(colnames(decideTestTable)==compa[n])
-        na <- paste0(asko_list$contrast$context1[col_num],">",asko_list$contrast$context2[col_num])
-        name <- append(name, na)
-        ti <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[n]]
-        title <- append(title, ti)
-        all <- rownames(decideTestTable)[decideTestTable[,col_num]==1]
-        input[[n]] <- append(input, all)
+      if(nbCompa > 4) {
+        cat("Comp : ",comparaison," - Accepts up to 4 comparisons!\n")
+        next
       }
-      if(nbCompa==2){
-        input_list = list(c1=input[[1]] ,c2=input[[2]])
-        color<-c("palegreen","skyblue")
-      }
-      if(nbCompa==3){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]])}
-      if(nbCompa==4){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]])}
-      if(nbCompa==5){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]], c5=input[[5]])}
       
-      # display numbers common for each comparisons
-      for (n in 1:(nbCompa-1)){
-        for (i in (n+1):nbCompa){
-          comm<-intersect(input[[n]],input[[i]])
-          lab1<-name[n]
-          lab2<-name[i]
-          cat("Genes common between",lab1,"and",lab2,":",length(comm),"\n")
-        }
+      cat("    -> ",comparaison,"\n")
+      for(n in compa){
+        listDEG<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==1)),])
+        nameDEG<-gsub("vs", " > ", n)
+        input[[nameDEG]]<-listDEG
       }
-      # display common all
-      comm<-Reduce(intersect,input)
-      cat("Genes common between",paste(name, collapse=" and "),":",length(comm),"\n")
       
-      #Venn diagram plot
       color <- brewer.pal(nbCompa, parameters$palette)
-      title_file <- paste(title, sep = "-", collapse = "-")
-      filename <- paste0(title_file,"_up")
-      venn.diagram(input_list, main="Genes expressed \"UP\"", 
-                   filename=paste0(venn_dir, filename, ".png"),
+      venn.diagram(input,
+                   main="Genes expressed \"UP\"",
+                   filename=paste0(venn_dir, "/", comparaison, "_up.png"),
                    imagetype = "png",
-                   fill = color,
                    main.cex = 1,
-                   cex=0.8,
-                   cat.cex=0.8,
-                   category.names = name,
-                   col=0,euler.d = FALSE,scaled=FALSE
-      )
+                   cat.cex = 0.8,
+                   cex = 0.8,
+                   fill = color,
+                   category.names = labels(input),
+                   col=0,euler.d = FALSE,scaled=FALSE)
     }
   }
   else if(parameters$VD == "down"){
-    cat("for genes expressed DOWN\n\n")
+    cat("for genes expressed DOWN\n  List of comparisons:\n")
     for(comparaison in parameters$compaVD){
-      name<-c()
-      title<-c()
-      input<-list()
       compa<-strsplit2(comparaison, "-")
-      nbCompa <- length(compa)
-      cat("\nNumber of comparison: ",nbCompa,"\n")
+      nbCompa<-length(compa)
+      input<-list()
       
-      for(n in 1:nbCompa){
-        col_num <- which(colnames(decideTestTable)==compa[n])
-        na <- paste0(asko_list$contrast$context1[col_num],"<",asko_list$contrast$context2[col_num])
-        name <- append(name, na)
-        ti <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==compa[n]]
-        title <- append(title, ti)
-        all <- rownames(decideTestTable)[decideTestTable[,col_num]==-1]
-        input[[n]] <- append(input, all)
+      if(nbCompa > 4) {
+        cat("Comp : ",comparaison," - Accepts up to 4 comparisons!\n")
+        next
       }
-      if(nbCompa==2){
-        input_list = list(c1=input[[1]] ,c2=input[[2]])
-        color<-c("palegreen","skyblue")
-      }
-      if(nbCompa==3){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]])}
-      if(nbCompa==4){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]])}
-      if(nbCompa==5){input_list = list(c1=input[[1]] ,c2=input[[2]], c3=input[[3]], c4=input[[4]], c5=input[[5]])}
       
-      # display numbers common for each comparisons
-      for (n in 1:(nbCompa-1)){
-        for (i in (n+1):nbCompa){
-          comm<-intersect(input[[n]],input[[i]])
-          lab1<-name[n]
-          lab2<-name[i]
-          cat("Genes common between",lab1,"and",lab2,":",length(comm),"\n")
-        }
+      cat("    -> ",comparaison,"\n")
+      for(n in compa){
+        listDEG<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==-1)),])
+        nameDEG<-gsub("vs", " < ", n)
+        input[[nameDEG]]<-listDEG
       }
-      # display common all
-      comm<-Reduce(intersect,input)
-      cat("Genes common between",paste(name, collapse=" and "),":",length(comm),"\n")
       
-      # Venn diagram plot
       color <- brewer.pal(nbCompa, parameters$palette)
-      title_file <- paste(title, sep = "-", collapse = "-")
-      filename <- paste0(title_file,"_down")
-      venn.diagram(input_list, main="Genes expressed \"DOWN\"", 
-                   filename=paste0(venn_dir, filename, ".png"),
+      venn.diagram(input,
+                   main="Genes expressed \"DOWN\"",
+                   filename=paste0(venn_dir, "/", comparaison, "_down.png"),
                    imagetype = "png",
+                   main.cex = 1,
+                   cat.cex = 0.8,
+                   cex = 0.8,
                    fill = color,
-                   main.cex=1,
-                   cex=0.8,
-                   cat.cex=0.8,
-                   category.names = name,
-                   col=0,euler.d = FALSE,scaled=FALSE
-      )
+                   category.names = labels(input),
+                   col=0,euler.d = FALSE,scaled=FALSE)
     }
   }
-  cat("\n")
 }
 
 #' @title loopGoStag
