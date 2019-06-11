@@ -19,7 +19,7 @@
 #' @export
 Asko_start <- function(){
   # Loading libraries in silent mode (only error messages will be displayed) 
-  pkgs<-c("limma","statmod","edgeR","VennDiagram","RColorBrewer", "UpSetR", "grid",
+  pkgs<-c("limma","statmod","edgeR","VennDiagram","RColorBrewer", "UpSetR", "grid", "topGO",
           "ggplot2","ggrepel","gplots","stringr","optparse","goSTAG","Glimma")
   for(p in pkgs) suppressPackageStartupMessages(library(p, quietly=TRUE, character.only=TRUE))
   
@@ -72,7 +72,9 @@ Asko_start <- function(){
     make_option(c("--adj"), type="character", default="fdr", dest="p_adj_method",
                 help="p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none) [default= %default]", metavar="character"),
     make_option("--glm", type="character", default="qlf", dest="glm",
-                help=" GLM method (lrt/qlf) [default= %default]", metavar="character"),
+                help="GLM method (lrt/qlf) [default= %default]", metavar="character"),
+    make_option("--disp", type="character", default="common", dest="disp_method",
+                help="Method to estimate of the common dispersions across all tags (glm for GLMCommonDisp or common for CommonDisp) [default= %default]", metavar="character"),
     make_option(c("--lfc"), type="logical", default=TRUE, dest="logFC",
                 help="logFC in the summary table [default= %default]", metavar="logical"),
     make_option(c("--th_lfc"), type="double", default=1, dest="threshold_logFC",
@@ -1233,8 +1235,18 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     stop("Erronate or unknown conditions names in contrast file!\n\n")
   }
   
-  # Esimate dispersions and plot BCV
-  normGEdisp <- estimateDisp(norm_GE, data_list$design)
+  # Estimate Common, Trended and Tagwise Dispersion for Negative Binomial GLMs
+  if(parameters$disp_method=='glm')
+  {
+    normGEdisp <- estimateGLMCommonDisp(norm_GE, data_list$design)
+    normGEdisp <- estimateGLMTrendedDisp(normGEdisp, data_list$design)
+    normGEdisp <- estimateGLMTagwiseDisp(normGEdisp, data_list$design)
+  }
+  # Estimate Common, Trended and Tagwise Negative Binomial dispersions by weighted likelihood empirical Bayes
+  else if(parameters$disp_method=='common')
+  {
+    normGEdisp <- estimateDisp(norm_GE, data_list$design)
+  }
   png(paste0(image_dir, parameters$analysis_name, "_biological_coefficient_of_variation.png"), width=sizeImg, height=sizeImg)
   plotBCV(normGEdisp)
   dev.off()
@@ -1244,7 +1256,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     fit <- glmFit(normGEdisp, data_list$design, robust = T)
   }
   # Genewise Negative Binomial Generalized Linear Models with Quasi-likelihood Tests
-  if(parameters$glm=="qlf"){
+  else if(parameters$glm=="qlf"){
     fit <- glmQLFit(normGEdisp, data_list$design, robust = T)
     png(paste0(image_dir, parameters$analysis_name, "_quasi-likelihood_dispersion.png"), width=sizeImg, height=sizeImg)
     plotQLDisp(fit)
@@ -1324,83 +1336,98 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
 #'
 #' @description Generate upsetR graphs.
 #' 
-#' @param resDEG, list (TestResults format class limma) contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param sumDEG, list (TestResults format class limma) contains for each contrast the significance expression (1/0/-1) for all gene.
 #' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #'
 #' @example 
-#'    UpSetGraph(resDEG, data_list, parameters)
+#'    UpSetGraph(sumDEG, data_list, parameters)
 #' 
 #' @export 
 UpSetGraph <- function(resDEG, data_list, parameters){
+  options(warn=1)
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
   image_dir = paste0(study_dir, "UpSetR_graphs/") 
   if(dir.exists(image_dir)==FALSE){ 
     dir.create(image_dir) 
-    cat("\nDirectory: ",image_dir," created\n")
+    cat("Directory: ",image_dir," created\n")
   }
   
   # Global UpsetR
   #---------------------------------------------------------------------------------------
-  imgwidth  = 1280
-  imgheight = 1024
   if(is.null(parameters$upset_basic)==FALSE){
-    cat("\nCreated Global UpSetR Charts\n")
-    nelem<-ncol(resDEG)
-    if(nelem > 10){ print("Warning: you have a lot of contrasts, the readability of the chart is not guaranteed.") }
-    if(nelem <= 6){
-      imgwidth  = 1024
-      imgheight = 768
+    
+    # created directory
+    global_dir = paste0(image_dir, "Global_upset/") 
+    if(dir.exists(global_dir)==FALSE){ 
+      dir.create(global_dir) 
+      cat("Directory: ",global_dir," created\n\n")
     }
+    
     if (parameters$upset_basic == "all"){
-      test<-ncol(resDEG[,colSums(abs(resDEG))!=0])
-      if(test <= 1){ 
-        cat("\nGlobal UpSetR Charts type all : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-        next 
-      }
+      cat("Created global upset charts for all differentially expressed genes.\n")
+      # reformate table
+      newMat <- as.data.frame(matrix(unlist(resDEG), nrow=nrow(resDEG)))
+      rownames(newMat)<-rownames(resDEG)
+      colnames(newMat)<-colnames(resDEG)
       
-      # all genes differentially expressed
-      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_allDEG.png"), width=imgwidth, height=imgheight)
-      upset(data=abs(resDEG), sets=rev(colnames(resDEG)), nsets=ncol(resDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-      grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
-      dev.off()
+      # verify empty groups
+      if(sum(colSums(abs(newMat)))==0){
+        warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
+      }
+      else{
+        # all genes differentially expressed
+        png(paste0(global_dir, parameters$analysis_name,"_UpSetR_allDEG.png"), width=1280, height=1024)
+        print(upset(data=abs(newMat), sets=rev(colnames(newMat)), nsets=ncol(newMat), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
+        grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
+        dev.off()
+      }
     }
     else if(parameters$upset_basic == "up"){
+      cat("Created global upset charts for genes expressed UP.\n")
       # table with Down Expressed Genes
       upDEG<-resDEG
       upDEG[upDEG==-1]<-0
-      colnames(upDEG)<-gsub("vs"," > ",colnames(resDEG))
-      test<-ncol(upDEG[,colSums(abs(upDEG))!=0])
-      if(test <= 1){ 
-        cat("\nGlobal UpSetR Charts type up : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-        next 
-      }
+      newMat <- as.data.frame(matrix(unlist(upDEG), nrow=nrow(upDEG)))
+      rownames(newMat)<-rownames(upDEG)
+      colnames(newMat)<-gsub("vs"," > ",colnames(upDEG))
       
+      # verify empty groups
+      if(sum(colSums(abs(newMat)))==0){
+        warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
+      }
+      else{
       # record upsetR graph for Down Expressed Genes
-      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_upDEG.png"), width=imgwidth, height=imgheight)
-      upset(data=upDEG, sets=rev(colnames(upDEG)), nsets=ncol(upDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-      grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-      dev.off()  
+        png(paste0(global_dir, parameters$analysis_name,"_UpSetR_upDEG.png"), width=1280, height=1024)
+        print(upset(data=newMat, sets=rev(colnames(newMat)), nsets=ncol(newMat), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
+        grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+        dev.off()  
+      }
     }
     else if(parameters$upset_basic == "down"){
+      cat("Created global upset charts for genes expressed DOWN.\n")
       # table with Up Expressed Genes
       downDEG<-resDEG
       downDEG[downDEG==1]<-0
       downDEG[downDEG==-1]<-1
-      colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
-      test<-ncol(downDEG[,colSums(abs(downDEG))!=0])
-      if(test <= 1){ 
-        cat("\nGlobal UpSetR Charts type down : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-        next 
-      }
+      newMat <- as.data.frame(matrix(unlist(downDEG), nrow=nrow(downDEG)))
+      rownames(newMat)<-rownames(downDEG)
+      colnames(newMat)<-gsub("vs"," < ",colnames(downDEG))
       
-      # record upsetR graph for Up Expressed Genes
-      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_downDEG.png"), width=imgwidth, height=imgheight)
-      upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-      grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-      dev.off()
+      # verify empty groups
+      if(sum(colSums(abs(newMat)))==0){
+        warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
+      }
+      else{
+        # record upsetR graph for Up Expressed Genes
+        png(paste0(global_dir, parameters$analysis_name,"_UpSetR_downDEG.png"), width=1280, height=1024)
+        print(upset(data=newMat, sets=rev(colnames(newMat)), nsets=ncol(newMat), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
+        grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+        dev.off()
+      }
     }
     else if(parameters$upset_basic == "mixed"){
+      cat("Created global upset charts for genes expressed distinctly UP and DOWN.\n")
       # table with Up Expressed Genes
       upDEG<-resDEG
       upDEG[upDEG==-1]<-0
@@ -1414,129 +1441,152 @@ UpSetGraph <- function(resDEG, data_list, parameters){
       
       # table mixed up and down
       mixDEG<-cbind(upDEG,downDEG)
-      metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
       sets<-as.vector(rbind(colnames(upDEG),colnames(downDEG)))
+      metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
       names(metadata)<-c("sets", "SENS")
-      test<-ncol(mixDEG[,colSums(abs(mixDEG))!=0])
-      if(test <= 1){ 
-        cat("\nGlobal UpSetR Charts type mixed : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-        next 
-      }
       
-      # record upsetR graph for Up and Down Expressed Genes
-      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_mixedDEG.png"), width=1280, height=1024)
-      upset(data=mixDEG, sets=rev(sets), nsets=ncol(mixDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
-            text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5))))
-      grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-      dev.off()  
+      # reformate table
+      newMat<-as.data.frame(matrix(unlist(mixDEG), nrow=nrow(mixDEG)))
+      rownames(newMat)<-rownames(resDEG)
+      colnames(newMat)<-c(colnames(upDEG),colnames(downDEG))
+      
+      # verify empty groups
+      if(sum(colSums(abs(newMat)))==0){
+        warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
+      }
+      else{
+        # record upsetR graph for Up and Down Expressed Genes
+        png(paste0(global_dir, parameters$analysis_name,"_UpSetR_mixedDEG.png"), width=1280, height=1024)
+        print(upset(data=newMat, sets=rev(sets), nsets=ncol(newMat), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
+              text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",
+              column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
+        grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+        dev.off() 
+      }
     }
   }
   # Multiple graphs UpSetR
   #---------------------------------------------------------------------------------------
-  imgwidth  = 1280
-  imgheight = 1024
-  
-  cat("Created UpSetR Charts for each element in \"upset_list\"\n")
   if(is.null(parameters$upset_type)==TRUE && is.null(parameters$upset_list)==FALSE){
-    stop("upset_type must be not empty\n")
+    warning("For Subset chart: upset_type must be not empty.\n", immediate.=TRUE, call.=FALSE)
   }
   else if(is.null(parameters$upset_type)==FALSE && is.null(parameters$upset_list)==TRUE){
-    stop("upset_list must be not empty\n")
+    warning("For Subset chart: upset_list must be not empty.\n", immediate.=TRUE, call.=FALSE)
   }
-  
-  for(comparaison in parameters$upset_list){
-    compa<-strsplit2(comparaison, "-")
-    subDEG<-resDEG[,compa]
+  else if(is.null(parameters$upset_type)==FALSE && is.null(parameters$upset_list)==FALSE){
+    # created directory
+    subset_dir = paste0(image_dir, "Subset_upset/") 
+    if(dir.exists(subset_dir)==FALSE){ 
+      dir.create(subset_dir) 
+      cat("Directory: ",subset_dir," created\n")
+    }
+    cat("Created upset charts for each element in \"upset_list\":",parameters$upset_type," expressed genes.\n")
     
-    # image size
-    if(ncol(subDEG) <= 6){
-      imgwidth  = 1024
-      imgheight = 768
-    }
-    
-    # all genes differentially expressed
-    if (parameters$upset_type == "all"){
-      test<-ncol(subDEG[,colSums(abs(subDEG))!=0])
-      if(test <= 1){
-        cat("\nUpSetR Charts type all for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")
-        next
+    for(comparaison in parameters$upset_list){
+      compa<-as.vector(strsplit2(comparaison, "-"))
+      cat("    -> Subset:",compa,"\n")
+      
+      if (parameters$upset_type == "all"){
+        # reformate table
+        newMat <- as.data.frame(matrix(unlist(resDEG), nrow=nrow(resDEG)))
+        rownames(newMat)<-rownames(resDEG)
+        colnames(newMat)<-colnames(resDEG)
+        
+        # verify empty groups
+        if(sum(colSums(abs(newMat[,compa])))==0){
+          warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
+        }
+        else{
+          # record upsetR graph for all Differentially Expressed Genes
+          png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_allDEG.png"), width=1280, height=1024)
+          print(upset(data=abs(newMat), sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
+          grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
+          dev.off()
+        }
       }
-      
-      # record upsetR graph for all Differentially Expressed Genes
-      cat("\nUpSetR Charts type all for ",comparaison,"\n")
-      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_allDEG.png"), width=imgwidth, height=imgheight)
-      upset(data=abs(subDEG), sets=rev(colnames(subDEG)), nsets=ncol(subDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-      grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
-      dev.off()
-    }
-    # up expressed genes
-    else if(parameters$upset_type == "up"){
-      upDEG<-subDEG
-      upDEG[upDEG==-1]<-0
-      colnames(upDEG)<-gsub("vs"," > ",colnames(subDEG))
-      test<-ncol(upDEG[,colSums(abs(upDEG))!=0])
-      if(test <= 1){ 
-        cat("\nUpSetR Charts type up for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-        next 
+      else if(parameters$upset_type == "up"){
+        # table with Down Expressed Genes
+        upDEG<-resDEG
+        upDEG[upDEG==-1]<-0
+        newMat <- as.data.frame(matrix(unlist(upDEG), nrow=nrow(upDEG)))
+        rownames(newMat)<-rownames(upDEG)
+        colnames(newMat)<-gsub("vs"," > ",colnames(upDEG))
+        compa<-gsub("vs"," > ", compa)
+       
+        # verify empty groups
+        if(sum(colSums(abs(newMat[,compa])))==0){
+          warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
+        }
+        else{
+          # record upsetR graph for Down Expressed Genes
+          png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_upDEG.png"), width=1280, height=1024)
+          print(upset(data=newMat, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
+          grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+          dev.off()  
+        }
       }
-      
-      # record upsetR graph for Up Expressed Genes
-      cat("\nUpSetR Charts type up for ",comparaison,"\n")
-      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_upDEG.png"), width=imgwidth, height=imgheight)
-      upset(data=upDEG, sets=rev(colnames(upDEG)), nsets=ncol(upDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-      grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-      dev.off()
-    }
-    # down expressed genes
-    else if(parameters$upset_type == "down"){
-      downDEG<-subDEG
-      downDEG[downDEG==1]<-0
-      downDEG[downDEG==-1]<-1
-      colnames(downDEG)<-gsub("vs"," < ",colnames(subDEG))
-      test<-ncol(downDEG[,colSums(abs(downDEG))!=0])
-      if(test <= 1){ 
-        cat("\nUpSetR Charts type down for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-        next 
+      else if(parameters$upset_type == "down"){
+        # table with Up Expressed Genes
+        downDEG<-resDEG
+        downDEG[downDEG==1]<-0
+        downDEG[downDEG==-1]<-1
+        newMat <- as.data.frame(matrix(unlist(downDEG), nrow=nrow(downDEG)))
+        rownames(newMat)<-rownames(downDEG)
+        colnames(newMat)<-gsub("vs"," < ",colnames(downDEG))
+        newcompa<-gsub("vs"," < ",compa)
+        
+        # verify empty groups
+        if(sum(colSums(abs(newMat[,newcompa])))==0){
+          warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
+        }
+        else{
+          # record upsetR graph for Down Expressed Genes
+          png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_downDEG.png"), width=1280, height=1024)
+          print(upset(data=newMat, sets=rev(newcompa), nsets=length(newcompa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
+          grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+          dev.off()  
+        }
       }
-      
-      # record upsetR graph for Down Expressed Genes
-      cat("\nUpSetR Charts type down for ",comparaison,"\n")
-      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_downDEG.png"), width=imgwidth, height=imgheight)
-      upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2)
-      grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-      dev.off()  
-    }
-    # mixed up and down expressed genes
-    else if(parameters$upset_type == "mixed"){
-      # table with Up Expressed Genes
-      upDEG<-subDEG
-      upDEG[upDEG==-1]<-0
-      colnames(upDEG)<-gsub("vs"," > ",colnames(upDEG))
-      
-      # table with Down Expressed Genes
-      downDEG<-subDEG
-      downDEG[downDEG==1]<-0
-      downDEG[downDEG==-1]<-1
-      colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
-      
-      # table mixed up and down
-      mixDEG<-cbind(upDEG,downDEG)
-      metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
-      sets<-as.vector(rbind(colnames(upDEG),colnames(downDEG)))
-      names(metadata)<-c("sets", "SENS")
-      test<-ncol(mixDEG[,colSums(abs(mixDEG))!=0])
-      if(test <= 1){ 
-        cat("\nUpSetR Charts type mixed for ",comparaison," : Each group consists of only one observation. Do you need to adjust the group aesthetic?\n")    
-        next 
+      # mixed up and down expressed genes
+      else if(parameters$upset_type == "mixed"){
+        # table with Up Expressed Genes
+        upDEG<-resDEG
+        upDEG[upDEG==-1]<-0
+        colnames(upDEG)<-gsub("vs"," > ",colnames(upDEG))
+        compa1<-gsub("vs"," > ",compa)
+        
+        # table with Down Expressed Genes
+        downDEG<-resDEG
+        downDEG[downDEG==1]<-0
+        downDEG[downDEG==-1]<-1
+        colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
+        compa2<-gsub("vs"," < ",compa)
+        
+        # table mixed up and down
+        mixDEG<-cbind(upDEG,downDEG)
+        metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
+        names(metadata)<-c("sets", "SENS")
+        sets<-as.vector(rbind(colnames(upDEG[,compa1]),colnames(downDEG[,compa2])))
+        
+        # reformate table
+        newMat<-as.data.frame(matrix(unlist(mixDEG), nrow=nrow(mixDEG)), check.names=FALSE)
+        rownames(newMat)<-rownames(resDEG)
+        colnames(newMat)<-c(colnames(upDEG),colnames(downDEG))
+        
+        # verify empty groups
+        if(sum(colSums(abs(newMat[,sets])))==0){
+          warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
+        }
+        else{
+          # record upsetR graph for Up and Down Expressed Genes
+          png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_mixedDEG.png"), width=1280, height=1024)
+          print(upset(data=newMat, sets=rev(sets), nsets=length(sets), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, 
+                      text.scale = 1.2, set.metadata = list(data = metadata, 
+                      plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
+          grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+          dev.off()
+        }
       }
-      
-      # record upsetR graph for Up and Down Expressed Genes
-      cat("\nUpSetR Charts type mixed for ",comparaison,"\n")
-      png(paste0(image_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_mixedDEG.png"), width=1280, height=1024)
-      upset(data=mixDEG, sets=rev(sets), nsets=ncol(mixDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
-            text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5))))
-      grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
-      dev.off()  
     }
   }
 }
@@ -1574,7 +1624,7 @@ VD <- function(decideTestTable, parameters, asko_list){
   
   cat("Create VennDiagrams ")
   if(parameters$VD == "all"){
-    cat("for all differentially expressed genes\n  List of comparisons:\n")
+    cat("for all differentially expressed genes.\n")
     for(comparaison in parameters$compaVD){
       compa<-strsplit2(comparaison, "-")
       nbCompa<-length(compa)
@@ -1585,7 +1635,6 @@ VD <- function(decideTestTable, parameters, asko_list){
         next
       }
       
-      cat("    -> ",comparaison,"\n")
       for(n in compa){
         listDEG<-rownames(resDEG[apply(resDEG[,n], 1, function(x) !all(x==0)),])
         nameDEG<-gsub("vs", "/", n)
@@ -1606,7 +1655,7 @@ VD <- function(decideTestTable, parameters, asko_list){
     }
   }
   else if(parameters$VD == "both"){
-    cat("for genes expressed UP and DOWN:\n  List of comparisons:\n")
+    cat("for genes expressed UP and DOWN.\n")
     for(comparaison in parameters$compaVD){
       compa<-strsplit2(comparaison, "-")
       nbCompa<-length(compa)
@@ -1617,8 +1666,6 @@ VD <- function(decideTestTable, parameters, asko_list){
         next
       }
       
-      
-      cat("    -> ",comparaison,"\n")
       for(n in compa){
         listUp<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==1)),])
         listDown<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==-1)),])
@@ -1642,7 +1689,7 @@ VD <- function(decideTestTable, parameters, asko_list){
     }
   }
   else if(parameters$VD == "up"){
-    cat("for genes expressed UP\n  List of comparisons:\n")
+    cat("for genes expressed UP.\n")
     for(comparaison in parameters$compaVD){
       compa<-strsplit2(comparaison, "-")
       nbCompa<-length(compa)
@@ -1653,7 +1700,6 @@ VD <- function(decideTestTable, parameters, asko_list){
         next
       }
       
-      cat("    -> ",comparaison,"\n")
       for(n in compa){
         listDEG<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==1)),])
         nameDEG<-gsub("vs", " > ", n)
@@ -1674,7 +1720,7 @@ VD <- function(decideTestTable, parameters, asko_list){
     }
   }
   else if(parameters$VD == "down"){
-    cat("for genes expressed DOWN\n  List of comparisons:\n")
+    cat("for genes expressed DOWN.\n")
     for(comparaison in parameters$compaVD){
       compa<-strsplit2(comparaison, "-")
       nbCompa<-length(compa)
@@ -1685,7 +1731,6 @@ VD <- function(decideTestTable, parameters, asko_list){
         next
       }
       
-      cat("    -> ",comparaison,"\n")
       for(n in compa){
         listDEG<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==-1)),])
         nameDEG<-gsub("vs", " < ", n)
@@ -1709,7 +1754,7 @@ VD <- function(decideTestTable, parameters, asko_list){
 
 #' @title loopGoStag
 #' 
-#' @description According ti GOterm annotation file (with for each gene the GO term associated) :
+#' @description According to GOterm annotation file (with for each gene the GO term associated) :
 #' \itemize{
 #'    \item Generate the enrichment matrix,
 #'    \item Make hierarchical clustering of the GOterms,
@@ -1886,4 +1931,5 @@ runGoStag<-function(summaryDGE, asko_list, data_go, nameGo){
   matrixAll<-append(matrixUP,matrixDOWN)
   return(matrixAll)
 }
+
 
