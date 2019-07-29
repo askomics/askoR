@@ -20,8 +20,8 @@
 Asko_start <- function(){
   # Loading libraries in silent mode (only error messages will be displayed) 
   pkgs<-c("limma","statmod","edgeR","VennDiagram","RColorBrewer", "UpSetR", "grid", "topGO",
-          "ggplot2","ggrepel","gplots","stringr","optparse","goSTAG","Glimma")
-  for(p in pkgs) suppressPackageStartupMessages(library(p, quietly=TRUE, character.only=TRUE))
+          "Rgraphviz","ggplot2","ggrepel","gplots","stringr","optparse","goSTAG","Glimma")
+  for(p in pkgs) suppressPackageStartupMessages(library(p, quietly=TRUE, character.only=TRUE, warn.conflicts=FALSE))
   
   # Specify desired options in a list
   option_list = list(
@@ -73,8 +73,8 @@ Asko_start <- function(){
                 help="p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none) [default= %default]", metavar="character"),
     make_option("--glm", type="character", default="qlf", dest="glm",
                 help="GLM method (lrt/qlf) [default= %default]", metavar="character"),
-    make_option("--disp", type="character", default="common", dest="disp_method",
-                help="Method to estimate of the common dispersions across all tags (glm for GLMCommonDisp or common for CommonDisp) [default= %default]", metavar="character"),
+    make_option("--glmDisp", type="logical", default=FALSE, dest="glm_disp",
+                help="Estimate Common, Trended and Tagwise Negative Binomial dispersions GLMs (TRUE/FALSE) [default= %default]", metavar="logical"),
     make_option(c("--lfc"), type="logical", default=TRUE, dest="logFC",
                 help="logFC in the summary table [default= %default]", metavar="logical"),
     make_option(c("--th_lfc"), type="double", default=1, dest="threshold_logFC",
@@ -108,15 +108,19 @@ Asko_start <- function(){
     make_option(c("--compaVD"), type="character", default=NULL, dest="compaVD",
                 help="Contrast comparison list to display in VennDiagram. See documentation.", metavar="character"),
     make_option(c("--GO"), type="character", default=NULL, dest="GO",
-                help="gene set chosen for GO enrichment analysis 'up', 'down', 'both', or NULL", metavar="character"),
-    make_option(c("--GO_filt_meth"), type="character", default="p.adjust", dest="GO_filt_meth",
-                help="Use 'pval' to filter on nominal p-value or 'p.adjust' to filter on adjusted p-value", metavar="character"),
-    make_option(c("--GO_padj_meth"), type="character", default="BH", dest="GO_padj_meth",
-                help = "correction method used to adjust p-values; available option : 'holm', 'hochberg', 'hommel', 'bonferroni', 'BH', 'BY', 'fdr', 'none'", metavar = "character"),
+                help="GO enrichment analysis for gene expressed 'up', 'down' or 'both', NULL for no GO enrichment.", metavar="character"),
+    make_option(c("--ID2GO"), type="character", default=NULL, dest="geneID2GO_file",
+                help="GO annotation file [default= %default]", metavar="character"),
     make_option(c("--GO_threshold"), type="numeric", default="0.05", dest="GO_threshold",
                 help="the significant threshold used to filter p-values", metavar="integer"),
-    make_option(c("--GO_min_num_terms"), type="integer", default="10", dest="GO_min_num_terms",
-                help="the minimum number of GO terms required to plot a cluster label", metavar="integer"),
+    make_option(c("--GO_min_num_genes"), type="integer", default="10", dest="GO_min_num_genes",
+                help="the minimum number of genes for each GO terms", metavar="integer"),
+    make_option(c("--GO_max_top_terms"), type="integer", default="10", dest="GO_max_top_terms",
+                help="the maximum number of GO terms plot", metavar="integer"),
+    make_option(c("--GO_algo"), type="character", default="classic", dest="GO_algo",
+                help="algorithms which are accessible via the runTest function: shown by the whichAlgorithms() function, [default=%default]", metavar="character"),
+    make_option(c("--GO_stats"), type="character", default="fisher", dest="GO_stats",
+                help = "statistical tests which are accessible via the runTest function: shown by the whichTests() function, [default=%default]", metavar = "character"),
     make_option(c("--plotMD"),type="logical", default=FALSE, dest="plotMD", metavar="logical",
                 help="Mean-Difference Plot of Expression Data (aka MA plot) [default= %default]"),
     make_option(c("--plotVO"),type="logical", default=FALSE, dest="plotVO", metavar="logical",
@@ -358,29 +362,11 @@ loadData <- function(parameters){
   }
   data<-list("dge"=dge, "samples"=samples, "contrast"=contrast_table, "design"=designExp)
   
-  # Annotations and GOterms files
-  #---------------------------------------------------------
   # Annnotation file
   if(is.null(parameters$annotation)==FALSE){
     annot<-read.csv(paste0(input_path, parameters$annotation), header = T, row.names = 1, sep = '\t', quote = "")
     data[["annot"]]=annot
   }
-  # GO terms for molecular function
-  if(is.null(parameters$GO_MF)==FALSE) {
-    goMF<-read.csv(paste0(input_path, parameters$GO_MF), header = F, sep = '\t', quote = "")
-    data[["GO_MF"]]=goMF
-  }
-  # GO terms for biological process
-  if(is.null(parameters$GO_BP)==FALSE) {
-    goBP<-read.csv(paste0(input_path, parameters$GO_BP), header = F, sep = '\t', quote = "")
-    data[["GO_BP"]]=goBP
-  }
-  # GO terms for cellular component
-  if(is.null(parameters$GO_CC)==FALSE) {
-    goCC<-read.csv(paste0(input_path, parameters$GO_CC), header = F, sep = '\t', quote = "")
-    data[["GO_CC"]]=goCC
-  }
-  
   return(data)
 }
 
@@ -1234,16 +1220,16 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     cat("\n\n")
     stop("Erronate or unknown conditions names in contrast file!\n\n")
   }
-  
+
   # Estimate Common, Trended and Tagwise Dispersion for Negative Binomial GLMs
-  if(parameters$disp_method=='glm')
+  if(parameters$glm_disp==TRUE)
   {
     normGEdisp <- estimateGLMCommonDisp(norm_GE, data_list$design)
     normGEdisp <- estimateGLMTrendedDisp(normGEdisp, data_list$design)
     normGEdisp <- estimateGLMTagwiseDisp(normGEdisp, data_list$design)
   }
   # Estimate Common, Trended and Tagwise Negative Binomial dispersions by weighted likelihood empirical Bayes
-  else if(parameters$disp_method=='common')
+  else
   {
     normGEdisp <- estimateDisp(norm_GE, data_list$design)
   }
@@ -1752,184 +1738,147 @@ VD <- function(decideTestTable, parameters, asko_list){
   }
 }
 
-#' @title loopGoStag
+#' @title GOenrichment
 #' 
-#' @description According to GOterm annotation file (with for each gene the GO term associated) :
-#' \itemize{
-#'    \item Generate the enrichment matrix,
-#'    \item Make hierarchical clustering of the GOterms,
-#'    \item Grouping the clusters,
-#'    \item Annote each clusters.
-#' }
+#' @description Perform GO enrichment analysis with topGO package. 
+#' This package provides tools for testing GO terms while accounting for 
+#' the topology of the GO graph. Different test statistics and different 
+#' methods for eliminating local similarities and dependencies between GO 
+#' terms can be implemented and applied.
 #' 
-#' @param gene_list, list contains for each contrast all differentially expressed genes.
-#' @param go_list, list contains for each GO terms all genes associated.
-#' @param lvl, tag for "up" or "dow" expressed genes.
-#' @param nameGo, GOterm hierarchy : "MF" - molecular function, "BP" - biological process or "CC" - cellular component.
-#' @return matrix, matrix contains divers informations : hierarchical clusters results, clusters group, culsters labels, gene_list and go_list.
+#' @param decideTestTable, list (TestResults formal class of limma) contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @return none.
 #' 
 #' @examples 
-#'    matrixUP<-loopGoStag(gene_listUP,go_list,"up",nameGo)
-#'    matrixDOWN<-loopGoStag(gene_listDOWN,go_list,"down",nameGo)
+#'    GOenrichment(resDEG, parameters)
 #'    
 #' @export
-loopGoStag<-function(gene_list,go_list,lvl,nameGo){
-  study_dir = paste0(parameters$dir_path, "/", parameters$analysis_name, "/") 
-  image_dir = paste0(study_dir, "images/")
-  
-  # GO titles (for graphs)
-  GOtitle=""
-  if(nameGo=="MF"){ GOtitle="Molecular Function" }
-  if(nameGo=="BP"){ GOtitle="Biological Process" }
-  if(nameGo=="CC"){ GOtitle="Cellular Component" }
-  
-  # Generating the Enrichment Matrix
-  cat("1st step: create a matrix of GO enrichment scores\n\n")
-  enrichment_matrix<-matrix()
-  try(enrichment_matrix <- performGOEnrichment(gene_list, go_list,
-                                               filter_method = parameters$GO_filt_meth,
-                                               significance_threshold = parameters$GO_threshold,
-                                               p.adjust_method = parameters$GO_padj_meth) 
-  )
-  if (nrow(enrichment_matrix)==1) {return(NULL)} 
-  testOrder<-enrichment_matrix[order(rowSums(enrichment_matrix != 0),decreasing=F),order(colSums(enrichment_matrix != 0),decreasing=F)]
-  
-  # Hierarchical Clustering
-  cat("2nd step: cluster the GO terms\n")
-  # try(hclust_results <- performHierarchicalClustering(enrichment_matrix)) 
-  try(hclust_results <- performHierarchicalClustering(testOrder)) 
-  print(hclust_results)
-  
-  # Grouping the Clusters
-  cat("3rd step: group the GO tems into clusters\n\n")
-  try(clusters <- groupClusters(hclust_results))
-  print(clusters)
-  
-  # Annotating the Clusters
-  cat("4th step: annotate each of the clusters\n\n")
-  try(cluster_labels <- annotateClusters(clusters))
-  print(cluster_labels)
-  
-  # Plotting a Heatmap
-  GOtitle=""
-  if(nameGo=="MF"){ GOtitle="Molecular Function" }
-  if(nameGo=="BP"){ GOtitle="Biological Process" }
-  if(nameGo=="CC"){ GOtitle="Cellular Component" }
-  png(paste0(image_dir, parameters$analysis_name,"_",nameGo,"_enrich_heatmap_",lvl,".png"), width=1500, height=1200)
-  par(oma=c(2,2,4,2))
-  try(plotHeatmap(#enrichment_matrix,
-    testOrder,
-    hclust_results, 
-    clusters,
-    cluster_labels,
-    min_num_terms = parameters$GO_min_num_terms,
-    dendrogram_width=0.5,
-    cluster_label_width=0.6,
-    cluster_label_cex=1.2,
-    sample_label_cex=1.2,
-    dendrogram_lwd=0.5,
-    header_lwd=0.5,
-    header_height=0.3, 
-    heatmap_colors = "extra"))
-  title(paste0(GOtitle," heatmap for genes expressed ",toupper(lvl)), adj=0.5, outer=TRUE, cex.main=3.2)
-  dev.off()
-  
-  # save all in matrix
-  matrix<-list()
-  matrix[[paste0(as.character(nameGo),"_enrich_",as.character(lvl))]] <- enrichment_matrix
-  matrix[[paste0(as.character(nameGo),"_clusters_",as.character(lvl))]] <- clusters
-  matrix[[paste0(as.character(nameGo),"_label_cluster_",as.character(lvl))]] <- cluster_labels
-  matrix[[paste0(as.character(nameGo),"_hclust_results_",as.character(lvl))]] <- hclust_results
-  matrix[[paste0(as.character(nameGo),"_gene_list_",as.character(lvl))]] <- gene_list
-  matrix[[paste0(as.character(nameGo),"_go_list_",as.character(lvl))]] <- go_list
-  return(matrix)
-}
-
-#' @title runGoStag
-#' 
-#' @description Run Enrichment Analysis for gene expressed up and/or down.
-#' 
-#' @param summaryDGE, list (TestResults format class limma) contains for each contrast the significance 
-#' expression (1/0/-1) for all gene, from DEanalysis.
-#' @param asko_list, list of data.frame contain condition, contrast and context informations made by asko3c.
-#' @param data_go, GO annotation file converted in data.frame by loadData function. (Corresponding parameters 
-#' GO_MF, GO_BP and GO_CC.)
-#' @param nameGo, GOterm hierarchy : "MF" - molecular function, "BP" - biological process or "CC" - cellular component.
-#' 
-#' @export
-runGoStag<-function(summaryDGE, asko_list, data_go, nameGo){
-  # Format GO titles
-  GOtitle=""
-  if(nameGo=="MF"){ GOtitle="Molecular Function" }
-  if(nameGo=="BP"){ GOtitle="Biological Process" }
-  if(nameGo=="CC"){ GOtitle="Cellular Component" }
-  
-  # GO terms lists
-  #----------------------------------------
-  all_genes <- as.character(unique(data_go[[1]]))
-  go_all<-as.character(unique(data_go[[2]]))
-  go_list<-list()
-  for(n in seq_along(go_all)){
-    gene <- data_go[1][data_go[2]==go_all[n]]
-    if(length(gene)!=0){
-      go_list$g <- as.character(gene)
-      Go_name <- as.character(go_all[n])
-      names(go_list)[names(go_list)=="g"]<-Go_name
-    }
+GOenrichment<-function(resDEG, parameters){
+  study_dir  = paste0(parameters$dir_path, "/", parameters$analysis_name, "/") 
+  input_path = paste0(parameters$dir_path, "/input/")
+  img_go_dir = paste0(study_dir, "GO_images/")
+  if(dir.exists(img_go_dir)==FALSE){ 
+    dir.create(img_go_dir) 
+    cat("Directory: ",img_go_dir," created\n")
   }
-  go_list$all <- as.character(all_genes)
-  names(go_list)[names(go_list)=="all"]<-"ALL"
   
-  # create Gene DE lists for each contrast
-  #----------------------------------------
-  gene_listUP<-list()
-  gene_listDOWN<-list() 
-  matrixUP<-list()
-  matrixDOWN<-list()
+  if(is.null(parameters$GO)==TRUE){ return(NULL) }
   
-  if(parameters$GO=="both" | parameters$GO=="up"){
-    # retrieve data and place it in list of genes by contrast
-    for(n in seq(ncol(summaryDGE))){
-      # contrast
-      contrast_name<-colnames(summaryDGE[n])    
-      contrastDE_name <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==contrast_name]
-      # all genes up for this contrast
-      DGEup<-rownames(summaryDGE[n])[summaryDGE[n]==-1] 
-      if(length(DGEup)!=0){
-        gene_listUP$up<-DGEup
-        names(gene_listUP)[names(gene_listUP)=="up"]<-contrastDE_name
+  geneID2GO <- readMappings(file = paste0(input_path,parameters$geneID2GO_file))
+  geneNames <- names(geneID2GO)
+  
+  for(contrast in colnames(data$contrast)){
+    if(parameters$GO == "both"){
+      geneSelected <- rownames(resDEG[apply(resDEG[,contrast], 1, function(x) all(x!=0)),])
+      titlename<-"all differentially expressed genes (up+down)"
+    }else if(parameters$GO == "up"){
+      geneSelected<-rownames(resDEG[apply(resDEG[,contrast], 1, function(x) all(x==1)),])
+      titlename<-"genes expressed UP"
+    }else if(parameters$GO == "down"){
+      geneSelected<-rownames(resDEG[apply(resDEG[,contrast], 1, function(x) all(x==-1)),])
+      titlename<-"genes expressed DOWN"
+    }else{
+      cat("\nBad value for GO parameters : autorized values are both, up, down or NULL.\n")
+      return(NULL)
+    }
+    geneList <- factor(as.integer(geneNames %in% geneSelected))
+    names(geneList) <- geneNames
+    
+    if(length(geneSelected)==0){
+      cat("\nContrast:",contrast,"-> No DE genes found!\n")
+      next
+    }
+    
+    if(sum(levels(geneList)==1)==0){
+      cat("\nContrast:",contrast,"-> No DE genes with GO annotation!\n")
+      next
+    }
+    
+    listOnto <- c("MF","BP","CC")
+    for(ontology in listOnto){
+      cat("\nContrast :",contrast," et ontologie :",ontology,"\n")
+      GOdata <- new("topGOdata",
+                    nodeSize = parameters$GO_min_num_genes, 
+                    ontology = ontology,
+                    allGenes = geneList, 
+                    annot = annFUN.gene2GO, 
+                    gene2GO = geneID2GO)
+      print(GOdata)
+      
+      resultTest <- runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
+      print(resultTest)
+      
+      # graphe for one contrast and one ontology
+      # png(paste0(img_go_dir,"SubGraphSigOfNodes_",contrast,"_",ontology,".png"), units = "px", res = 600)
+      # par(oma=c(0,0,0,0), mar=c(0,0,0,0))
+      # showSigOfNodes(GOdata, score(resultTest), firstSigNodes = 5, useInfo='all')
+      # dev.off()
+      
+      resGenTab <- GenTable(GOdata, statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(nodes(graph(GOdata))) )
+      resGenTab$Ratio = as.numeric(as.numeric(resGenTab$Significant)/as.numeric(resGenTab$Expected))
+      resGenTab$GO_cat <- ontology
+      
+      if(ontology == "MF"){ 
+        TabCompl<-resGenTab 
+        tabTemp<-TabCompl
+        tabTemp$classicFisher<-gsub("< 1","1.0",tabTemp$statisticTest)
+        
+        maxi<-parameters$GO_max_top_terms
+        TabSigCompl<-tabTemp[as.numeric(tabTemp$statisticTest) <= parameters$GO_threshold,]
+        if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
+        TabSigCompl<-TabSigCompl[1:maxi,]
+      }else{ 
+        TabCompl=rbind(TabCompl,resGenTab) 
+        tabTemp<-resGenTab
+        tabTemp$classicFisher<-gsub("< 1","1.0",tabTemp$statisticTest)
+        
+        maxi<-parameters$GO_max_top_terms
+        tempSig<-tabTemp[as.numeric(tabTemp$statisticTest) <= parameters$GO_threshold,]
+        if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
+        TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
       }
     }
-    # Make enrichment analysis for differential gene expression
-    cat("\n")
-    cat(GOtitle,": Enrichment Analysis for gene expressed UP\n")
-    matrixUP<-loopGoStag(gene_listUP,go_list,"up",nameGo)
-    if(is.null(matrixUP)==TRUE){ cat("\n--- No significant enrichment found! ---\n")}
+    
+    # Graph for one contrast
+    comp_names <- c( `MF` = "Molecular Function", `BP` = "Biological Process", `CC` = "Cellular Component")
+    coul <- c(`MF` = "green4", `BP` = "red", `CC` = "blue")
+    comp_names2 <- c(`MF` = "MF", `BP` = "BP", `CC` = "CC")
+    
+    TabSigCompl$Term = factor(TabSigCompl$Term, levels = unique(TabSigCompl$Term))
+    
+    ggplot(TabSigCompl, aes(x=Ratio, y=Term, size=Significant, color=GO_cat)) +
+      geom_point(alpha=1) + 
+      labs(title = paste0("GO Enrichment for contrast ",contrast), x="Ratio Significant / Expected", y="GOterm") +
+      scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
+      facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
+      scale_size_continuous(name="Number of genes") + theme_linedraw() +
+      theme(
+        panel.background = element_rect(fill = "grey90", colour = "grey90", size = 0.5, linetype = "solid"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
+        panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
+        axis.text.y = element_text(face="bold",size=9),
+        axis.text.x = element_text(face="bold",size=12), 
+        legend.title = element_text(size=12,face="bold"),
+        legend.text = element_text(size=12),
+        strip.text.y = element_text(size=14, face="bold"))
+    ggsave(filename=paste0(img_go_dir,contrast,"_Ratio_BUBBLESgraph.png"), width = 480, height = 480)
+    
+    ggplot(TabSigCompl, aes(x=as.numeric(dataALL_short$statisticTest), y=dataALL_short$Term, size=dataALL_short$Significant, color=dataALL_short$GO_cat)) +
+      geom_point(alpha=1) + labs(title = paste0("GO Enrichment for contrast ",contrast),x="Pvalue",y="GOterm")+
+      scale_color_manual(values=coul,labels=comp_names,name="GO categories")+
+      facet_grid(dataALL_short$GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2))+
+      scale_size_continuous(name="Number of genes") + theme_linedraw() +
+      theme(
+        panel.background = element_rect(fill = "grey90", colour = "grey90", size = 0.5, linetype = "solid"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
+        panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
+        axis.text.y = element_text(face="bold",size=9),
+        axis.text.x = element_text(face="bold",size=12,angle=45,hjust=1),
+        legend.title = element_text(size=12,face="bold"),
+        legend.text = element_text(size=12),
+        strip.text.y = element_text(size=14, face="bold"))
+    ggsave(filename=paste0(img_go_dir,contrast,"_Pvalue_BUBBLESgraph.png"), width = 480, height = 480)
   }
-  
-  if(parameters$GO=="both" | parameters$GO=="down"){
-    # retrieve data and place it in list of genes by contrast
-    for(n in seq(ncol(summaryDGE))){
-      # contrast
-      contrast_name<-colnames(summaryDGE[n])    
-      contrastDE_name <- asko_list$contrast$Contrast[rownames(asko_list$contrast)==contrast_name]
-      # all genes up for this contrast
-      DGEdown<-rownames(summaryDGE[n])[summaryDGE[n]==1] 
-      if(length(DGEdown)!=0){
-        gene_listDOWN$down<-DGEdown
-        names(gene_listDOWN)[names(gene_listDOWN)=="down"]<-contrastDE_name
-      }
-    }
-    # Make enrichment analysis for differential gene expression
-    cat("\n")
-    cat(GOtitle,": Enrichment Analysis for gene expressed DOWN\n")
-    matrixDOWN<-loopGoStag(gene_listDOWN,go_list,"down",nameGo)
-    if(is.null(matrixDOWN)==TRUE){ cat("\n--- No significant enrichment found! ---\n")}
-  }
-  
-  # save and return all results
-  matrixAll<-append(matrixUP,matrixDOWN)
-  return(matrixAll)
 }
-
 
