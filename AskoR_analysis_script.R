@@ -18,9 +18,6 @@ parameters$analysis_name = "TEST"            # output directory name (default DE
 # parameters$dir_path = "/"                  # workspace directory (default ".")
 # parameters$organism = ""                   # output files prefix (default Asko, do not put space!)
 parameters$fileofcount = "Counts.txt"        # matrix of count for all samples/conditions
-parameters$GO_MF = "annot_MF.txt"            # GO Molecular Function : 2 columns idgene et GO (one GO per line, idgene can be repeated)
-parameters$GO_BP = "annot_BP.txt"            # GO Biological Process : 2 columns idgene et GO (one GO per line, idgene can be repeated)
-parameters$GO_CC = "annot_CC.txt"            # GO Cellular Component : 2 columns idgene et GO (one GO per line, idgene can be repeated)
 parameters$annotation = "annot_genes.csv"    # file containing the functional annotations of each gene 
 parameters$sample_file = "Samples.tsv"       # file describing the samples
 parameters$contrast_file = "Contrasts.tsv"   # matrix of different contrasts desired
@@ -42,6 +39,7 @@ parameters$threshold_logFC = 0               # logFC threshold (default 1)
 parameters$normal_method = "TMM"             # normalization method (TMM/RLE/upperquartile/none) (default TMN)
 parameters$p_adj_method = "BH"               # p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none) (default fdr)
 parameters$glm = "lrt"                       # GLM method (lrt/qlf) (default qlf)
+parameters$glm_disp = F                      # Estimate Common, Trended and Tagwise Dispersion for Negative Binomial GLMs (default FALSE)
 parameters$logFC = T                         # logFC in the summary table (default TRUE)
 parameters$FC = T                            # FC in the summary table (default TRUE)
 parameters$logCPM = F                        # logCPm in the summary table (default FALSE)
@@ -224,8 +222,17 @@ parameters$VD = "both"
 VD(resDEG, parameters, asko_data)
 
 ##### Enrichment Analysis #####
-if(is.null(data$GO_MF)==FALSE){ matMF<-runGoStag(resDEG, asko_data, data$GO_MF, "MF") }
-if(is.null(data$GO_BP)==FALSE){ matBP<-runGoStag(resDEG, asko_data, data$GO_BP, "BP") }
-if(is.null(data$GO_CC)==FALSE){ matCC<-runGoStag(resDEG, asko_data, data$GO_CC, "CC") }
+# Parameters
+#----------------------------------------------------------------------
+parameters$geneID2GO_file = "Plasmo_GO.tsv"  # GO annotation files
+parameters$GO_threshold = 0.05               # the significant threshold used to filter p-values (default 0.05)
+parameters$GO_max_top_terms = 5              # the maximum number of GO terms plot (default 10)
+parameters$GO_min_num_genes = 5              # the minimum number of genes for each GO terms (default 10)
+parameters$GO = "both"                       # gene set chosen for analysis 'up', 'down', 'both', or NULL (default NULL)
+parameters$GO_algo = "classic"               # algorithms which are accessible via the runTest function
+parameters$GO_stats = "fisher"               # statistical tests which are accessible via the runTest function
+
+GOenrichment(resDEG, parameters)
+
 
 
