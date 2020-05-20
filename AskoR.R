@@ -5,9 +5,8 @@
 #'    \item declare options, their flags, types, default values and help messages,
 #'    \item read the arguments passed to the R script and parse them according to what has been declared in step 1.
 #' }
+#' Parameters can be called by their names as declared in opt object.
 #'
-#' Parameters can be called by their names as declared in opt object.\cr
-
 #' @return List of parameters that contains all arguments.
 #'
 #' @examples
@@ -19,9 +18,9 @@
 #' @export
 Asko_start <- function(){
   # Loading libraries in silent mode (only error messages will be displayed) 
-  pkgs<-c("limma","statmod","edgeR","VennDiagram","RColorBrewer", "UpSetR", "grid", "topGO",
-          "Rgraphviz","ggplot2","ggrepel","gplots","stringr","optparse","goSTAG","Glimma")
-  for(p in pkgs) suppressPackageStartupMessages(library(p, quietly=TRUE, character.only=TRUE, warn.conflicts=FALSE))
+  pkgs<-c("limma","statmod","edgeR","VennDiagram","RColorBrewer", "UpSetR", "grid", "topGO","ggfortify",
+          "Rgraphviz","ggplot2","ggrepel","gplots","stringr","optparse","goSTAG","Glimma","ComplexHeatmap","circlize")
+  for(p in pkgs) suppressWarnings(suppressMessages(library(p, quietly=TRUE, character.only=TRUE, warn.conflicts=FALSE)))
   
   # Specify desired options in a list
   option_list = list(
@@ -34,17 +33,11 @@ Asko_start <- function(){
     make_option(c("-f", "--fileofcount"), type="character", default=NULL, dest="fileofcount",
                 help="file of counts [default= %default]", metavar="character"),
     make_option(c("-G", "--col_genes"), type="integer", default=1, dest="col_genes",
-                help="col of ids in count files [default= %default]", metavar="integer"),
+                help="col of genes ids in count files [default= %default]", metavar="integer"),
     make_option(c("-C", "--col_counts"), type="integer", default=7,dest="col_counts",
                 help="col of counts in count files [default= %default (featureCounts) ]", metavar="integer"),
     make_option(c("-t", "--sep"), type="character", default="\t", dest="sep",
-                help="col separator [default= %default]", metavar="character"),
-    make_option(c("--GO_MF"), type="character", default=NULL, dest="GO_MF",
-                help="GO Molecular Fonction annotation file [default= %default]", metavar="character"),
-    make_option(c("--GO_BP"), type="character", default=NULL, dest="GO_BP",
-                help="GO Biological Process annotation file [default= %default]", metavar="character"),
-    make_option(c("--GO_CC"), type="character", default=NULL, dest="GO_CC",
-                help="GO Cellular Component annotation file [default= %default]", metavar="character"),
+                help="field separator for count files or count matrix [default= %default]", metavar="character"),
     make_option(c("-a", "--annotation"), type="character", default=NULL, dest="annotation",
                 help="annotation file [default= %default]", metavar="character"),
     make_option(c("-s", "--sample"), type="character", default="Samples.txt", dest="sample_file",
@@ -53,7 +46,7 @@ Asko_start <- function(){
                 help="Contrasts file [default= %default]", metavar="character"),
     make_option(c("-k", "--mk_context"), type="logical", default=FALSE,dest="mk_context",
                 help="generate automatically the context names [default= %default]", metavar="logical"),
-    make_option(c("-p", "--palette"), type="character", default="Set2", dest="palette",
+    make_option(c("--palette"), type="character", default="Set2", dest="palette",
                 help="Color palette (ggplot)[default= %default]", metavar="character"),
     make_option(c("-R", "--regex"), type="logical", default=FALSE, dest="regex",
                 help="use regex when selecting/removing samples [default= %default]", metavar="logical"),
@@ -101,26 +94,30 @@ Asko_start <- function(){
                 help="generation of the expression heatmap [default= %default]", metavar="logical"),
     make_option(c("--nh"), type="integer", default="50", dest="numhigh",
                 help="number of genes in the heatmap [default= %default]", metavar="integer"),
-    make_option(c("--norm_mean"), type="logical", default=FALSE, dest="norm_mean", 
-                help="generate file with mormalized mean for each condition/sample, in Askomics format [default= %default]", metavar="logical"),
+    make_option(c("--norm_factor"), type="logical", default=FALSE, dest="norm_factor", 
+                help="generate file with normalize factor for each condition/sample [default= %default]", metavar="logical"),
+    make_option(c("--norm_counts"), type="logical", default=FALSE, dest="norm_counts", 
+                help="Generate files with mormalized counts [default= %default]", metavar="logical"),
     make_option(c("--VD"), type="character", default=NULL, dest="VD",
-                help="Plot VennDiagram, precise type of comparison: all, down, up, bot., [default=%default] - See documentation.", metavar = "character"),
+                help="Plot VennDiagram, precise type of comparison: all, down, up or both [default=%default]", metavar = "character"),
     make_option(c("--compaVD"), type="character", default=NULL, dest="compaVD",
-                help="Contrast comparison list to display in VennDiagram. See documentation.", metavar="character"),
+                help="Contrast comparison list to display in VennDiagram", metavar="character"),
     make_option(c("--GO"), type="character", default=NULL, dest="GO",
                 help="GO enrichment analysis for gene expressed 'up', 'down' or 'both', NULL for no GO enrichment.", metavar="character"),
     make_option(c("--ID2GO"), type="character", default=NULL, dest="geneID2GO_file",
                 help="GO annotation file [default= %default]", metavar="character"),
     make_option(c("--GO_threshold"), type="numeric", default="0.05", dest="GO_threshold",
-                help="the significant threshold used to filter p-values", metavar="integer"),
+                help="the significant threshold used to filter p-values", metavar="double"),
     make_option(c("--GO_min_num_genes"), type="integer", default="10", dest="GO_min_num_genes",
                 help="the minimum number of genes for each GO terms", metavar="integer"),
     make_option(c("--GO_max_top_terms"), type="integer", default="10", dest="GO_max_top_terms",
                 help="the maximum number of GO terms plot", metavar="integer"),
-    make_option(c("--GO_algo"), type="character", default="classic", dest="GO_algo",
+    make_option(c("--GO_algo"), type="character", default="weight01", dest="GO_algo",
                 help="algorithms which are accessible via the runTest function: shown by the whichAlgorithms() function, [default=%default]", metavar="character"),
     make_option(c("--GO_stats"), type="character", default="fisher", dest="GO_stats",
                 help = "statistical tests which are accessible via the runTest function: shown by the whichTests() function, [default=%default]", metavar = "character"),
+    make_option(c("--Ratio_threshold"), type="numeric", default="0", dest="Ratio_threshold",
+                help="the minimum ratio value to display GO in graph", metavar="double"),
     make_option(c("--plotMD"),type="logical", default=FALSE, dest="plotMD", metavar="logical",
                 help="Mean-Difference Plot of Expression Data (aka MA plot) [default= %default]"),
     make_option(c("--plotVO"),type="logical", default=FALSE, dest="plotVO", metavar="logical",
@@ -130,15 +127,27 @@ Asko_start <- function(){
     make_option(c("--glimVO"),type="logical", default=FALSE, dest="glimVO", metavar="logical",
                 help="Glimma - Interactif Volcano plot for a specified coefficient/contrast of a linear model [default= %default]"),
     make_option(c("--dens_bottom_mar"), type="integer", default="20", dest="densbotmar", metavar="integer",
-                help="Set bottom margin of density plot to help position the legend"),
+                help="Set bottom margin of density plot to help position the legend [default= %default]"),
     make_option(c("--dens_inset"), type="double", default="0.45", dest="densinset", metavar="double",
-                help="Set position the legend in bottom density graphe"),
+                help="Set position the legend in bottom density graphe [default= %default]"),
+    make_option(c("--legend_col"), type="integer", default="6", dest="legendcol", metavar="integer",
+                help="Set numbers of column for density plot legends [default= %default]"),
     make_option(c("--upset_basic"),type="character", default=NULL, dest="upset_basic", 
-                help="Display UpSetR charts for all contrasts, precise type of comparison: all, down, up, mixed. [default=%default] - See documentation.", metavar = "character"),
+                help="Display UpSetR charts for all contrasts, precise type of comparison: all, down, up, mixed [default=%default].", metavar = "character"),
     make_option(c("--upset_type"),type="character", default=NULL, dest="upset_type", 
-                help="Display UpSetR charts for list of contrasts, precise type of comparison: all, down, up, mixed. [default=%default] - See documentation.", metavar = "character"),
+                help="Display UpSetR charts for list of contrasts, precise type of comparison: all, down, up, mixed [default=%default].", metavar = "character"),
     make_option(c("--upset_list"), type="character", default=NULL, dest="upset_list",
-                help="Contrast comparison list to display in UpSetR chart. See documentation. [default=%default]", metavar="character")
+                help="Contrast comparison list to display in UpSetR chart. See documentation. [default=%default]", metavar="character"),
+    make_option("--coseq_model", type="character", default="kmeans", dest="coseq_model",
+                help="Coseq model (kmeans, Normal) [default= %default]", metavar="character"),
+    make_option("--coseq_transformation", type="character", default="clr", dest="coseq_transformation",
+                help="Coseq tranformation (arcsin, logit, logclr, clr, alr, ilr, none) [default= %default]", metavar="character"),
+    make_option("--coseq_ClustersNb", type="double", default=2:12, dest="coseq_ClustersNb",
+                help="Coseq : number of clusters desired (2:12 (auto), number from 2 to 12) [default= %default]", metavar="double"),
+    make_option("--coseq_ContrastsThreshold", type="integer", default="1", dest="coseq_ContrastsThreshold",
+                help="Coseq : number of contrasts in which DE genes are found for clustering [default= %default]", metavar="integer"),
+    make_option("--coseq_normFactors", type="character", default="none", dest="coseq_normFactors",
+                help="Coseq normalization factor (TC , UQ, Med , DESeq, TMM , none) [default= %default]", metavar="character")
   )
   # Get command line options
   opt_parser = OptionParser(option_list=option_list)
@@ -169,12 +178,13 @@ Asko_start <- function(){
 #'      ... sample file : file describing the samples and the experimental design 
 #'      ... contrast file : matrix which specifies which comparisons you would like to make between the samples
 #'      ... (optional) annotation file : functional/genomic annotation for each genes
-#'      ... (optional) GO terms annotations files : GO annotations for each genes (1 file per level)
+#'      ... (optional) GO terms annotations files : GO annotations for each genes
 #' 
 #' Three output directory will be create : 
 #' \itemize{
-#'   \item images : contain all images generate by this script
-#'   \item vennDiagram : contain venndiagramm generated by VD function
+#'   \item images : contains all the images created when running this pipeline with the exception of the upsetR and Venn graphs.
+#'   \item vennDiagram : contain all venn diagrams created by VD function
+#'   \item UpSetR_graphs : contain all upset graphs created by UpSetGraph function
 #'   \item Askomics : files compatible with Askomics Software 
 #' }
 #' 
@@ -189,7 +199,7 @@ loadData <- function(parameters){
   
   # Folders for output files
   #---------------------------------------------------------
-  cat("\n\nCreate directories:\n")
+  cat("\nCreate directories:\n")
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
   if(dir.exists(study_dir)==FALSE){ dir.create(study_dir) }
   cat("\t",study_dir,"\n")
@@ -317,7 +327,7 @@ loadData <- function(parameters){
   #---------------------------------------------------------
   contrast_path<-paste0(input_path, parameters$contrast_file)
   contrastab<-read.table(contrast_path, sep="\t", header=TRUE, row.names = 1, comment.char="#", stringsAsFactors = FALSE)
-  
+ 
   # Verify if some colunms will be not use for analysis
   rmcol<-list()
   for(condition_name in row.names(contrastab)){
@@ -331,20 +341,24 @@ loadData <- function(parameters){
   if (length(rmcol)> 0){
     rmcol<-unlist(rmcol)
     rmcol<-unique(rmcol)
-    rmcol=-rmcol
-    contrastab<-contrastab[,rmcol]
+    contrastab<-subset(contrastab, select=-rmcol)
   }
+  contrastab2<-as.data.frame(contrastab[colnames(designExp),])
+  colnames(contrastab2)<-colnames(contrastab)
+  rownames(contrastab2)<-colnames(designExp)
+
   # Sort contrast table if more than one contrast in contrastab
-  if(length(contrastab)>1){
-    ord<-match(colnames(designExp),row.names(contrastab), nomatch = 0)
-    contrast_table<-contrastab[ord,]
+  if(length(contrastab2)>1){
+    ord<-match(colnames(designExp),row.names(contrastab2), nomatch = 0)
+    contrast_table<-contrastab2[ord,]
   }
   else{
-    contrast_table<-contrastab
+    contrast_table<-contrastab2
   }
+
   cat("\nContrasts:\n")
   print(contrast_table)
-  
+
   # Format contrast : convert "+" to "1" and - to "-1"
   colnum<-c()
   for(contrast in colnames(contrast_table)){
@@ -375,10 +389,11 @@ loadData <- function(parameters){
 #' @description Create contrast/condition/context file in format readable by Askomics Software.
 #'     
 #' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @param parameters, list that contains all arguments charged in Asko_start
 #' @return asko, list of data.frame contain condition, contrast and context informations
 #' 
 #' @example 
-#'    asko_data<-asko3c(data, parameters)
+#'    asko<-asko3c(data_list, parameters)
 #' 
 #' @export
 asko3c <- function(data_list, parameters){
@@ -600,7 +615,7 @@ asko3c <- function(data_list, parameters){
 #' @return filtered_counts, large DGEList with filtered counts and data descriptions.
 #' 
 #' @example 
-#'    asko_filt<-GEfilt(data, parameters)
+#'    filtered_counts<-GEfilt(data_list, parameters)
 #'    
 #' @export
 GEfilt <- function(data_list, parameters){
@@ -640,7 +655,7 @@ GEfilt <- function(data_list, parameters){
     lines(den$x, col=as.character(data_list$dge$samples$color[i]), den$y, lwd=1)
   }
   
-  legend("bottom", fill=data_list$dge$samples$color, bty="n", ncol=6,
+  legend("bottom", fill=data_list$dge$samples$color, bty="n", ncol=parameters$legendcol,
          legend=rownames(data_list$dge$samples), xpd=TRUE, inset=-parameters$densinset) 
   dev.off()
   
@@ -671,7 +686,7 @@ GEfilt <- function(data_list, parameters){
     den <- density(filtered_cpm[,i])
     lines(den$x,col=as.character(data_list$dge$samples$color[i]), den$y, lwd=1)
   } 
-  legend("bottom", fill=data_list$dge$samples$color, bty="n", ncol=6,
+  legend("bottom", fill=data_list$dge$samples$color, bty="n", ncol=parameters$legendcol,
          legend=rownames(data_list$dge$samples), xpd=TRUE, inset=-parameters$densinset) 
   dev.off()
   
@@ -735,7 +750,7 @@ GEfilt <- function(data_list, parameters){
 #' @return norm_GE, large DGEList with normalized counts and data descriptions.
 #' 
 #' @example 
-#'    asko_norm<-GEnorm(asko_filt,parameters)
+#'    norm_GE<-GEnorm(filtered_GE, asko_list, parameters)
 #' 
 #' @export
 GEnorm <- function(filtered_GE, asko_list, parameters){
@@ -749,12 +764,14 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
   
   # Normalization counts
   norm_GE<-calcNormFactors(filtered_GE, method = parameters$normal_method)
+  if(parameters$norm_factor == TRUE){
+    write.table(norm_GE$samples, file=paste0(study_dir, parameters$analysis_name, "_normalization_factors.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
+  }
   
   # boxplot log2(cpm) values after normalization 
   #----------------------------------------------------
   logcpm_norm <- cpm(norm_GE, log=TRUE)
   colnames(logcpm_norm)<-rownames(filtered_GE$samples)
-  #write.table(logcpm_norm, file=paste0(study_dir, parameters$analysis_name, "_logCPMNorm.csv"), col.names=T, row.names = T, quote=F, sep='\t')
   
   png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_norm.png"), width=sizeImg, height=sizeImg)
   par(oma=c(1,1,1,1))
@@ -789,6 +806,7 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
               cexRow = 0.1, cexCol = 1.25, ColSideColors = norm_GE$samples$color, margins = c(10,1),
               main = paste0("CPM counts per sample\nGenes 1 to ",nrow(norm_GE)))
     dev.off()
+    write.table(cpm_norm, file=paste0(study_dir, parameters$analysis_name, "_CPM_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
     
     # Normalized mean by conditions
     #-------------------------------
@@ -812,22 +830,18 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
     dev.off()
   }
   
-  # File with mean counts and normalized mean counts in Askomics format
-  if(parameters$norm_mean==TRUE){
-    cat("\nMean Count and Normalized in Askomics format\nThis might take several minutes ...\n")
-    cpm_condition<-cpm(n_count)
-    tmplist<-list()
-    for(i in row.names(cpm_condition)){
-      for(j in colnames(cpm_condition)){
-        rname<-paste0(i,"_",j)
-        tmplist[[rname]]<-c(rname,i,j,as.numeric(n_count[i,j]),as.numeric(cpm_condition[i,j]))
-      }
-    }
-    moyNorm<-matrix(unlist(tmplist), ncol=5, byrow=T)
-    colnames(moyNorm)<-c("Normalized_expr_id", "from@gene","for_a@Condition","MeanCount","CPM_MeanCount")
-    write.table(moyNorm, paste0(study_dir,"Askomics/",parameters$organism,"_MeanCounts.csv"), col.names=NA, row.names = F, quote=F, sep='\t')
+  # File with normalized counts
+  if (parameters$norm_counts == TRUE){
+    dScaleFactors <- norm_GE$samples$lib.size * norm_GE$samples$norm.factors
+    normCounts <- t(t(filtered_GE$counts)/dScaleFactors)*mean(dScaleFactors)
+    write.table(normCounts, file=paste0(study_dir, parameters$analysis_name, "_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
   }
   
+  # File with normalized mean counts in CPM, grouped by condition
+  meancpmDEGnorm<-as.data.frame(t(aggregate(t(cpm_norm),list(data$samples$condition), mean)))[-1,]
+  colnames(meancpmDEGnorm)<-unique(data$samples$condition)
+  write.table(meancpmDEGnorm,paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), sep="\t", dec=".", row.names=TRUE, col.names=NA, quote=FALSE)
+
   return(norm_GE)
 }
 
@@ -850,6 +864,7 @@ GEnorm <- function(filtered_GE, asko_list, parameters){
 #' 
 #' @export
 GEcorr <- function(asko_norm, parameters){
+  options(warn = -1)
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
   image_dir = paste0(study_dir, "images/")
   
@@ -881,25 +896,118 @@ GEcorr <- function(asko_norm, parameters){
   png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_2.png"), width=sizeImg*1.25, height=sizeImg*1.25)
   mds1<-ggplot(dfmds, aes(dfmds$V1, dfmds$V2, label=rownames(mds$points))) + labs(title="MDS Axes 1 and 2") +
     theme(plot.title = element_text(hjust = 0.5)) + theme(plot.margin=margin(20,30,20,15)) +
-    geom_point(color =as.character(asko_norm$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) +
-    ylab(paste('dim 2 [', eigs[2], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black', size = 3.5)
+    geom_point(aes(color=as.character(asko_norm$samples$condition)),shape=17,size=15 ) + 
+    xlab(paste('dim 1 [', eigs[1], '%]')) + ylab(paste('dim 2 [', eigs[2], "%]")) +
+    geom_label_repel(aes(label = rownames(mds$points),fill = factor(as.character(asko_norm$samples$condition))), color = 'white',size = 7) + 
+    theme(
+      axis.text.y = element_text(face="bold",size=30),
+      axis.text.x = element_text(face="bold",size=30),
+      legend.text = element_text(size = 30),
+      legend.title = element_text(size=30,face="bold"),
+      strip.text.y = element_text(size=30, face="bold"),
+      axis.title = element_text(size=30,face="bold"),
+      plot.title = element_text(size=35)) +
+    guides(color=FALSE, fill = guide_legend(title = "Condition", override.aes = aes(label = ""), ncol=parameters$legendcol)) +
+    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
   print(mds1)
   dev.off()
   # Axe 2 and 3
   png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe2_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
   mds2<-ggplot(dfmds, aes(dfmds$V2, dfmds$V3, label = rownames(mds$points))) + labs(title="MDS Axes 2 and 3") + 
     theme(plot.title = element_text(hjust = 0.5)) + theme(plot.margin=margin(20,30,20,15)) + 
-    geom_point(color =as.character(asko_norm$samples$color) ) + xlab(paste('dim 2 [', eigs[2], '%]')) + 
-    ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black', size = 3.5)
+    geom_point(aes(color=as.character(asko_norm$samples$condition)),shape=17,size=15 ) + 
+    xlab(paste('dim 2 [', eigs[2], '%]')) + ylab(paste('dim 3 [', eigs[3], "%]")) + 
+    geom_label_repel(aes(label = rownames(mds$points),fill = factor(as.character(asko_norm$samples$condition))), color = 'white',size = 7) + 
+    theme(
+      axis.text.y = element_text(face="bold",size=30),
+      axis.text.x = element_text(face="bold",size=30),
+      legend.text = element_text(size = 30),
+      legend.title = element_text(size=30,face="bold"),
+      strip.text.y = element_text(size=30, face="bold"),
+      axis.title=element_text(size=30,face="bold"),
+      plot.title = element_text(size=35)) +
+    guides(color=FALSE, fill = guide_legend(title = "Condition", override.aes = aes(label = ""), ncol=parameters$legendcol)) +
+    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
   print(mds2)
   dev.off()
   # Axe 1 and 3
   png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
   mds3<-ggplot(dfmds, aes(dfmds$V1, dfmds$V3, label = rownames(mds$points))) + labs(title="MDS Axes 1 and 3") + 
     theme(plot.title = element_text(hjust = 0.5)) + theme(plot.margin=margin(20,30,20,15)) +
-    geom_point(color =as.character(asko_norm$samples$color) ) + xlab(paste('dim 1 [', eigs[1], '%]')) + 
-    ylab(paste('dim 3 [', eigs[3], "%]")) + geom_label_repel(aes(label = rownames(mds$points)), color = 'black', size = 3.5)
+    geom_point(aes(color=as.character(asko_norm$samples$condition)),shape=17,size=15 ) + 
+    xlab(paste('dim 1 [', eigs[1], '%]')) + ylab(paste('dim 3 [', eigs[3], "%]")) + 
+    geom_label_repel(aes(label = rownames(mds$points),fill = factor(as.character(asko_norm$samples$condition))), color = 'white',size = 7) + 
+    theme(
+      axis.text.y = element_text(face="bold",size=30),
+      axis.text.x = element_text(face="bold",size=30),
+      legend.text = element_text(size = 30),
+      legend.title = element_text(size=30,face="bold"),
+      strip.text.y = element_text(size=30, face="bold"),
+      axis.title=element_text(size=30,face="bold"),
+      plot.title = element_text(size=35)) +
+    guides(color=FALSE, fill = guide_legend(title = "Condition",override.aes = aes(label = ""), ncol=parameters$legendcol)) +
+    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
   print(mds3)
+  dev.off()
+  
+  # PCA
+  #-----------------------------
+  lcpm2=as.data.frame(t(lcpm))
+  lcpm3=lcpm2
+  lcpm3$cond=asko_norm$samples$condition
+  
+  # Axe 1 and 2
+  png(paste0(image_dir, parameters$analysis_name, "_PCA_axe1_2.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  p=autoplot(prcomp(lcpm2), data = lcpm3, size=15,colour="cond",show.legend = FALSE, x=1, y=2,shape=17)
+  test=p + geom_label_repel(aes(label = rownames(lcpm3),fill = factor(cond)), color = 'white',size = 7) + 
+  labs(title="PCA Axes 1 and 2") + theme(
+    plot.margin=margin(20,30,20,15),
+    axis.text.y = element_text(face="bold",size=30),
+    axis.text.x = element_text(face="bold",size=30),
+    legend.text = element_text(size = 30),
+    legend.title = element_text(size=30,face="bold"),
+    strip.text.y = element_text(size=30, face="bold"),
+    axis.title=element_text(size=30,face="bold"),
+    plot.title = element_text(size=35, hjust=0.5)) +
+    guides(colour=FALSE, fill = guide_legend(title = "Condition",override.aes = aes(label = ""), ncol=parameters$legendcol)) +
+    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
+  print(test)
+  dev.off()
+  
+  # Axe 2 and 3
+  png(paste0(image_dir, parameters$analysis_name, "_PCA_axe2_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  p=autoplot(prcomp(lcpm2), data = lcpm3, size=15,colour="cond",show.legend = FALSE, x=2, y=3,shape=17)
+  test=p + geom_label_repel(aes(label = rownames(lcpm3),fill = factor(cond)), color = 'white',size = 7) + 
+  labs(title="PCA Axes 2 and 3") + theme(
+    plot.margin=margin(20,30,20,15),
+    axis.text.y = element_text(face="bold",size=30),
+    axis.text.x = element_text(face="bold",size=30),
+    legend.text = element_text(size = 30),
+    legend.title = element_text(size=30,face="bold"),
+    strip.text.y = element_text(size=30, face="bold"),
+    axis.title=element_text(size=30,face="bold"),
+    plot.title = element_text(size=35, hjust=0.5)) +
+    guides(colour=FALSE, fill = guide_legend(title = "Condition",override.aes = aes(label = ""), ncol=parameters$legendcol)) +
+    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
+  print(test)
+  dev.off()
+  
+  # Axe 1 and 3
+  png(paste0(image_dir, parameters$analysis_name, "_PCA_axe1_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  p=autoplot(prcomp(lcpm2), data = lcpm3, size=15,colour="cond",show.legend = FALSE, x=1, y=3,shape=17)
+  test=p + geom_label_repel(aes(label = rownames(lcpm3),fill = factor(cond)), color = 'white',size = 7) + 
+  labs(title="PCA Axes 1 and 3") + theme(
+    plot.margin=margin(20,30,20,15),
+    axis.text.y = element_text(face="bold",size=30),
+    axis.text.x = element_text(face="bold",size=30),
+    legend.text = element_text(size = 30),
+    legend.title = element_text(size=30,face="bold"),
+    strip.text.y = element_text(size=30, face="bold"),
+    axis.title=element_text(size=30,face="bold"),
+    plot.title = element_text(size=35, hjust=0.5)) +
+    guides(colour=FALSE, fill = guide_legend(title = "Condition",override.aes = aes(label = ""), ncol=parameters$legendcol)) +
+    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
+  print(test)
   dev.off()
   
   # hierarchical clustering
@@ -935,8 +1043,8 @@ GEcorr <- function(asko_norm, parameters){
 #' @return none.
 #'
 #' @examples
-#'    plot_glimma(glm_test, normGE, resDE, contrast, "MD", parameters)
-#'    plot_glimma(glm_test, normGE, resDE, contrast, "VO", parameters)
+#'    plot_glimma(fit, normGE, resDE, contrast, "MD", parameters)  # smear plot
+#'    plot_glimma(fit, normGE, resDE, contrast, "VO", parameters)  # volcano plot
 #'
 plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
@@ -993,8 +1101,8 @@ plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
 #' @return none.
 #'
 #' @examples
-#'    plot_expr(glm_test, normGE, resDE, contrast, "MD", parameters)
-#'    plot_expr(glm_test, normGE, resDE, contrast, "VO", parameters)
+#'    plot_expr(fit, normGE, resDE, contrast, "MD", parameters)  # smear plot
+#'    plot_expr(fit, normGE, resDE, contrast, "VO", parameters)  # volcano plot
 #'
 plot_expr <- function(fit, normGE, resDE, contrast, tplot, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
@@ -1039,11 +1147,11 @@ plot_expr <- function(fit, normGE, resDE, contrast, tplot, parameters){
 #'  
 #'  @examples 
 #'     # calculate mean counts in contrast contx1_vs_contx2
-#'     mean1<-NormCountsMean(fit, ASKOlist, contx1)   # in the 1st context
-#'     mean2<-NormCountsMean(fit, ASKOlist, contx2)   # in the 2nd context
+#'     mean1<-NormCountsMean(glmfit, ASKOlist, contx1)   # in the 1st context
+#'     mean2<-NormCountsMean(glmfit, ASKOlist, contx2)   # in the 2nd context
 #'     
 #'     # for all conditions
-#'     n_count<-NormCountsMean(fit,asko_list)
+#'     n_count<-NormCountsMean(glmfit, ASKOlist, context=NULL)
 #'  
 #'  @export
 NormCountsMean <- function(glmfit, ASKOlist, context=NULL){
@@ -1094,14 +1202,14 @@ NormCountsMean <- function(glmfit, ASKOlist, context=NULL){
 #' 
 #' @param glm_test, tests for one or more coefficients in the linear model (likelihood ratio tests or empirical Bayes quasi-likelihood F-tests).
 #' @param fit, fitted linear model object.
-#' @param contrast, coefficient/contrast tested.
+#' @param contrast, coefficient/contrast names tested.
 #' @param ASKOlist, list of data.frame contain condition, contrast and context informations made by asko3c.
 #' @param dge, large DGEList with normalized counts by GEnorm function.
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return none
 #' 
 #' @example
-#'    AskoStats(glm_test, fit, colnames(contrast), asko_list,normGEdisp,parameters)
+#'    AskoStats(glm_test, fit, contrast, ASKOlist, dge, parameters)
 #'
 #'  @export
 AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
@@ -1191,7 +1299,7 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
 #' @return SumMat, list (TestResults format class limma) contains for each contrast the significance expression (1/0/-1) for all gene.
 #'
 #' @example 
-#'    sum_table<-DEanalysis(asko_norm, data, asko_data, parameters)
+#'    sum_table<-DEanalysis(norm_GE, data_list, asko_list, parameters)
 #' 
 #' @export 
 DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
@@ -1204,21 +1312,23 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   if(sizeImg < 480){ sizeImg=480 }
   
   # Checks Contrasts
-  c1<-levels(data_list$samples$condition)
-  len1<-length(c1)
-  c2<-rownames(data_list$contrast)
-  len2<-length(c2)
-  if(len1 > len2){
-    cat("\n\n")
-    stop("Contrast files must be contain all conditions (in rows).\n\n")
-  }
-  if(len1 < len2){
-    cat("\n\n")
-    stop("Too much condtions in contrast file!\n\n")
-  }
-  if(length(setdiff(c1,c2)) > 0 && length(setdiff(c2,c1)) > 0){
-    cat("\n\n")
-    stop("Erronate or unknown conditions names in contrast file!\n\n")
+  if(is.null(parameters$select_sample) & is.null(parameters$rm_sample)){
+    c1<-levels(data_list$samples$condition)
+    len1<-length(c1)
+    c2<-rownames(data_list$contrast)
+    len2<-length(c2)
+    if(len1 > len2){
+      cat("\n\n")
+      stop("Contrast files must be contain all conditions (in rows).\n\n")
+    }
+    if(len1 < len2){
+      cat("\n\n")
+      stop("Too much condtions in contrast file!\n\n")
+    }
+    if(length(setdiff(c1,c2)) > 0 && length(setdiff(c2,c1)) > 0){
+      cat("\n\n")
+      stop("Erronate or unknown conditions names in contrast file!\n\n")
+    }
   }
 
   # Estimate Common, Trended and Tagwise Dispersion for Negative Binomial GLMs
@@ -1315,14 +1425,19 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     write.table(sum, file=sumFile, col.names=T, row.names = T, quote=F, sep='\t')
   }
   
-  return(sum)
+  # reformate summary result table
+  newMat <- as.data.frame(matrix(unlist(sum), nrow=nrow(sum)))
+  rownames(newMat)<-rownames(sum)
+  colnames(newMat)<-colnames(sum)
+  
+  return(newMat)
 }
 
 #' @title UpSetGraph
 #'
 #' @description Generate upsetR graphs.
 #' 
-#' @param sumDEG, list (TestResults format class limma) contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param sumDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
 #' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #'
@@ -1331,12 +1446,12 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
 #' 
 #' @export 
 UpSetGraph <- function(resDEG, data_list, parameters){
-  options(warn=1)
+  options(warn = -1)
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
   image_dir = paste0(study_dir, "UpSetR_graphs/") 
   if(dir.exists(image_dir)==FALSE){ 
     dir.create(image_dir) 
-    cat("Directory: ",image_dir," created\n")
+    cat("\n\nDirectory: ",image_dir," created\n")
   }
   
   # Global UpsetR
@@ -1347,73 +1462,81 @@ UpSetGraph <- function(resDEG, data_list, parameters){
     global_dir = paste0(image_dir, "Global_upset/") 
     if(dir.exists(global_dir)==FALSE){ 
       dir.create(global_dir) 
-      cat("Directory: ",global_dir," created\n\n")
+      cat("\n\nDirectory: ",global_dir," created\n\n")
     }
     
     if (parameters$upset_basic == "all"){
-      cat("Created global upset charts for all differentially expressed genes.\n")
-      # reformate table
-      newMat <- as.data.frame(matrix(unlist(resDEG), nrow=nrow(resDEG)))
-      rownames(newMat)<-rownames(resDEG)
-      colnames(newMat)<-colnames(resDEG)
-      
+      cat("\nCreated global upset charts for all differentially expressed genes.")
+
       # verify empty groups
-      if(sum(colSums(abs(newMat)))==0){
+      if(sum(colSums(abs(resDEG)))==0){
         warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
       }
       else{
+        if(ncol(resDEG)<=6){tsc=2}else{tsc=1.45}
+        # reoder columns by colsums value 
+        ordDEG<-abs(resDEG)
+        ordDEG<-ordDEG[,order(colSums(-ordDEG, na.rm=TRUE))]
+        sets<-colnames(resDEG)
+        
         # all genes differentially expressed
         png(paste0(global_dir, parameters$analysis_name,"_UpSetR_allDEG.png"), width=1280, height=1024)
-        print(upset(data=abs(newMat), sets=rev(colnames(newMat)), nsets=ncol(newMat), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
-        grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
+        print(upset(data=ordDEG, sets=rev(sets), nsets=ncol(ordDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+        grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=26))
         dev.off()
       }
     }
     else if(parameters$upset_basic == "up"){
-      cat("Created global upset charts for genes expressed UP.\n")
+      cat("\nCreated global upset charts for genes expressed UP.")
       # table with Down Expressed Genes
       upDEG<-resDEG
       upDEG[upDEG==-1]<-0
-      newMat <- as.data.frame(matrix(unlist(upDEG), nrow=nrow(upDEG)))
-      rownames(newMat)<-rownames(upDEG)
-      colnames(newMat)<-gsub("vs"," > ",colnames(upDEG))
-      
+      colnames(upDEG)<-gsub("vs"," > ",colnames(upDEG))
+  
       # verify empty groups
-      if(sum(colSums(abs(newMat)))==0){
+      if(sum(colSums(abs(upDEG)))==0){
         warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
       }
       else{
-      # record upsetR graph for Down Expressed Genes
+        # reoder columns by colsums value
+        ordDEG<-upDEG[,order(colSums(-upDEG, na.rm=TRUE))]
+        sets<-colnames(upDEG)
+        
+        # record upsetR graph for Down Expressed Genes
+        if(ncol(ordDEG)<=6){tsc=2}else{tsc=1.45}
         png(paste0(global_dir, parameters$analysis_name,"_UpSetR_upDEG.png"), width=1280, height=1024)
-        print(upset(data=newMat, sets=rev(colnames(newMat)), nsets=ncol(newMat), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
-        grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+        print(upset(data=ordDEG, sets=rev(sets), nsets=ncol(ordDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+        grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
         dev.off()  
       }
     }
     else if(parameters$upset_basic == "down"){
-      cat("Created global upset charts for genes expressed DOWN.\n")
+      cat("\nCreated global upset charts for genes expressed DOWN.")
       # table with Up Expressed Genes
       downDEG<-resDEG
       downDEG[downDEG==1]<-0
       downDEG[downDEG==-1]<-1
-      newMat <- as.data.frame(matrix(unlist(downDEG), nrow=nrow(downDEG)))
-      rownames(newMat)<-rownames(downDEG)
-      colnames(newMat)<-gsub("vs"," < ",colnames(downDEG))
+      colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
       
       # verify empty groups
-      if(sum(colSums(abs(newMat)))==0){
+      if(sum(colSums(abs(downDEG)))==0){
         warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
       }
       else{
+        # reoder columns by colsums value
+        ordDEG<-downDEG[,order(colSums(-downDEG, na.rm=TRUE))]
+        sets<-colnames(downDEG)
+        
         # record upsetR graph for Up Expressed Genes
+        if(ncol(ordDEG)<=6){tsc=2}else{tsc=1.45}
         png(paste0(global_dir, parameters$analysis_name,"_UpSetR_downDEG.png"), width=1280, height=1024)
-        print(upset(data=newMat, sets=rev(colnames(newMat)), nsets=ncol(newMat), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
-        grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+        print(upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+        grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
         dev.off()
       }
     }
     else if(parameters$upset_basic == "mixed"){
-      cat("Created global upset charts for genes expressed distinctly UP and DOWN.\n")
+      cat("\nCreated global upset charts for genes expressed distinctly UP and DOWN.")
       # table with Up Expressed Genes
       upDEG<-resDEG
       upDEG[upDEG==-1]<-0
@@ -1431,26 +1554,26 @@ UpSetGraph <- function(resDEG, data_list, parameters){
       metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
       names(metadata)<-c("sets", "SENS")
       
-      # reformate table
-      newMat<-as.data.frame(matrix(unlist(mixDEG), nrow=nrow(mixDEG)))
-      rownames(newMat)<-rownames(resDEG)
-      colnames(newMat)<-c(colnames(upDEG),colnames(downDEG))
-      
       # verify empty groups
-      if(sum(colSums(abs(newMat)))==0){
+      if(sum(colSums(abs(mixDEG)))==0){
         warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
       }
       else{
+        # reoder columns by colsums value
+        ordDEG<-mixDEG[,order(colSums(-mixDEG, na.rm=TRUE))]
+       
         # record upsetR graph for Up and Down Expressed Genes
+        if(ncol(ordDEG)<=6){tsc=2}else{tsc=1.45}
         png(paste0(global_dir, parameters$analysis_name,"_UpSetR_mixedDEG.png"), width=1280, height=1024)
-        print(upset(data=newMat, sets=rev(sets), nsets=ncol(newMat), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
-              text.scale = 1.2, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",
+        print(upset(data=ordDEG, sets=rev(sets), nsets=ncol(ordDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
+              text.scale = tsc, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",
               column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
-        grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+        grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
         dev.off() 
       }
     }
   }
+  
   # Multiple graphs UpSetR
   #---------------------------------------------------------------------------------------
   if(is.null(parameters$upset_type)==TRUE && is.null(parameters$upset_list)==FALSE){
@@ -1464,29 +1587,30 @@ UpSetGraph <- function(resDEG, data_list, parameters){
     subset_dir = paste0(image_dir, "Subset_upset/") 
     if(dir.exists(subset_dir)==FALSE){ 
       dir.create(subset_dir) 
-      cat("Directory: ",subset_dir," created\n")
+      cat("\n\nDirectory: ",subset_dir," created\n")
     }
-    cat("Created upset charts for each element in \"upset_list\":",parameters$upset_type," expressed genes.\n")
+    
+    cat("\nCreated upset charts for each element in \"upset_list\":",parameters$upset_type," expressed genes.\n")
     
     for(comparaison in parameters$upset_list){
       compa<-as.vector(strsplit2(comparaison, "-"))
       cat("    -> Subset:",compa,"\n")
       
       if (parameters$upset_type == "all"){
-        # reformate table
-        newMat <- as.data.frame(matrix(unlist(resDEG), nrow=nrow(resDEG)))
-        rownames(newMat)<-rownames(resDEG)
-        colnames(newMat)<-colnames(resDEG)
-        
         # verify empty groups
-        if(sum(colSums(abs(newMat[,compa])))==0){
+        if(sum(colSums(abs(resDEG[,compa])))==0){
           warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
         }
         else{
+          # reoder columns by colsums value 
+          ordDEG<-abs(resDEG[,compa])
+          ordDEG<-ordDEG[,order(colSums(-ordDEG, na.rm=TRUE))]
+
           # record upsetR graph for all Differentially Expressed Genes
+          if(length(compa)<=6){tsc=2}else{tsc=1.45}
           png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_allDEG.png"), width=1280, height=1024)
-          print(upset(data=abs(newMat), sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
-          grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=20))
+          print(upset(data=ordDEG, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+          grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=26))
           dev.off()
         }
       }
@@ -1494,20 +1618,23 @@ UpSetGraph <- function(resDEG, data_list, parameters){
         # table with Down Expressed Genes
         upDEG<-resDEG
         upDEG[upDEG==-1]<-0
-        newMat <- as.data.frame(matrix(unlist(upDEG), nrow=nrow(upDEG)))
-        rownames(newMat)<-rownames(upDEG)
-        colnames(newMat)<-gsub("vs"," > ",colnames(upDEG))
+        colnames(upDEG)<-gsub("vs"," > ",colnames(upDEG))
         compa<-gsub("vs"," > ", compa)
        
         # verify empty groups
-        if(sum(colSums(abs(newMat[,compa])))==0){
+        if(sum(colSums(abs(upDEG[,compa])))==0){
           warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
         }
         else{
+          # reoder columns by colsums value
+          ordDEG<-upDEG[,compa]
+          ordDEG<-ordDEG[,order(colSums(-ordDEG, na.rm=TRUE))]
+
           # record upsetR graph for Down Expressed Genes
+          if(length(compa)<=6){tsc=2}else{tsc=1.45}
           png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_upDEG.png"), width=1280, height=1024)
-          print(upset(data=newMat, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
-          grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+          print(upset(data=ordDEG, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+          grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
           dev.off()  
         }
       }
@@ -1516,20 +1643,23 @@ UpSetGraph <- function(resDEG, data_list, parameters){
         downDEG<-resDEG
         downDEG[downDEG==1]<-0
         downDEG[downDEG==-1]<-1
-        newMat <- as.data.frame(matrix(unlist(downDEG), nrow=nrow(downDEG)))
-        rownames(newMat)<-rownames(downDEG)
-        colnames(newMat)<-gsub("vs"," < ",colnames(downDEG))
+        colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
         newcompa<-gsub("vs"," < ",compa)
         
         # verify empty groups
-        if(sum(colSums(abs(newMat[,newcompa])))==0){
+        if(sum(colSums(abs(downDEG[,newcompa])))==0){
           warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
         }
         else{
+          # reoder columns by colsums value
+          ordDEG<-downDEG[,newcompa]
+          ordDEG<-ordDEG[,order(colSums(-ordDEG, na.rm=TRUE))]
+          
           # record upsetR graph for Down Expressed Genes
+          if(length(newcompa)<=6){tsc=2}else{tsc=1.45}
           png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_downDEG.png"), width=1280, height=1024)
-          print(upset(data=newMat, sets=rev(newcompa), nsets=length(newcompa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 1.2))
-          grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+          print(upset(data=ordDEG, sets=rev(newcompa), nsets=length(newcompa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+          grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
           dev.off()  
         }
       }
@@ -1547,29 +1677,29 @@ UpSetGraph <- function(resDEG, data_list, parameters){
         downDEG[downDEG==-1]<-1
         colnames(downDEG)<-gsub("vs"," < ",colnames(downDEG))
         compa2<-gsub("vs"," < ",compa)
-        
+      
         # table mixed up and down
         mixDEG<-cbind(upDEG,downDEG)
         metadata<-as.data.frame(cbind(c(colnames(upDEG),colnames(downDEG)),c(rep("UP",ncol(upDEG)),rep("DOWN",ncol(downDEG)))))
         names(metadata)<-c("sets", "SENS")
         sets<-as.vector(rbind(colnames(upDEG[,compa1]),colnames(downDEG[,compa2])))
-        
-        # reformate table
-        newMat<-as.data.frame(matrix(unlist(mixDEG), nrow=nrow(mixDEG)), check.names=FALSE)
-        rownames(newMat)<-rownames(resDEG)
-        colnames(newMat)<-c(colnames(upDEG),colnames(downDEG))
-        
+
         # verify empty groups
-        if(sum(colSums(abs(newMat[,sets])))==0){
+        if(sum(colSums(abs(mixDEG[,sets])))==0){
           warning("Each group consists of none observation. Do you need to verify these empty groups?", immediate.=TRUE, call.=FALSE)
         }
         else{
+          # reoder columns by colsums value
+          ordDEG<-mixDEG[,sets]
+          ordDEG<-ordDEG[,order(colSums(-ordDEG, na.rm=TRUE))]
+          
           # record upsetR graph for Up and Down Expressed Genes
+          if(length(sets)<=6){tsc=2}else{tsc=1.25}
           png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_mixedDEG.png"), width=1280, height=1024)
-          print(upset(data=newMat, sets=rev(sets), nsets=length(sets), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, 
-                      text.scale = 1.2, set.metadata = list(data = metadata, 
+          print(upset(data=ordDEG, sets=rev(sets), nsets=length(sets), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, 
+                      text.scale = tsc, set.metadata = list(data = metadata, 
                       plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
-          grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=20))
+          grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
           dev.off()
         }
       }
@@ -1581,16 +1711,16 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 #' 
 #' @description Plot Venn Diagram to compare different contrast
 #' 
-#' @param decideTestTable, list (TestResults formal class of limma) contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param sumDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
 #' @param asko_list, list of data.frame contain condition, contrast and context informations made by asko3c.
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return none.
 #' 
 #' @example
-#'    VD(sum_table, parameters, asko_data) 
+#'    VD(sumDEG, parameters, asko_list) 
 #' 
 #' @export
-VD <- function(decideTestTable, parameters, asko_list){
+VD <- function(resDEG, parameters, asko_list){
   # check parameters
   if(is.null(parameters$VD)==TRUE){ return(NULL) }
   if(is.null(parameters$compaVD)==TRUE || parameters$compaVD==""){
@@ -1602,13 +1732,13 @@ VD <- function(decideTestTable, parameters, asko_list){
   venn_dir = paste0(study_dir, "vennDiagram/") 
   if(dir.exists(venn_dir)==FALSE){ 
     dir.create(venn_dir) 
-    cat("Directory: ",venn_dir," created\n")
+    cat("\n\nDirectory: ",venn_dir," created\n")
   }
   
   # don't write log file
   futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
   
-  cat("Create VennDiagrams ")
+  cat("\nCreate VennDiagrams ")
   if(parameters$VD == "all"){
     cat("for all differentially expressed genes.\n")
     for(comparaison in parameters$compaVD){
@@ -1622,7 +1752,7 @@ VD <- function(decideTestTable, parameters, asko_list){
       }
       
       for(n in compa){
-        listDEG<-rownames(resDEG[apply(resDEG[,n], 1, function(x) !all(x==0)),])
+        listDEG<-rownames(resDEG[apply(as.matrix(resDEG[,n]), 1, function(x) all(x!=0)),])
         nameDEG<-gsub("vs", "/", n)
         input[[nameDEG]]<-listDEG
       }
@@ -1653,8 +1783,8 @@ VD <- function(decideTestTable, parameters, asko_list){
       }
       
       for(n in compa){
-        listUp<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==1)),])
-        listDown<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==-1)),])
+        listUp<-rownames(resDEG[apply(as.matrix(resDEG[,n]), 1, function(x) all(x==1)),])
+        listDown<-rownames(resDEG[apply(as.matrix(resDEG[,n]), 1, function(x) all(x==-1)),])
         nameUp<-gsub("vs", " > ", n)
         nameDown<-gsub("vs", " < ", n)
         input[[nameUp]]<-listUp
@@ -1687,7 +1817,7 @@ VD <- function(decideTestTable, parameters, asko_list){
       }
       
       for(n in compa){
-        listDEG<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==1)),])
+        listDEG<-rownames(resDEG[apply(as.matrix(resDEG[,n]), 1, function(x) all(x==1)),])
         nameDEG<-gsub("vs", " > ", n)
         input[[nameDEG]]<-listDEG
       }
@@ -1718,7 +1848,7 @@ VD <- function(decideTestTable, parameters, asko_list){
       }
       
       for(n in compa){
-        listDEG<-rownames(resDEG[apply(resDEG[,n], 1, function(x) all(x==-1)),])
+        listDEG<-rownames(resDEG[apply(as.matrix(resDEG[,n]), 1, function(x) all(x==-1)),])
         nameDEG<-gsub("vs", " < ", n)
         input[[nameDEG]]<-listDEG
       }
@@ -1746,12 +1876,12 @@ VD <- function(decideTestTable, parameters, asko_list){
 #' methods for eliminating local similarities and dependencies between GO 
 #' terms can be implemented and applied.
 #' 
-#' @param decideTestTable, list (TestResults formal class of limma) contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param sumDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return none.
 #' 
 #' @examples 
-#'    GOenrichment(resDEG, parameters)
+#'    GOenrichment(sumDEG, parameters)
 #'    
 #' @export
 GOenrichment<-function(resDEG, parameters){
@@ -1760,23 +1890,25 @@ GOenrichment<-function(resDEG, parameters){
   img_go_dir = paste0(study_dir, "GO_images/")
   if(dir.exists(img_go_dir)==FALSE){ 
     dir.create(img_go_dir) 
-    cat("Directory: ",img_go_dir," created\n")
+    cat("\n\nDirectory: ",img_go_dir," created\n")
   }
   
   if(is.null(parameters$GO)==TRUE){ return(NULL) }
   
+  # Get GO annotations
   geneID2GO <- readMappings(file = paste0(input_path,parameters$geneID2GO_file))
   geneNames <- names(geneID2GO)
   
   for(contrast in colnames(data$contrast)){
     if(parameters$GO == "both"){
-      geneSelected <- rownames(resDEG[apply(resDEG[,contrast], 1, function(x) all(x!=0)),])
+      print(contrast)
+      geneSelected <- rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x!=0)),])
       titlename<-"all differentially expressed genes (up+down)"
     }else if(parameters$GO == "up"){
-      geneSelected<-rownames(resDEG[apply(resDEG[,contrast], 1, function(x) all(x==1)),])
+      geneSelected<-rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x==1)),])
       titlename<-"genes expressed UP"
     }else if(parameters$GO == "down"){
-      geneSelected<-rownames(resDEG[apply(resDEG[,contrast], 1, function(x) all(x==-1)),])
+      geneSelected<-rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x==-1)),])
       titlename<-"genes expressed DOWN"
     }else{
       cat("\nBad value for GO parameters : autorized values are both, up, down or NULL.\n")
@@ -1809,76 +1941,513 @@ GOenrichment<-function(resDEG, parameters){
       resultTest <- runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
       print(resultTest)
       
-      # graphe for one contrast and one ontology
-      # png(paste0(img_go_dir,"SubGraphSigOfNodes_",contrast,"_",ontology,".png"), units = "px", res = 600)
-      # par(oma=c(0,0,0,0), mar=c(0,0,0,0))
-      # showSigOfNodes(GOdata, score(resultTest), firstSigNodes = 5, useInfo='all')
-      # dev.off()
-      
-      resGenTab <- GenTable(GOdata, statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(nodes(graph(GOdata))) )
+      resGenTab <- GenTable(GOdata, numChar = 1000000, statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(nodes(graph(GOdata))) )
       resGenTab$Ratio = as.numeric(as.numeric(resGenTab$Significant)/as.numeric(resGenTab$Expected))
       resGenTab$GO_cat <- ontology
       
       if(ontology == "MF"){ 
-        TabCompl<-resGenTab 
-        tabTemp<-TabCompl
-        tabTemp$classicFisher<-gsub("< 1","1.0",tabTemp$statisticTest)
+        TabCompl<-resGenTab
+        resGenTab[resGenTab=="< 1e-30"]<-"1.0e-30"
         
-        maxi<-parameters$GO_max_top_terms
-        TabSigCompl<-tabTemp[as.numeric(tabTemp$statisticTest) <= parameters$GO_threshold,]
-        if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
-        TabSigCompl<-TabSigCompl[1:maxi,]
+        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,])!=0){
+          maxi<-parameters$GO_max_top_terms
+          TabSigCompl<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,]
+          if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
+          TabSigCompl<-TabSigCompl[1:maxi,]
+        }else{ 
+          cat("\n\n->",contrast," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n") 
+        }
+        
       }else{ 
         TabCompl=rbind(TabCompl,resGenTab) 
-        tabTemp<-resGenTab
-        tabTemp$classicFisher<-gsub("< 1","1.0",tabTemp$statisticTest)
+        resGenTab[resGenTab=="< 1e-30"]<-"1.0e-30"
         
-        maxi<-parameters$GO_max_top_terms
-        tempSig<-tabTemp[as.numeric(tabTemp$statisticTest) <= parameters$GO_threshold,]
-        if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
-        TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
+        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,])!=0){
+          maxi<-parameters$GO_max_top_terms
+          tempSig<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,]
+          if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
+          TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
+        }else{ 
+          cat("\n\n->",contrast," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n") 
+        }
+        
+      }
+    }
+    TabCompl<-TabCompl[TabCompl$Significant > 0,]
+    write.table(TabCompl, file=paste0(img_go_dir, parameters$analysis_name, "_", contrast, "_Complet_GOenrichment.txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
+   
+    if(exists("TabSigCompl")==TRUE){ 
+      if(nrow(TabSigCompl)>1){
+        if (parameters$GO_max_top_terms > 10) {
+          TabSigCompl$Term = str_trunc(TabSigCompl$Term, 67)
+        }else{
+          TabSigCompl$Term = str_trunc(TabSigCompl$Term, 137)
+        }
+        # Graph for one contrast
+        comp_names <- c( `MF` = "Molecular Function", `BP` = "Biological Process", `CC` = "Cellular Component")
+        coul <- c(`MF` = "green4", `BP` = "red", `CC` = "blue")
+        comp_names2 <- c(`MF` = "MF", `BP` = "BP", `CC` = "CC")
+        
+        TabSigCompl$Term = factor(TabSigCompl$Term, levels = unique(TabSigCompl$Term))
+        minR=(min(TabSigCompl$Ratio)+max(TabSigCompl$Ratio))/4
+        minP=(min(as.numeric(TabSigCompl$statisticTest))+max(as.numeric(TabSigCompl$statisticTest)))/4
+
+        # Ratio Graph
+        ggplot(TabSigCompl, aes(x=TabSigCompl$Ratio, y=TabSigCompl$Term, size=TabSigCompl$Significant, color=TabSigCompl$GO_cat)) +
+          geom_point(alpha=1) + labs(title = paste0("GO Enrichment for contrast\n",contrast), x="Ratio Significant/Expected", y="GOterm") +
+          scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
+          facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
+          scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minR)) + 
+          scale_y_discrete(labels = function(x) str_wrap(x, width = 70)) + theme_linedraw() + 
+          theme(
+            panel.background = element_rect(fill = "grey90", colour = "grey90", size = 0.5, linetype = "solid"),
+            panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
+            panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
+            axis.text.y = element_text(face="bold", size=rel(0.75)),
+            axis.text.x = element_text(face="bold", size=rel(0.75)), 
+            axis.title = element_text(face="bold", size=rel(0.75)),
+            legend.title = element_text(size=rel(0.75), face="bold"),
+            plot.title = element_text(face="bold", size=rel(1), hjust=1),
+            legend.text = element_text(size=rel(0.5)))
+        ggsave(filename=paste0(img_go_dir,contrast,"_Ratio_BUBBLESgraph.png"), width=7, height=7)
+
+        # Pvalue Graph
+        ggplot(TabSigCompl, aes(x=as.numeric(TabSigCompl$statisticTest), y=TabSigCompl$Term, size=TabSigCompl$Significant, color=TabSigCompl$GO_cat)) +
+          geom_point(alpha=1) + labs(title = paste0("GO Enrichment for contrast\n",contrast),x="Pvalue",y="GOterm")+
+          scale_color_manual(values=coul,labels=comp_names,name="GO categories")+
+          facet_grid(TabSigCompl$GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2))+
+          scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minP)) +
+          scale_y_discrete(labels = function(x) str_wrap(x, width = 70)) + theme_linedraw() + 
+          theme(
+            panel.background = element_rect(fill = "grey90", colour = "grey90", size = 0.5, linetype = "solid"),
+            panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
+            panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
+            axis.text.y = element_text(face="bold", size=rel(0.75)),
+            axis.text.x = element_text(face="bold", size=rel(0.75), angle=45, hjust=1), 
+            axis.title = element_text(face="bold", size=rel(0.75)),
+            legend.title = element_text(size=rel(0.75), face="bold"),
+            plot.title = element_text(face="bold", size=rel(1), hjust=1),
+            legend.text = element_text(size=rel(0.5)))
+        ggsave(filename=paste0(img_go_dir,contrast,"_Pvalue_BUBBLESgraph.png"), width=7, height=7)
+      }
+    }else{
+      cat("\n\nToo few results to display the graph.\n\n")
+    }
+  }
+}
+
+#' @title ClustAndGO
+#' 
+#' @description 
+#' Clusterize genes with same profile
+#' \itemize{
+#'    \item Graph of clusters
+#' }
+#' 
+#' @param asko_norm, large DGEList with normalized counts by GEnorm function.
+#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene
+#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @return none
+#' 
+#' @example 
+#'    ClustAndGO(asko_norm, resDEG, parameters)
+#' 
+#' @export
+ClustAndGO <- function(asko_norm, resDEG, parameters){
+  library("coseq")
+  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/") 
+  image_dir = paste0(study_dir, "images/")
+  input_path = paste0(parameters$dir_path, "/input/")
+  img_Clustering_dir = paste0(study_dir, "Clustering/")
+  if(dir.exists(img_Clustering_dir)==FALSE){ 
+    dir.create(img_Clustering_dir) 
+    cat("Directory: ",img_Clustering_dir," created\n")
+  }
+  img_transfo_dir = paste0(img_Clustering_dir,parameters$coseq_model,"_",parameters$coseq_transformation,"/")
+  if(dir.exists(img_transfo_dir)==FALSE){ 
+    dir.create(img_transfo_dir) 
+    cat("Directory: ",img_transfo_dir," created\n")
+  }
+  
+  # for image size
+  nsamples <- ncol(asko_norm$counts)  
+  sizeImg=15*nsamples
+  if(sizeImg < 1024){ sizeImg=1024 }
+  
+  # import normalized MEAN counts in CPM
+  moys<-read.csv(paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
+  
+  # import normalized counts (all samples) in CPM
+  object=read.csv(paste0(study_dir, parameters$analysis_name,"_CPM_NormCounts.txt"), header=TRUE, sep="\t", row.names=1)
+  resDEG2=resDEG
+  resDEG2[resDEG2==-1]<-1
+  # keep only DE genes in at least "coseq_ContrastsThreshold" contrasts
+  object=object[which(rowSums(resDEG2)>=parameters$coseq_ContrastsThreshold),]
+  
+  cat("Number of differentially expressed genes kept : ")
+  print(nrow(object))
+  
+  conds=asko_norm$samples$condition
+  
+  ###############
+  ## run coseq ##
+  ###############
+  set.seed(12345)
+  coexpr=coseq(object, K=parameters$coseq_ClustersNb, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = parameters$coseq_normFactors)
+  clust=as.data.frame(clusters(coexpr))
+  GeneToClusters<-merge(clust,moys,by="row.names")
+  write.table(GeneToClusters,paste0(img_transfo_dir, parameters$analysis_name,"_GeneCPM_to_Cluster_",parameters$coseq_model,"_",parameters$coseq_transformation,".csv"),sep=";",dec=".",row.names = T,col.names = NA)
+  cat("\nSummary of CoSeq\n")
+  print(summary(coexpr))
+  
+  ###################
+  ## Global graphs ##
+  ###################
+  # Boxplots (scaled expression)
+  GeneToClustersScaled=GeneToClusters
+  GeneToClustersScaled=GeneToClustersScaled[,-2]
+  rownames(GeneToClustersScaled)=GeneToClustersScaled$Row.names
+  GeneToClustersScaled=GeneToClustersScaled[,-1]
+  GeneToClustersScaled=t(apply(as.matrix(GeneToClustersScaled), 1, scale))
+  colnames(GeneToClustersScaled)=colnames(GeneToClusters[,-c(1:2)])
+  
+  final=data.frame()
+  n=as.numeric(ncol(GeneToClustersScaled))
+  for (i in 1:n) {
+    BDD <- data.frame(gene=rownames(GeneToClustersScaled))
+    BDD$cluster=GeneToClusters$`clusters(coexpr)`
+    BDD$expression=GeneToClustersScaled[,i]
+    BDD$sample=colnames(GeneToClusters[i+2])
+    final=rbind(final,BDD)
+  }
+  lab=c()
+  for (x in unique(final$cluster)){
+    lab=c(lab,paste0("Cluster ",x," (",nrow(GeneToClusters[GeneToClusters$`clusters(coexpr)`==x,])," genes)"))
+  }
+  names(lab)<-unique(final$cluster)
+  ggplot(final,aes(x=sample, y=expression,fill=sample))+geom_boxplot()+
+    stat_summary(fun.y=mean, geom="line", aes(group=1), colour="red")+
+    stat_summary(fun.y=mean, geom="point", colour="red")+
+    facet_wrap(~final$cluster, labeller = as_labeller(lab))+
+    theme_bw()+
+    theme(strip.text.x = element_text(size=12),
+          axis.text.x =element_blank(),
+          axis.text.y=element_text(size=12),
+          axis.ticks = element_blank(),
+          axis.title.x=element_blank(),
+          axis.title.y=element_text(size=15),
+          legend.title = element_text(size=15,face="bold"),
+          legend.text = element_text(size=12))+
+    scale_y_continuous(name="Scaled expression")+
+    scale_fill_discrete(name="Experimental \nconditions") 
+  if (length(unique(final$cluster)) > 3 & length(unique(final$cluster)) <= 6){
+  ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=8)
+  }
+  else if (length(unique(final$cluster)) <= 3) {
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=4)
+  }
+  else {
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=12)
+  }
+  
+  # Global expression profiles with probability (red genes are under proba 0.8)
+  plot(coexpr, graphs="profiles")
+  if (length(unique(final$cluster)) > 3 & length(unique(final$cluster)) <= 6){
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Profiles_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=8)
+  }
+  else if (length(unique(final$cluster)) <= 3) {
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Profiles_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=4)
+  }
+  else {
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Profiles_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=12)
+  }
+  
+  # boxplots of probabilities
+  plot(coexpr, graphs="probapost_boxplots")
+  ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_BoxplotProbabilities_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"))
+  
+  # Heatmap on ScaledCPM
+  m=n+2
+  mat = as.matrix(GeneToClusters[, 3:m])
+  mat_scaled = t(apply(mat, 1, scale))
+  colnames(mat_scaled)=colnames(mat)
+  rownames(mat_scaled)=GeneToClusters[,1]
+  mat_normalized=mat[,]/GeneToClusters$somme
+  
+  cluster=GeneToClusters[,2]
+  min=0
+  max=0
+  for (i in ncol(mat_scaled)) {
+    min2 = min(mat_scaled[,i])
+    if (min2<min){
+      min =min2
+    }
+  }
+  for (i in ncol(mat_scaled)) {
+    max2 = max(mat_scaled[,i])
+    if (max2>max){
+      max =max2
+    }
+  }
+  
+  library(ComplexHeatmap)
+  library(circlize)
+  
+  ht_list = Heatmap(t(mat_scaled),column_order=order(cluster), name = "Scaled CPM expression",column_split = cluster,
+                    heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
+                    col = colorRamp2(c(min, 0, max), c("steelblue", "white", "red")),
+                    show_column_names = F,
+                    column_title_gp = gpar(fill = grey.colors(0.5), col="white", font = 5),
+                    row_gap = unit(2, "mm"), column_gap = unit(2, "mm")
+  )
+  png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
+  draw(ht_list, heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
+  dev.off()
+  
+  detach("package:coseq")
+  
+  #############################
+  ## Graphs for each cluster ##
+  #############################
+  
+  # import data and create vectors for color and cluster
+  geneID2GO <- readMappings(file = paste0(input_path,parameters$geneID2GO_file))
+  geneNames <- names(geneID2GO)
+  
+  uniqClust=unique(GeneToClusters$`clusters(coexpr)`)
+  
+  GoCoul=c("palegreen", "skyblue", "lightsalmon", "thistle", "tan", "pink", "aquamarine", "violetred", "darkorange", "yellow", "mediumpurple", "wheat")
+  
+  # create file with matrix of DE genes and cluster for each gene
+  resDEG3=resDEG2[which(rowSums(resDEG2)>=parameters$coseq_ContrastsThreshold),]
+  # delete contrasts with no DE genes
+  resDEG3=resDEG3[,(apply(resDEG3,2,sum)!=0)]
+  rownames(GeneToClusters)=GeneToClusters$`Row.names`
+  ForContrast<-merge(resDEG3,GeneToClusters,by="row.names")
+  write.table(ForContrast,paste0(img_transfo_dir, parameters$analysis_name,"_GlobalMatrix_And_Cluster_",parameters$coseq_model,"_",parameters$coseq_transformation,".csv"),sep=";",dec=".",row.names = T,col.names = NA)
+  
+  FileForContrast=data.frame()
+  for (z in 2:(ncol(resDEG3)+1)){
+    tab <- data.frame(cluster=uniqClust)
+    tab$contrast <- colnames(ForContrast[z])
+    tab$TotalGenesInContrast <- sum(ForContrast[,z])
+    tab$GenesOfContrastInCluster <- 0
+    for (y in tab$cluster){
+      ligne=which(tab$cluster==y)
+      if (length(which((ForContrast$`clusters(coexpr)`==y) & (ForContrast[,z]=="1"))) >= 1) {
+        tab$GenesOfContrastInCluster[ligne] <- length(which((ForContrast$`clusters(coexpr)`==y) & (ForContrast[,z]=="1")))
+      }
+    }
+    tab$ObservedProportion <- paste0(round((tab$GenesOfContrastInCluster * 100 / tab$TotalGenesInContrast),1),"%")
+    tab$ExpectedProportion <- 0
+    tab$ChiTest <- ""
+    FileForContrast=rbind(FileForContrast,tab)
+  }
+  
+  for (clustered in uniqClust){
+    
+    img_CLUST_dir = paste0(img_transfo_dir,"Cluster_",clustered,"/")
+    if(dir.exists(img_CLUST_dir)==FALSE){ 
+      dir.create(img_CLUST_dir) 
+      cat("Directory: ",img_CLUST_dir," created\n")
+    }
+    
+    # Upset On each cluster
+    cols=ncol(resDEG3)+1
+    ForUpset = ForContrast[which(ForContrast$`clusters(coexpr)`==clustered),2:cols]
+    png(paste0(img_CLUST_dir,parameters$analysis_name,"_UpSet_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"), width=1600, height=1024, units = "px")
+    print(upset(data=ForUpset, sets=rev(colnames(ForUpset)), nsets=ncol(ForUpset), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 2))
+    grid.text(paste0("All differentially expressed genes (up+down) in cluster ",clustered), x=0.65, y=0.95, gp=gpar(fontsize=20))
+    dev.off()
+    
+    # Scaled expression of each condition in the cluster
+    if (nrow(GeneToClusters[GeneToClusters$`clusters(coexpr)`==clustered,])<=750) {alph=1} else {alph=0.2}
+    
+    ggplot(final[which(final$cluster==clustered),],aes(x=sample, y=expression))+theme_bw()+
+      geom_boxplot(alpha = 1, colour = "black",size=1)+ 
+      labs(title = paste0("Scaled Expression of Cluster ",clustered, "\n (",nrow(GeneToClusters[GeneToClusters$`clusters(coexpr)`==clustered,])," genes)"), x="", y="Scaled Expression") +
+      theme(legend.position = "none",
+            axis.text.x =element_text(size=10,angle=90),
+            axis.text.y=element_text(size=10),
+            axis.ticks = element_blank(),
+            plot.title = element_text(face="bold",size=15),
+            axis.title.x=element_text(size=12),
+            axis.title.y=element_text(size=12))+
+      geom_point(colour =GoCoul[clustered], alpha = alph, position = "jitter")
+    ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_ScaledExpression_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height=10)
+    
+    # Genes of each contrast in cluster and significance (Chi2) of enrichment of the cluster in each contrast
+    FileForContrast$ExpectedProportion[FileForContrast$cluster==clustered] = length(which(GeneToClusters[,2]==clustered)) / nrow(resDEG3)
+    proportion = length(which(GeneToClusters[,2]==clustered)) / nrow(resDEG3)
+    pr=1-proportion
+    
+    for (a in which(FileForContrast$cluster==clustered)){
+      b=FileForContrast$GenesOfContrastInCluster[a]
+      d=FileForContrast$TotalGenesInContrast[a] - FileForContrast$GenesOfContrastInCluster[a]
+      obs1=c(b,d)
+      obs2=FileForContrast$GenesOfContrastInCluster[a]/FileForContrast$TotalGenesInContrast[a]
+      proba=c(proportion,pr)
+      if (chisq.test(obs1,p=proba)$p.value<0.001 & obs2>=proportion) {
+        FileForContrast$ChiTest[a]<-"***"
+        FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
+      }
+      else if (chisq.test(obs1,p=proba)$p.value>=0.001 & chisq.test(obs1,p=proba)$p.value<0.01  & obs2>=proportion){
+        FileForContrast$ChiTest[a]<-"**"
+        FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
+      }
+      else if (chisq.test(obs1,p=proba)$p.value>=0.01 & chisq.test(obs1,p=proba)$p.value<0.05  & obs2>=proportion){
+        FileForContrast$ChiTest[a]<-"*"
+        FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
       }
     }
     
-    # Graph for one contrast
-    comp_names <- c( `MF` = "Molecular Function", `BP` = "Biological Process", `CC` = "Cellular Component")
-    coul <- c(`MF` = "green4", `BP` = "red", `CC` = "blue")
-    comp_names2 <- c(`MF` = "MF", `BP` = "BP", `CC` = "CC")
-    
-    TabSigCompl$Term = factor(TabSigCompl$Term, levels = unique(TabSigCompl$Term))
-    
-    ggplot(TabSigCompl, aes(x=Ratio, y=Term, size=Significant, color=GO_cat)) +
-      geom_point(alpha=1) + 
-      labs(title = paste0("GO Enrichment for contrast ",contrast), x="Ratio Significant / Expected", y="GOterm") +
-      scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
-      facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
-      scale_size_continuous(name="Number of genes") + theme_linedraw() +
+    ggplot(FileForContrast[FileForContrast$cluster==clustered,], aes(x=contrast, y=GenesOfContrastInCluster)) +
+      coord_flip()+
+      geom_col(fill=GoCoul[clustered])+
+      theme_classic()+
+      geom_text(aes(label=ObservedProportion), position=position_stack(0.5),color="black")+
+      scale_y_reverse()+
+      labs(title = paste0("DE Genes in contrasts for cluster ",clustered, "\n (",length(which(GeneToClusters[,2]==clustered))," genes in the cluster)"), x="Contrasts", y="Number of genes") +
+      scale_x_discrete(position = "top")+
       theme(
-        panel.background = element_rect(fill = "grey90", colour = "grey90", size = 0.5, linetype = "solid"),
-        panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
-        panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
-        axis.text.y = element_text(face="bold",size=9),
-        axis.text.x = element_text(face="bold",size=12), 
+        axis.text.y = element_text(face="bold",size=10),
+        axis.text.x = element_text(face="bold",size=10), 
+        axis.title.x=element_text(face="bold",size=12),
+        axis.title.y=element_blank(),
         legend.title = element_text(size=12,face="bold"),
+        plot.title = element_text(face="bold",size=15),
         legend.text = element_text(size=12),
-        strip.text.y = element_text(size=14, face="bold"))
-    ggsave(filename=paste0(img_go_dir,contrast,"_Ratio_BUBBLESgraph.png"), width = 480, height = 480)
+        panel.background = element_rect(colour = "black", size=0.5, fill=NA))
+    ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_GenesInContrasts_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height = 8)
     
-    ggplot(TabSigCompl, aes(x=as.numeric(dataALL_short$statisticTest), y=dataALL_short$Term, size=dataALL_short$Significant, color=dataALL_short$GO_cat)) +
-      geom_point(alpha=1) + labs(title = paste0("GO Enrichment for contrast ",contrast),x="Pvalue",y="GOterm")+
-      scale_color_manual(values=coul,labels=comp_names,name="GO categories")+
-      facet_grid(dataALL_short$GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2))+
-      scale_size_continuous(name="Number of genes") + theme_linedraw() +
-      theme(
-        panel.background = element_rect(fill = "grey90", colour = "grey90", size = 0.5, linetype = "solid"),
-        panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
-        panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
-        axis.text.y = element_text(face="bold",size=9),
-        axis.text.x = element_text(face="bold",size=12,angle=45,hjust=1),
-        legend.title = element_text(size=12,face="bold"),
-        legend.text = element_text(size=12),
-        strip.text.y = element_text(size=14, face="bold"))
-    ggsave(filename=paste0(img_go_dir,contrast,"_Pvalue_BUBBLESgraph.png"), width = 480, height = 480)
+    # GO enrichment in the cluster for MF, CC, and BP category
+    geneList <- factor(as.integer(geneNames %in% GeneToClusters[which(GeneToClusters$`clusters(coexpr)`==clustered),1]))
+    names(geneList) <- geneNames
+    
+    if(nrow(GeneToClusters[which(GeneToClusters$`clusters(coexpr)`==clustered),])==0){
+      cat("\n -> No DE genes found!\n")
+      next
+    }
+    
+    if(sum(levels(geneList)==1)==0){
+      cat("\n -> No DE genes with GO annotation!\n")
+      next
+    }
+    
+    listOnto <- c("MF","BP","CC")
+    for(ontology in listOnto){
+      GOdata <- new("topGOdata",
+                    nodeSize = parameters$GO_min_num_genes, 
+                    ontology = ontology,
+                    allGenes = geneList, 
+                    annot = annFUN.gene2GO, 
+                    gene2GO = geneID2GO)
+      
+      resultTest <- runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
+      resGenTab <- GenTable(GOdata, numChar = 100,statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(nodes(graph(GOdata))) )
+      resGenTab$Ratio = as.numeric(as.numeric(resGenTab$Significant)/as.numeric(resGenTab$Expected))
+      resGenTab$GO_cat <- ontology
+      
+      if(ontology == "MF"){ 
+        TabCompl<-resGenTab
+        resGenTab[resGenTab=="< 1e-30"]<-"1.0e-30"
+        
+        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,])!=0){
+          maxi<-parameters$GO_max_top_terms
+          TabSigCompl<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,]
+          if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
+          TabSigCompl<-TabSigCompl[1:maxi,]
+        }else{ 
+          cat("\n\n->Cluster ",clustered," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n") 
+        }
+      }else{ 
+        TabCompl=rbind(TabCompl,resGenTab) 
+        resGenTab[resGenTab=="< 1e-30"]<-"1.0e-30"
+        
+        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,])!=0){
+          maxi<-parameters$GO_max_top_terms
+          tempSig<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,]
+          if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
+          TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
+        }else{ 
+          cat("\n\n->Cluster ",clustered," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n") 
+        }
+      }
+      
+      if (ontology == "BP"){
+        goCat= "Biological Process"
+      }
+      if (ontology == "CC"){
+        goCat= "Cellular Component"
+      }
+      if (ontology == "MF"){
+        goCat= "Molecular Function"
+      }
+      
+      ## Bargraph in each GO cat separately (ratio, pval, and number of genes)
+      if(exists("TabSigCompl")==TRUE){ 
+        if(nrow(TabSigCompl)>1){
+          ggplot(TabSigCompl[TabSigCompl$GO_cat==ontology,], aes(x=stringr::str_wrap(Term, 55), y=Ratio,fill=-1*log10(as.numeric(statisticTest)))) +
+            coord_flip()+
+            geom_col()+
+            theme_classic()+
+            geom_text(aes(label=Significant), position=position_stack(0.5),color="white")+
+            scale_fill_gradient(name="log10pval",low=GoCoul[clustered],high=paste0(GoCoul[clustered],"4"))+
+            scale_y_reverse()+
+            labs(title = paste0("GO Enrichment in cluster ",clustered, " (", goCat, " category)", "\n (",length(which(geneList==1)), " annotated genes of ",length(which(GeneToClusters[,2]==clustered))," in the cluster)"), x="GOterm", y="Ratio Significant / Expected") +
+            scale_x_discrete(position = "top")+
+            theme(
+              axis.text.y = element_text(face="bold",size=10),
+              axis.text.x = element_text(face="bold",size=10), 
+              axis.title.x=element_text(face="bold",size=12),
+              axis.title.y=element_blank(),
+              legend.title = element_text(size=12,face="bold"),
+              plot.title = element_text(face="bold",size=15),
+              legend.text = element_text(size=12),
+              panel.background = element_rect(colour = "black", size=0.5, fill=NA))
+          ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_GOEnrichment_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,"_", ontology,".png"),width=10, height = 8)
+        }
+      }
+    }
+    TabCompl<-TabCompl[TabCompl$Significant > 0,]
+    write.table(TabCompl, file=paste0(img_CLUST_dir,parameters$analysis_name,"_GOEnrichmentTable_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered, ".txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
+    
+    ## Dotplot of all GO cat
+    if(exists("TabSigCompl")==TRUE){ 
+      if(nrow(TabSigCompl)>1){
+        comp_names <- c( `MF` = "Molecular Function", `BP` = "Biological Process", `CC` = "Cellular Component")
+        coul <- c(`MF` = "green4", `BP` = "red", `CC` = "blue")
+        comp_names2 <- c(`MF` = "MF", `BP` = "BP", `CC` = "CC")
+        
+        TabSigCompl$Term = factor(TabSigCompl$Term, levels = unique(TabSigCompl$Term))
+        minR=(min(TabSigCompl$Ratio)+max(TabSigCompl$Ratio))/4
+        minP=(min(as.numeric(TabSigCompl$statisticTest))+max(as.numeric(TabSigCompl$statisticTest)))/4
+        
+        # Ratio Graph
+        ggplot(TabSigCompl, aes(x=TabSigCompl$Ratio, y=TabSigCompl$Term, size=TabSigCompl$Significant, color=TabSigCompl$GO_cat)) +
+          geom_point(alpha=1) + 
+          labs(title = paste0("GO Enrichment for Cluster ",clustered, "\n (",length(which(geneList==1)), " annotated genes on ",length(which(GeneToClusters[,2]==clustered))," in the cluster)"), x="Ratio Significant / Expected", y="GOterm") +
+          scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
+          facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
+          scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expand_scale(add = minR)) + 
+          scale_y_discrete(labels = function(x) str_trunc(x, width = 70)) +
+          theme_linedraw() + theme(
+            panel.background = element_rect(fill = "grey93", colour = "grey93", size = 0.5, linetype = "solid"),
+            panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
+            panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
+            axis.text.y = element_text(face="bold",size=8),
+            axis.text.x = element_text(face="bold",size=10),
+            legend.title = element_text(size=9,face="bold"),
+            plot.title = element_text(face="bold",size=10),
+            legend.text = element_text(size=9),
+            strip.text.y = element_text(size=12, face="bold"))
+        ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_Ratio_BUBBLESgraph_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered, ".png"),width=10, height=10)
+      }
+    }else{
+      cat("\n\nToo few results to display the graph.\n\n")
+    }
   }
 }
+
+
 
