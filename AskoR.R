@@ -1418,11 +1418,11 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     colnames(annDE)<-colnames(data_list$annot)    
     SumMat<-cbind(sum,annDE)                      # merge the two matrix
     
-    write.table(SumMat, file=sumFile, col.names=T, row.names = T, quote=F, sep='\t')    
+    write.table(SumMat, file=sumFile, col.names=NA, row.names = T, quote=F, sep='\t')    
   }
   else
   {
-    write.table(sum, file=sumFile, col.names=T, row.names = T, quote=F, sep='\t')
+    write.table(sum, file=sumFile, col.names=NA, row.names = T, quote=F, sep='\t')
   }
   
   # reformate summary result table
@@ -1721,6 +1721,7 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 #' 
 #' @export
 VD <- function(resDEG, parameters, asko_list){
+  options(warn = -1)
   # check parameters
   if(is.null(parameters$VD)==TRUE){ return(NULL) }
   if(is.null(parameters$compaVD)==TRUE || parameters$compaVD==""){
@@ -2036,16 +2037,18 @@ GOenrichment<-function(resDEG, parameters){
   }
 }
 
+
 #' @title ClustAndGO
 #' 
 #' @description 
-#' Clusterize genes with same profile
+#' Clusterize genes with same profile, proceed to GO-enrichment on clusters, and classify DE genes for each contrast in each cluster
+#' Work in progress !!!
 #' \itemize{
-#'    \item Graph of clusters
+#'    \item Graph of clusters (heatmap and boxplot)
+#'    \item Graph of clusters (heatmap and boxplot)
 #' }
 #' 
 #' @param asko_norm, large DGEList with normalized counts by GEnorm function.
-#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return none
 #' 
@@ -2063,11 +2066,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
     dir.create(img_Clustering_dir) 
     cat("Directory: ",img_Clustering_dir," created\n")
   }
-  img_transfo_dir = paste0(img_Clustering_dir,parameters$coseq_model,"_",parameters$coseq_transformation,"/")
-  if(dir.exists(img_transfo_dir)==FALSE){ 
-    dir.create(img_transfo_dir) 
-    cat("Directory: ",img_transfo_dir," created\n")
-  }
+
   
   # for image size
   nsamples <- ncol(asko_norm$counts)  
@@ -2088,7 +2087,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
   print(nrow(object))
   
   conds=asko_norm$samples$condition
-  
+
   ###############
   ## run coseq ##
   ###############
@@ -2096,7 +2095,14 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
   coexpr=coseq(object, K=parameters$coseq_ClustersNb, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = parameters$coseq_normFactors)
   clust=as.data.frame(clusters(coexpr))
   GeneToClusters<-merge(clust,moys,by="row.names")
-  write.table(GeneToClusters,paste0(img_transfo_dir, parameters$analysis_name,"_GeneCPM_to_Cluster_",parameters$coseq_model,"_",parameters$coseq_transformation,".csv"),sep=";",dec=".",row.names = T,col.names = NA)
+  
+  img_transfo_dir = paste0(img_Clustering_dir,parameters$coseq_model,"_",parameters$coseq_transformation,"_",ncol(assay(coexpr)),"clusters/")
+  if(dir.exists(img_transfo_dir)==FALSE){ 
+    dir.create(img_transfo_dir) 
+    cat("Directory: ",img_transfo_dir," created\n")
+  }
+  
+  write.table(GeneToClusters,paste0(img_transfo_dir, parameters$analysis_name,"_GeneCPM_to_Cluster_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"),sep="\t",dec=".",row.names = TRUE,col.names = NA)
   cat("\nSummary of CoSeq\n")
   print(summary(coexpr))
   
@@ -2141,7 +2147,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
     scale_y_continuous(name="Scaled expression")+
     scale_fill_discrete(name="Experimental \nconditions") 
   if (length(unique(final$cluster)) > 3 & length(unique(final$cluster)) <= 6){
-  ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=8)
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=8)
   }
   else if (length(unique(final$cluster)) <= 3) {
     ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=4)
@@ -2164,7 +2170,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
   
   # boxplots of probabilities
   plot(coexpr, graphs="probapost_boxplots")
-  ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_BoxplotProbabilities_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"))
+  ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplot_Probabilities_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"))
   
   # Heatmap on ScaledCPM
   m=n+2
@@ -2189,10 +2195,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
       max =max2
     }
   }
-  
-  library(ComplexHeatmap)
-  library(circlize)
-  
+
   ht_list = Heatmap(t(mat_scaled),column_order=order(cluster), name = "Scaled CPM expression",column_split = cluster,
                     heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
                     col = colorRamp2(c(min, 0, max), c("steelblue", "white", "red")),
@@ -2203,7 +2206,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
   png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
   draw(ht_list, heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
   dev.off()
-  
+
   detach("package:coseq")
   
   #############################
@@ -2222,9 +2225,10 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
   resDEG3=resDEG2[which(rowSums(resDEG2)>=parameters$coseq_ContrastsThreshold),]
   # delete contrasts with no DE genes
   resDEG3=resDEG3[,(apply(resDEG3,2,sum)!=0)]
+
   rownames(GeneToClusters)=GeneToClusters$`Row.names`
   ForContrast<-merge(resDEG3,GeneToClusters,by="row.names")
-  write.table(ForContrast,paste0(img_transfo_dir, parameters$analysis_name,"_GlobalMatrix_And_Cluster_",parameters$coseq_model,"_",parameters$coseq_transformation,".csv"),sep=";",dec=".",row.names = T,col.names = NA)
+  write.table(ForContrast,paste0(img_transfo_dir, parameters$analysis_name,"_GlobalMatrix_And_Cluster_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"), sep="\t",dec=".",row.names = TRUE,col.names = NA)
   
   FileForContrast=data.frame()
   for (z in 2:(ncol(resDEG3)+1)){
@@ -2235,7 +2239,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
     for (y in tab$cluster){
       ligne=which(tab$cluster==y)
       if (length(which((ForContrast$`clusters(coexpr)`==y) & (ForContrast[,z]=="1"))) >= 1) {
-        tab$GenesOfContrastInCluster[ligne] <- length(which((ForContrast$`clusters(coexpr)`==y) & (ForContrast[,z]=="1")))
+      tab$GenesOfContrastInCluster[ligne] <- length(which((ForContrast$`clusters(coexpr)`==y) & (ForContrast[,z]=="1")))
       }
     }
     tab$ObservedProportion <- paste0(round((tab$GenesOfContrastInCluster * 100 / tab$TotalGenesInContrast),1),"%")
@@ -2243,6 +2247,8 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
     tab$ChiTest <- ""
     FileForContrast=rbind(FileForContrast,tab)
   }
+  
+  #print(FileForContrast)
   
   for (clustered in uniqClust){
     
@@ -2255,6 +2261,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
     # Upset On each cluster
     cols=ncol(resDEG3)+1
     ForUpset = ForContrast[which(ForContrast$`clusters(coexpr)`==clustered),2:cols]
+    ForUpset = ForUpset[,(apply(ForUpset,2,sum)!=0)]
     png(paste0(img_CLUST_dir,parameters$analysis_name,"_UpSet_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"), width=1600, height=1024, units = "px")
     print(upset(data=ForUpset, sets=rev(colnames(ForUpset)), nsets=ncol(ForUpset), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = 2))
     grid.text(paste0("All differentially expressed genes (up+down) in cluster ",clustered), x=0.65, y=0.95, gp=gpar(fontsize=20))
@@ -2446,8 +2453,9 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
     }else{
       cat("\n\nToo few results to display the graph.\n\n")
     }
+    
   }
+  
 }
-
 
 
