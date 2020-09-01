@@ -24,8 +24,15 @@ You'll find a test set in the **inst/extdata/input** folder. It'll be used for t
 
 ### Download
 
-In progress ... 
-You can use the AskoR.R file in ScriptR instead and "run file" in the same directory.
+Download the latest development code of AskoR from GitHub using [devtools](https://cran.r-project.org/package=devtools) with
+```
+install.packages("devtools")
+library(devtools)
+devtools::install_github("asusete/askoR")
+```
+For Windows users only, install [Rtools](https://cran.r-project.org/bin/windows/Rtools/) or check that it is already installed (needed to build the package).
+ 
+If you don't want install it: You can use the AskoR.R file in ScriptR instead and "run file" in the same directory. 
 
 ### License
 
