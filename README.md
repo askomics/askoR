@@ -23,12 +23,10 @@ You'll find a test set in the **inst/extdata/input** folder. It'll be used for t
 * [Parameters Table]()
 
 ### Download
-Download the latest development code of AskoR from GitHub using [devtools](https://cran.r-project.org/package=devtools) with
-```
-install.packages("devtools")
-library(devtools)
-devtools::install_github("asusete/askoR")
-```
+
+In progress ... 
+You can use the AskoR.R file in ScriptR instead and "run file" in the same directory.
+
 ### License
 
 The coseq package is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License, version 3, as published by the Free Software Foundation.
