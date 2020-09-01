@@ -1,0 +1,1484 @@
+GO.ID	Term	Annotated	Significant	Expected	statisticTest	Ratio	GO_cat
+GO:0004812	aminoacyl-tRNA ligase activity	51	27	13.18	3.1e-05	2.04855842185129	MF
+GO:0005524	ATP binding	866	268	223.82	0.00018	1.19739076043249	MF
+GO:0004386	helicase activity	57	22	14.73	0.00390	1.49355057705363	MF
+GO:0000049	tRNA binding	17	10	4.39	0.00399	2.27790432801822	MF
+GO:0022857	transmembrane transporter activity	290	80	74.95	0.01127	1.06737825216811	MF
+GO:0008173	RNA methyltransferase activity	22	11	5.69	0.01279	1.93321616871705	MF
+GO:0016757	transferase activity, transferring glycosyl groups	145	51	37.48	0.01672	1.3607257203842	MF
+GO:0051082	unfolded protein binding	32	14	8.27	0.02089	1.69286577992745	MF
+GO:0016810	hydrolase activity, acting on carbon-nitrogen (but not peptide) bonds	64	21	16.54	0.03496	1.26964933494559	MF
+GO:0008289	lipid binding	36	15	9.3	0.03968	1.61290322580645	MF
+GO:0005543	phospholipid binding	25	9	6.46	0.04216	1.39318885448916	MF
+GO:0008061	chitin binding	44	17	11.37	0.04217	1.49516270888303	MF
+GO:0015291	secondary active transmembrane transporter activity	14	7	3.62	0.04514	1.93370165745856	MF
+GO:0005085	guanyl-nucleotide exchange factor activity	52	16	13.44	0.05023	1.19047619047619	MF
+GO:0038023	signaling receptor activity	76	21	19.64	0.05567	1.06924643584521	MF
+GO:0015077	monovalent inorganic cation transmembrane transporter activity	78	21	20.16	0.05572	1.04166666666667	MF
+GO:0008757	S-adenosylmethionine-dependent methyltransferase activity	48	16	12.41	0.06119	1.28928283642224	MF
+GO:0004527	exonuclease activity	49	13	12.66	0.06320	1.02685624012638	MF
+GO:0003723	RNA binding	333	104	86.07	0.06433	1.20831881027071	MF
+GO:0008483	transaminase activity	15	7	3.88	0.06625	1.80412371134021	MF
+GO:0016829	lyase activity	111	32	28.69	0.06654	1.11537120948066	MF
+GO:0003743	translation initiation factor activity	44	16	11.37	0.08019	1.40721196130167	MF
+GO:0000287	magnesium ion binding	44	16	11.37	0.08019	1.40721196130167	MF
+GO:0004553	hydrolase activity, hydrolyzing O-glycosyl compounds	86	28	22.23	0.08280	1.259559154296	MF
+GO:0008375	acetylglucosaminyltransferase activity	25	10	6.46	0.08600	1.54798761609907	MF
+GO:0008374	O-acyltransferase activity	10	5	2.58	0.08824	1.93798449612403	MF
+GO:0015932	nucleobase-containing compound transmembrane transporter activity	10	5	2.58	0.08824	1.93798449612403	MF
+GO:1901505	carbohydrate derivative transmembrane transporter activity	10	5	2.58	0.08824	1.93798449612403	MF
+GO:0022853	active ion transmembrane transporter activity	36	11	9.3	0.08837	1.18279569892473	MF
+GO:0043021	ribonucleoprotein complex binding	13	6	3.36	0.09187	1.78571428571429	MF
+GO:0002161	aminoacyl-tRNA editing activity	16	7	4.14	0.09235	1.69082125603865	MF
+GO:0140101	catalytic activity, acting on a tRNA	88	40	22.74	0.09392	1.75901495162709	MF
+GO:0008144	drug binding	951	301	245.79	0.11361	1.22462264534765	MF
+GO:0036094	small molecule binding	1327	387	342.97	0.11485	1.1283785753856	MF
+GO:0008170	N-methyltransferase activity	23	7	5.94	0.12591	1.17845117845118	MF
+GO:0004725	protein tyrosine phosphatase activity	30	11	7.75	0.12699	1.41935483870968	MF
+GO:0097159	organic cyclic compound binding	2363	614	610.73	0.12797	1.00535424819478	MF
+GO:1901363	heterocyclic compound binding	2363	614	610.73	0.12797	1.00535424819478	MF
+GO:0003993	acid phosphatase activity	11	5	2.84	0.12848	1.76056338028169	MF
+GO:0003755	peptidyl-prolyl cis-trans isomerase activity	24	9	6.2	0.14223	1.45161290322581	MF
+GO:0005515	protein binding	1937	511	500.63	0.15256	1.02071390048539	MF
+GO:0032549	ribonucleoside binding	169	47	43.68	0.16547	1.07600732600733	MF
+GO:0016701	oxidoreductase activity, acting on single donors with incorporation of molecular oxygen	16	7	4.14	0.16555	1.69082125603865	MF
+GO:0016893	endonuclease activity, active with either ribo- or deoxyribonucleic acids and producing 5'-phosphomonoesters	16	6	4.14	0.16572	1.44927536231884	MF
+GO:0019207	kinase regulator activity	16	5	4.14	0.16589	1.20772946859903	MF
+GO:0005267	potassium channel activity	22	6	5.69	0.16598	1.05448154657293	MF
+GO:0031418	L-ascorbic acid binding	15	6	3.88	0.16737	1.54639175257732	MF
+GO:0043169	cation binding	1260	312	325.65	0.16888	0.958083832335329	MF
+GO:0003995	acyl-CoA dehydrogenase activity	12	5	3.1	0.17540	1.61290322580645	MF
+GO:0030170	pyridoxal phosphate binding	32	11	8.27	0.18166	1.33010882708585	MF
+GO:0022836	gated channel activity	40	10	10.34	0.18232	0.967117988394584	MF
+GO:0000155	phosphorelay sensor kinase activity	22	8	5.69	0.18562	1.40597539543058	MF
+GO:0004190	aspartic-type endopeptidase activity	29	10	7.5	0.19438	1.33333333333333	MF
+GO:0050662	coenzyme binding	158	47	40.84	0.19665	1.15083251714006	MF
+GO:0016758	transferase activity, transferring hexosyl groups	68	24	17.57	0.19751	1.36596471257826	MF
+GO:0016614	oxidoreductase activity, acting on CH-OH group of donors	58	16	14.99	0.19888	1.06737825216811	MF
+GO:0016627	oxidoreductase activity, acting on the CH-CH group of donors	38	14	9.82	0.20742	1.42566191446029	MF
+GO:0004180	carboxypeptidase activity	16	6	4.14	0.21238	1.44927536231884	MF
+GO:0016702	oxidoreductase activity, acting on single donors with incorporation of molecular oxygen, incorporation of two atoms of oxygen	13	5	3.36	0.22761	1.48809523809524	MF
+GO:0050660	flavin adenine dinucleotide binding	58	18	14.99	0.24281	1.20080053368913	MF
+GO:0003774	motor activity	78	21	20.16	0.24428	1.04166666666667	MF
+GO:0003700	DNA-binding transcription factor activity	63	20	16.28	0.24441	1.22850122850123	MF
+GO:0030554	adenyl nucleotide binding	878	270	226.92	0.25138	1.18984664198837	MF
+GO:0051020	GTPase binding	74	22	19.13	0.25814	1.15002613695766	MF
+GO:0019783	ubiquitin-like protein-specific protease activity	50	15	12.92	0.25826	1.1609907120743	MF
+GO:0016410	N-acyltransferase activity	39	10	10.08	0.25858	0.992063492063492	MF
+GO:0015267	channel activity	73	16	18.87	0.25899	0.847906730259671	MF
+GO:0008194	UDP-glycosyltransferase activity	32	13	8.27	0.26017	1.57194679564692	MF
+GO:0015171	amino acid transmembrane transporter activity	17	6	4.39	0.26095	1.36674259681093	MF
+GO:0046872	metal ion binding	1257	310	324.88	0.26291	0.954198473282443	MF
+GO:0008514	organic anion transmembrane transporter activity	23	9	5.94	0.27551	1.51515151515152	MF
+GO:0016877	ligase activity, forming carbon-sulfur bonds	15	6	3.88	0.27575	1.54639175257732	MF
+GO:0060589	nucleoside-triphosphatase regulator activity	62	17	16.02	0.27603	1.06117353308365	MF
+GO:0008234	cysteine-type peptidase activity	85	26	21.97	0.27841	1.18343195266272	MF
+GO:0015095	magnesium ion transmembrane transporter activity	14	5	3.62	0.28355	1.38121546961326	MF
+GO:0008168	methyltransferase activity	149	44	38.51	0.30798	1.14256037392885	MF
+GO:0004540	ribonuclease activity	32	11	8.27	0.30949	1.33010882708585	MF
+GO:1901681	sulfur compound binding	11	4	2.84	0.31013	1.40845070422535	MF
+GO:0016881	acid-amino acid ligase activity	11	4	2.84	0.31013	1.40845070422535	MF
+GO:0008641	ubiquitin-like modifier activating enzyme activity	11	4	2.84	0.31013	1.40845070422535	MF
+GO:0046912	transferase activity, transferring acyl groups, acyl groups converted into alkyl on transfer	11	4	2.84	0.31013	1.40845070422535	MF
+GO:0008237	metallopeptidase activity	53	12	13.7	0.31131	0.875912408759124	MF
+GO:0000981	DNA-binding transcription factor activity, RNA polymerase II-specific	36	11	9.3	0.31567	1.18279569892473	MF
+GO:0019205	nucleobase-containing compound kinase activity	22	7	5.69	0.33391	1.23022847100176	MF
+GO:0004521	endoribonuclease activity	21	7	5.43	0.34236	1.28913443830571	MF
+GO:0003690	double-stranded DNA binding	19	5	4.91	0.34291	1.0183299389002	MF
+GO:0004674	protein serine/threonine kinase activity	115	32	29.72	0.34608	1.07671601615074	MF
+GO:0043168	anion binding	1199	362	309.89	0.35466	1.16815644260867	MF
+GO:0016796	exonuclease activity, active with either ribo- or deoxyribonucleic acids and producing 5'-phosphomonoesters	12	4	3.1	0.37750	1.29032258064516	MF
+GO:0003899	DNA-directed 5'-3' RNA polymerase activity	34	10	8.79	0.37892	1.13765642775882	MF
+GO:0036459	thiol-dependent ubiquitinyl hydrolase activity	49	14	12.66	0.38185	1.10584518167457	MF
+GO:0016831	carboxy-lyase activity	23	7	5.94	0.38203	1.17845117845118	MF
+GO:0019843	rRNA binding	23	7	5.94	0.38203	1.17845117845118	MF
+GO:0005525	GTP binding	166	45	42.9	0.38246	1.04895104895105	MF
+GO:0004857	enzyme inhibitor activity	16	5	4.14	0.40039	1.20772946859903	MF
+GO:0016836	hydro-lyase activity	31	9	8.01	0.40828	1.12359550561798	MF
+GO:0140098	catalytic activity, acting on RNA	169	67	43.68	0.41355	1.53388278388278	MF
+GO:0016776	phosphotransferase activity, phosphate group as acceptor	20	6	5.17	0.41717	1.1605415860735	MF
+GO:0005096	GTPase activator activity	54	15	13.96	0.42328	1.07449856733524	MF
+GO:0004965	G protein-coupled GABA receptor activity	58	16	14.99	0.42986	1.06737825216811	MF
+GO:0005488	binding	4879	1282	1261	0.43760	1.01665344964314	MF
+GO:0043167	ion binding	2324	629	600.65	0.44101	1.04719886789312	MF
+GO:0016620	oxidoreductase activity, acting on the aldehyde or oxo group of donors, NAD or NADP as acceptor	13	4	3.36	0.44412	1.19047619047619	MF
+GO:0061134	peptidase regulator activity	13	4	3.36	0.44412	1.19047619047619	MF
+GO:0016891	endoribonuclease activity, producing 5'-phosphomonoesters	13	4	3.36	0.44412	1.19047619047619	MF
+GO:0008236	serine-type peptidase activity	70	17	18.09	0.44497	0.939745715865119	MF
+GO:0003924	GTPase activity	112	30	28.95	0.44550	1.03626943005181	MF
+GO:0016817	hydrolase activity, acting on acid anhydrides	384	103	99.25	0.44939	1.03778337531486	MF
+GO:0046943	carboxylic acid transmembrane transporter activity	19	7	4.91	0.44979	1.42566191446029	MF
+GO:0030594	neurotransmitter receptor activity	60	17	15.51	0.44992	1.09606705351386	MF
+GO:0061733	peptide-lysine-N-acetyltransferase activity	12	4	3.1	0.45005	1.29032258064516	MF
+GO:0042054	histone methyltransferase activity	15	4	3.88	0.45022	1.03092783505155	MF
+GO:0008238	exopeptidase activity	37	9	9.56	0.45037	0.941422594142259	MF
+GO:0005215	transporter activity	349	96	90.2	0.45531	1.06430155210643	MF
+GO:0071949	FAD binding	17	5	4.39	0.45849	1.13895216400911	MF
+GO:0016746	transferase activity, transferring acyl groups	135	37	34.89	0.46838	1.06047578102608	MF
+GO:0016903	oxidoreductase activity, acting on the aldehyde or oxo group of donors	19	6	4.91	0.48584	1.22199592668024	MF
+GO:0015036	disulfide oxidoreductase activity	27	7	6.98	0.48621	1.00286532951289	MF
+GO:0019787	ubiquitin-like protein transferase activity	121	22	31.27	0.48944	0.703549728173969	MF
+GO:0016491	oxidoreductase activity	434	113	112.17	0.49685	1.0073994829277	MF
+GO:0019842	vitamin binding	57	20	14.73	0.49760	1.35777325186694	MF
+GO:0051213	dioxygenase activity	23	8	5.94	0.49900	1.34680134680135	MF
+GO:0016684	oxidoreductase activity, acting on peroxide as acceptor	10	3	2.58	0.49972	1.16279069767442	MF
+GO:0003697	single-stranded DNA binding	10	3	2.58	0.49972	1.16279069767442	MF
+GO:0070008	serine-type exopeptidase activity	10	3	2.58	0.49972	1.16279069767442	MF
+GO:0004402	histone acetyltransferase activity	10	3	2.58	0.49972	1.16279069767442	MF
+GO:0004536	deoxyribonuclease activity	14	4	3.62	0.50835	1.10497237569061	MF
+GO:0008536	Ran GTPase binding	14	4	3.62	0.50835	1.10497237569061	MF
+GO:0005509	calcium ion binding	150	39	38.77	0.51436	1.00593242197575	MF
+GO:0016298	lipase activity	22	6	5.69	0.52013	1.05448154657293	MF
+GO:0004843	thiol-dependent ubiquitin-specific protease activity	26	7	6.72	0.52467	1.04166666666667	MF
+GO:0016747	transferase activity, transferring acyl groups other than amino-acyl groups	103	27	26.62	0.53216	1.01427498121713	MF
+GO:0004672	protein kinase activity	306	82	79.09	0.55248	1.03679352636237	MF
+GO:0008017	microtubule binding	66	17	17.06	0.55386	0.996483001172333	MF
+GO:0004519	endonuclease activity	51	16	13.18	0.56767	1.21396054628225	MF
+GO:0016879	ligase activity, forming carbon-nitrogen bonds	34	10	8.79	0.56814	1.13765642775882	MF
+GO:0035091	phosphatidylinositol binding	19	5	4.91	0.56856	1.0183299389002	MF
+GO:0009982	pseudouridine synthase activity	15	4	3.88	0.56897	1.03092783505155	MF
+GO:0015662	ion transmembrane transporter activity, phosphorylative mechanism	15	4	3.88	0.56897	1.03092783505155	MF
+GO:0004568	chitinase activity	15	4	3.88	0.56897	1.03092783505155	MF
+GO:0016765	transferase activity, transferring alkyl or aryl (other than methyl) groups	30	7	7.75	0.56905	0.903225806451613	MF
+GO:0016853	isomerase activity	80	22	20.68	0.56957	1.06382978723404	MF
+GO:0008324	cation transmembrane transporter activity	145	37	37.48	0.57109	0.987193169690502	MF
+GO:0016667	oxidoreductase activity, acting on a sulfur group of donors	34	9	8.79	0.57597	1.02389078498294	MF
+GO:0008276	protein methyltransferase activity	24	6	6.2	0.57612	0.967741935483871	MF
+GO:0097367	carbohydrate derivative binding	1105	333	285.59	0.57864	1.16600721313772	MF
+GO:0098772	molecular function regulator	173	46	44.71	0.59203	1.02885260568106	MF
+GO:0015075	ion transmembrane transporter activity	205	52	52.98	0.59260	0.981502453756134	MF
+GO:0005244	voltage-gated ion channel activity	31	6	8.01	0.59283	0.749063670411985	MF
+GO:0070011	peptidase activity, acting on L-amino acid peptides	261	65	67.46	0.59297	0.963533946042099	MF
+GO:0016705	oxidoreductase activity, acting on paired donors, with incorporation or reduction of molecular oxygen	44	11	11.37	0.60840	0.967458223394899	MF
+GO:0003777	microtubule motor activity	68	17	17.57	0.60972	0.967558338076266	MF
+GO:0043565	sequence-specific DNA binding	39	9	10.08	0.61299	0.892857142857143	MF
+GO:0042802	identical protein binding	20	5	5.17	0.61902	0.967117988394584	MF
+GO:0016791	phosphatase activity	107	26	27.65	0.61988	0.940325497287523	MF
+GO:0005198	structural molecule activity	167	25	43.16	0.62378	0.579240037071362	MF
+GO:0031625	ubiquitin protein ligase binding	16	4	4.14	0.62517	0.966183574879227	MF
+GO:0003746	translation elongation factor activity	12	3	3.1	0.63524	0.967741935483871	MF
+GO:0004114	3',5'-cyclic-nucleotide phosphodiesterase activity	12	3	3.1	0.63524	0.967741935483871	MF
+GO:0090482	vitamin transmembrane transporter activity	12	3	3.1	0.63524	0.967741935483871	MF
+GO:0016788	hydrolase activity, acting on ester bonds	342	87	88.39	0.64385	0.984274239167327	MF
+GO:0016887	ATPase activity	191	54	49.36	0.65071	1.09400324149109	MF
+GO:0016779	nucleotidyltransferase activity	95	24	24.55	0.65288	0.977596741344195	MF
+GO:0052689	carboxylic ester hydrolase activity	41	13	10.6	0.65656	1.22641509433962	MF
+GO:0005089	Rho guanyl-nucleotide exchange factor activity	25	6	6.46	0.65831	0.928792569659443	MF
+GO:0046873	metal ion transmembrane transporter activity	76	19	19.64	0.65843	0.967413441955193	MF
+GO:0015035	protein disulfide oxidoreductase activity	21	5	5.43	0.66580	0.920810313075507	MF
+GO:0005506	iron ion binding	54	13	13.96	0.66782	0.931232091690544	MF
+GO:0004518	nuclease activity	115	30	29.72	0.67612	1.00942126514132	MF
+GO:0009678	pyrophosphate hydrolysis-driven proton transmembrane transporter activity	17	4	4.39	0.67645	0.911161731207289	MF
+GO:0003964	RNA-directed DNA polymerase activity	13	3	3.36	0.69258	0.892857142857143	MF
+GO:0033218	amide binding	13	3	3.36	0.69258	0.892857142857143	MF
+GO:0019887	protein kinase regulator activity	13	3	3.36	0.69258	0.892857142857143	MF
+GO:0018024	histone-lysine N-methyltransferase activity	13	3	3.36	0.69258	0.892857142857143	MF
+GO:0034212	peptide N-acetyltransferase activity	16	5	4.14	0.69750	1.20772946859903	MF
+GO:0004888	transmembrane signaling receptor activity	72	18	18.61	0.69785	0.967221923696937	MF
+GO:0019208	phosphatase regulator activity	14	3	3.62	0.69785	0.828729281767956	MF
+GO:0030674	protein-macromolecule adaptor activity	16	3	4.14	0.69798	0.72463768115942	MF
+GO:0042578	phosphoric ester hydrolase activity	143	34	36.96	0.69843	0.91991341991342	MF
+GO:0008092	cytoskeletal protein binding	118	26	30.5	0.69879	0.852459016393443	MF
+GO:0020037	heme binding	47	11	12.15	0.70231	0.905349794238683	MF
+GO:0016787	hydrolase activity	1333	346	344.52	0.70324	1.00429583188204	MF
+GO:0016740	transferase activity	1231	325	318.16	0.70371	1.02149861704803	MF
+GO:0004497	monooxygenase activity	22	5	5.69	0.70864	0.878734622144112	MF
+GO:0016209	antioxidant activity	22	5	5.69	0.70864	0.878734622144112	MF
+GO:0016616	oxidoreductase activity, acting on the CH-OH group of donors, NAD or NADP as acceptor	39	9	10.08	0.71177	0.892857142857143	MF
+GO:0015078	proton transmembrane transporter activity	52	12	13.44	0.71827	0.892857142857143	MF
+GO:0016830	carbon-carbon lyase activity	32	9	8.27	0.71934	1.08827085852479	MF
+GO:0046914	transition metal ion binding	628	134	162.31	0.72988	0.825580678947693	MF
+GO:0042626	ATPase-coupled transmembrane transporter activity	63	14	16.28	0.74231	0.85995085995086	MF
+GO:0030246	carbohydrate binding	73	19	18.87	0.74526	1.00688924218336	MF
+GO:0019829	ATPase-coupled cation transmembrane transporter activity	23	5	5.94	0.74747	0.841750841750842	MF
+GO:0031683	G-protein beta/gamma-subunit complex binding	32	7	8.27	0.75785	0.846432889963724	MF
+GO:0003682	chromatin binding	19	4	4.91	0.76371	0.814663951120163	MF
+GO:0003887	DNA-directed DNA polymerase activity	19	4	4.91	0.76371	0.814663951120163	MF
+GO:0005249	voltage-gated potassium channel activity	19	4	4.91	0.76371	0.814663951120163	MF
+GO:0008081	phosphoric diester hydrolase activity	32	7	8.27	0.76387	0.846432889963724	MF
+GO:0140097	catalytic activity, acting on DNA	74	15	19.13	0.76514	0.784108729743858	MF
+GO:0016886	ligase activity, forming phosphoric ester bonds	10	2	2.58	0.77469	0.775193798449612	MF
+GO:0019888	protein phosphatase regulator activity	10	2	2.58	0.77469	0.775193798449612	MF
+GO:0051537	2 iron, 2 sulfur cluster binding	10	2	2.58	0.77469	0.775193798449612	MF
+GO:0008135	translation factor activity, RNA binding	60	19	15.51	0.77505	1.22501611863314	MF
+GO:0008509	anion transmembrane transporter activity	28	10	7.24	0.77521	1.38121546961326	MF
+GO:0051536	iron-sulfur cluster binding	37	7	9.56	0.77531	0.732217573221757	MF
+GO:0016835	carbon-oxygen lyase activity	36	10	9.3	0.77567	1.0752688172043	MF
+GO:0005261	cation channel activity	40	10	10.34	0.77590	0.967117988394584	MF
+GO:0017016	Ras GTPase binding	50	11	12.92	0.77625	0.851393188854489	MF
+GO:0015318	inorganic molecular entity transmembrane transporter activity	190	47	49.11	0.77630	0.957035227041336	MF
+GO:0046982	protein heterodimerization activity	37	8	9.56	0.77753	0.836820083682008	MF
+GO:0016811	hydrolase activity, acting on carbon-nitrogen (but not peptide) bonds, in linear amides	24	5	6.2	0.78231	0.806451612903226	MF
+GO:0008235	metalloexopeptidase activity	15	3	3.88	0.78629	0.77319587628866	MF
+GO:0016763	transferase activity, transferring pentosyl groups	15	3	3.88	0.78629	0.77319587628866	MF
+GO:0019706	protein-cysteine S-palmitoyltransferase activity	15	3	3.88	0.78629	0.77319587628866	MF
+GO:0048037	cofactor binding	247	66	63.84	0.81913	1.03383458646617	MF
+GO:1990837	sequence-specific double-stranded DNA binding	11	2	2.84	0.82000	0.704225352112676	MF
+GO:0004364	glutathione transferase activity	11	2	2.84	0.82000	0.704225352112676	MF
+GO:0003824	catalytic activity	3313	875	856.26	0.82212	1.02188587578539	MF
+GO:0016301	kinase activity	444	115	114.75	0.82688	1.00217864923747	MF
+GO:0051287	NAD binding	21	4	5.43	0.83144	0.736648250460405	MF
+GO:0016741	transferase activity, transferring one-carbon groups	155	45	40.06	0.83275	1.12331502745881	MF
+GO:0008408	3'-5' exonuclease activity	31	6	8.01	0.85009	0.749063670411985	MF
+GO:0004252	serine-type endopeptidase activity	49	10	12.66	0.85068	0.789889415481833	MF
+GO:0016782	transferase activity, transferring sulfur-containing groups	12	2	3.1	0.85695	0.645161290322581	MF
+GO:0005262	calcium channel activity	12	2	3.1	0.85695	0.645161290322581	MF
+GO:0005484	SNAP receptor activity	12	2	3.1	0.85695	0.645161290322581	MF
+GO:0008094	DNA-dependent ATPase activity	22	3	5.69	0.85735	0.527240773286467	MF
+GO:0008080	N-acetyltransferase activity	38	9	9.82	0.85843	0.916496945010183	MF
+GO:0004222	metalloendopeptidase activity	27	5	6.98	0.86464	0.716332378223496	MF
+GO:0140096	catalytic activity, acting on a protein	881	209	227.7	0.86729	0.917874396135266	MF
+GO:0051539	4 iron, 4 sulfur cluster binding	18	3	4.65	0.88144	0.645161290322581	MF
+GO:0004175	endopeptidase activity	127	28	32.82	0.88304	0.853138330286411	MF
+GO:0008047	enzyme activator activity	67	17	17.32	0.88661	0.981524249422633	MF
+GO:0008134	transcription factor binding	13	2	3.36	0.88684	0.595238095238095	MF
+GO:0003779	actin binding	43	8	11.11	0.90045	0.72007200720072	MF
+GO:0016849	phosphorus-oxygen lyase activity	19	3	4.91	0.90352	0.610997963340122	MF
+GO:0031406	carboxylic acid binding	23	7	5.94	0.90839	1.17845117845118	MF
+GO:0016772	transferase activity, transferring phosphorus-containing groups	564	143	145.77	0.90897	0.980997461754819	MF
+GO:0016874	ligase activity	151	50	39.03	0.90899	1.28106584678452	MF
+GO:0015631	tubulin binding	80	19	20.68	0.91085	0.918762088974855	MF
+GO:0000166	nucleotide binding	1254	360	324.1	0.91587	1.11076828139463	MF
+GO:0005507	copper ion binding	20	3	5.17	0.92181	0.58027079303675	MF
+GO:0046983	protein dimerization activity	87	17	22.49	0.92954	0.755891507336594	MF
+GO:0019899	enzyme binding	105	28	27.14	0.92955	1.03168754605748	MF
+GO:0016818	hydrolase activity, acting on acid anhydrides, in phosphorus-containing anhydrides	382	102	98.73	0.93175	1.03312063202674	MF
+GO:0004842	ubiquitin-protein transferase activity	115	20	29.72	0.93178	0.672947510094213	MF
+GO:0022843	voltage-gated cation channel activity	28	5	7.24	0.93243	0.69060773480663	MF
+GO:0016773	phosphotransferase activity, alcohol group as acceptor	352	90	90.98	0.93557	0.98922840184656	MF
+GO:0003676	nucleic acid binding	1281	313	331.08	0.93719	0.945390842092546	MF
+GO:0005216	ion channel activity	72	15	18.61	0.94366	0.806018269747448	MF
+GO:0008138	protein tyrosine/serine/threonine phosphatase activity	16	2	4.14	0.94522	0.483091787439614	MF
+GO:0008233	peptidase activity	288	69	74.43	0.94568	0.927045546150746	MF
+GO:0004722	protein serine/threonine phosphatase activity	22	3	5.69	0.94921	0.527240773286467	MF
+GO:0004930	G protein-coupled receptor activity	68	17	17.57	0.94974	0.967558338076266	MF
+GO:0016866	intramolecular transferase activity	25	5	6.46	0.94983	0.773993808049536	MF
+GO:0050661	NADP binding	10	1	2.58	0.94984	0.387596899224806	MF
+GO:0003684	damaged DNA binding	10	1	2.58	0.94984	0.387596899224806	MF
+GO:0003678	DNA helicase activity	10	1	2.58	0.94984	0.387596899224806	MF
+GO:0042393	histone binding	10	1	2.58	0.94984	0.387596899224806	MF
+GO:0004721	phosphoprotein phosphatase activity	76	16	19.64	0.95740	0.814663951120163	MF
+GO:0032559	adenyl ribonucleotide binding	877	269	226.66	0.95856	1.18679961175329	MF
+GO:0016780	phosphotransferase activity, for other substituted phosphate groups	11	1	2.84	0.96282	0.352112676056338	MF
+GO:0004177	aminopeptidase activity	18	2	4.65	0.96673	0.43010752688172	MF
+GO:0044877	protein-containing complex binding	71	16	18.35	0.97924	0.871934604904632	MF
+GO:0003729	mRNA binding	13	1	3.36	0.97958	0.297619047619048	MF
+GO:0009055	electron transfer activity	43	6	11.11	0.98095	0.54005400540054	MF
+GO:0016462	pyrophosphatase activity	373	101	96.4	0.98455	1.04771784232365	MF
+GO:0010181	FMN binding	14	1	3.62	0.98487	0.276243093922652	MF
+GO:0003712	transcription coregulator activity	14	1	3.62	0.98487	0.276243093922652	MF
+GO:0061630	ubiquitin protein ligase activity	24	2	6.2	0.99291	0.32258064516129	MF
+GO:0008270	zinc ion binding	548	118	141.63	0.99367	0.833156817058533	MF
+GO:0016651	oxidoreductase activity, acting on NAD(P)H	35	3	9.05	0.99761	0.331491712707182	MF
+GO:0003677	DNA binding	384	76	99.25	0.99843	0.765743073047859	MF
+GO:0003735	structural constituent of ribosome	135	17	34.89	0.99996	0.487245629120092	MF
+GO:0046906	tetrapyrrole binding	48	11	12.41	1.00000	0.88638195004029	MF
+GO:0034061	DNA polymerase activity	32	7	8.27	1.00000	0.846432889963724	MF
+GO:0034062	5'-3' RNA polymerase activity	34	10	8.79	1.00000	1.13765642775882	MF
+GO:0016798	hydrolase activity, acting on glycosyl bonds	96	28	24.81	1.00000	1.1285771866183	MF
+GO:0017111	nucleoside-triphosphatase activity	359	100	92.79	1.00000	1.07770233861407	MF
+GO:0016407	acetyltransferase activity	42	9	10.86	1.00000	0.828729281767956	MF
+GO:0016409	palmitoyltransferase activity	15	3	3.88	1.00000	0.77319587628866	MF
+GO:0015399	primary active transmembrane transporter activity	69	15	17.83	1.00000	0.841278743690409	MF
+GO:0022803	passive transmembrane transporter activity	73	16	18.87	1.00000	0.847906730259671	MF
+GO:0022804	active transmembrane transporter activity	83	22	21.45	1.00000	1.02564102564103	MF
+GO:0060089	molecular transducer activity	76	21	19.64	1.00000	1.06924643584521	MF
+GO:0016859	cis-trans isomerase activity	24	9	6.2	1.00000	1.45161290322581	MF
+GO:0016769	transferase activity, transferring nitrogenous groups	15	7	3.88	1.00000	1.80412371134021	MF
+GO:0005342	organic acid transmembrane transporter activity	19	7	4.91	1.00000	1.42566191446029	MF
+GO:0016875	ligase activity, forming carbon-oxygen bonds	51	27	13.18	1.00000	2.04855842185129	MF
+GO:0043177	organic acid binding	23	7	5.94	1.00000	1.17845117845118	MF
+GO:0030234	enzyme regulator activity	120	29	31.01	1.00000	0.935182199290551	MF
+GO:0005088	Ras guanyl-nucleotide exchange factor activity	29	6	7.5	1.00000	0.8	MF
+GO:0016825	hydrolase activity, acting on acid phosphorus-nitrogen bonds	70	17	18.09	1.00000	0.939745715865119	MF
+GO:0031267	small GTPase binding	50	11	12.92	1.00000	0.851393188854489	MF
+GO:0030695	GTPase regulator activity	58	15	14.99	1.00000	1.00066711140761	MF
+GO:0022890	inorganic cation transmembrane transporter activity	134	34	34.63	1.00000	0.98180768120127	MF
+GO:0016775	phosphotransferase activity, nitrogenous group as acceptor	27	8	6.98	1.00000	1.14613180515759	MF
+GO:0032561	guanyl ribonucleotide binding	166	45	42.9	1.00000	1.04895104895105	MF
+GO:0090079	translation regulator activity, nucleic acid binding	60	19	15.51	1.00000	1.22501611863314	MF
+GO:0032550	purine ribonucleoside binding	166	45	42.9	1.00000	1.04895104895105	MF
+GO:1901265	nucleoside phosphate binding	1254	360	324.1	1.00000	1.11076828139463	MF
+GO:0032553	ribonucleotide binding	1054	313	272.41	1.00000	1.14900334055284	MF
+GO:0032555	purine ribonucleotide binding	1040	312	268.79	1.00000	1.16075746865583	MF
+GO:0061659	ubiquitin-like protein ligase activity	24	2	6.2	1.00000	0.32258064516129	MF
+GO:0140110	transcription regulator activity	77	21	19.9	1.00000	1.05527638190955	MF
+GO:0017076	purine nucleotide binding	1044	313	269.83	1.00000	1.15998962309602	MF
+GO:0101005	ubiquitinyl hydrolase activity	51	14	13.18	1.00000	1.06221547799697	MF
+GO:0042625	ATPase-coupled ion transmembrane transporter activity	23	5	5.94	1.00000	0.841750841750842	MF
+GO:0016278	lysine N-methyltransferase activity	15	3	3.88	1.00000	0.77319587628866	MF
+GO:0016279	protein-lysine N-methyltransferase activity	15	3	3.88	1.00000	0.77319587628866	MF
+GO:0070001	aspartic-type peptidase activity	29	10	7.5	1.00000	1.33333333333333	MF
+GO:0070279	vitamin B6 binding	32	11	8.27	1.00000	1.33010882708585	MF
+GO:0097747	RNA polymerase activity	34	10	8.79	1.00000	1.13765642775882	MF
+GO:0004112	cyclic-nucleotide phosphodiesterase activity	13	3	3.36	1.00000	0.892857142857143	MF
+GO:0003674	molecular_function	6860	1773	1773	1.00000	1	MF
+GO:0019001	guanyl nucleotide binding	169	45	43.68	1.00000	1.03021978021978	MF
+GO:0017048	Rho GTPase binding	27	6	6.98	1.00000	0.859598853868195	MF
+GO:0015085	calcium ion transmembrane transporter activity	15	2	3.88	1.00000	0.515463917525773	MF
+GO:0015079	potassium ion transmembrane transporter activity	22	6	5.69	1.00000	1.05448154657293	MF
+GO:0048029	monosaccharide binding	16	6	4.14	1.00000	1.44927536231884	MF
+GO:0016417	S-acyltransferase activity	16	3	4.14	1.00000	0.72463768115942	MF
+GO:0060090	molecular adaptor activity	16	3	4.14	1.00000	0.72463768115942	MF
+GO:0044389	ubiquitin-like protein ligase binding	16	4	4.14	1.00000	0.966183574879227	MF
+GO:0035639	purine ribonucleoside triphosphate binding	1030	311	266.21	1.00000	1.16825062920251	MF
+GO:0051540	metal cluster binding	37	7	9.56	1.00000	0.732217573221757	MF
+GO:0016917	GABA receptor activity	58	16	14.99	1.00000	1.06737825216811	MF
+GO:0019707	protein-cysteine S-acyltransferase activity	15	3	3.88	1.00000	0.77319587628866	MF
+GO:0022832	voltage-gated channel activity	31	6	8.01	1.00000	0.749063670411985	MF
+GO:0017171	serine hydrolase activity	70	17	18.09	1.00000	0.939745715865119	MF
+GO:0140299	small molecule sensor activity	22	8	5.69	1.00000	1.40597539543058	MF
+GO:0004673	protein histidine kinase activity	27	8	6.98	1.00000	1.14613180515759	MF
+GO:0001882	nucleoside binding	171	47	44.2	1.00000	1.06334841628959	MF
+GO:0001883	purine nucleoside binding	166	45	42.9	1.00000	1.04895104895105	MF
+GO:0099528	G protein-coupled neurotransmitter receptor activity	58	16	14.99	1.00000	1.06737825216811	MF
+GO:0045182	translation regulator activity	60	19	15.51	1.00000	1.22501611863314	MF
+GO:0060271	cilium assembly	50	25	12.73	1.9e-05	1.96386488609584	BP
+GO:0006418	tRNA aminoacylation for protein translation	51	27	12.99	2.3e-05	2.07852193995381	BP
+GO:0006030	chitin metabolic process	32	16	8.15	0.00012	1.96319018404908	BP
+GO:0006839	mitochondrial transport	25	9	6.37	0.00043	1.41287284144427	BP
+GO:0006544	glycine metabolic process	35	18	8.91	0.00085	2.02020202020202	BP
+GO:0006563	L-serine metabolic process	33	17	8.4	0.00115	2.02380952380952	BP
+GO:0042073	intraciliary transport	11	8	2.8	0.00134	2.85714285714286	BP
+GO:0015917	aminophospholipid transport	11	8	2.8	0.00134	2.85714285714286	BP
+GO:0046349	amino sugar biosynthetic process	11	8	2.8	0.00134	2.85714285714286	BP
+GO:0046578	regulation of Ras protein signal transduction	34	13	8.66	0.00150	1.50115473441109	BP
+GO:0006566	threonine metabolic process	31	16	7.89	0.00156	2.02788339670469	BP
+GO:0000462	maturation of SSU-rRNA from tricistronic rRNA transcript (SSU-rRNA, 5.8S rRNA, LSU-rRNA)	16	10	4.07	0.00188	2.45700245700246	BP
+GO:0006812	cation transport	167	47	42.53	0.00190	1.105102280743	BP
+GO:0006023	aminoglycan biosynthetic process	17	10	4.33	0.00354	2.3094688221709	BP
+GO:0001731	formation of translation preinitiation complex	10	7	2.55	0.00389	2.74509803921569	BP
+GO:1901607	alpha-amino acid biosynthetic process	62	27	15.79	0.00450	1.70994300189994	BP
+GO:0000154	rRNA modification	13	8	3.31	0.00632	2.41691842900302	BP
+GO:0006541	glutamine metabolic process	11	7	2.8	0.00836	2.5	BP
+GO:0006396	RNA processing	274	93	69.77	0.00837	1.33295112512541	BP
+GO:0046700	heterocycle catabolic process	79	25	20.12	0.01564	1.24254473161034	BP
+GO:0006457	protein folding	69	26	17.57	0.01625	1.47979510529311	BP
+GO:0042401	cellular biogenic amine biosynthetic process	22	11	5.6	0.01657	1.96428571428571	BP
+GO:0048856	anatomical structure development	105	31	26.74	0.01662	1.15931189229619	BP
+GO:0001510	RNA methylation	26	12	6.62	0.01765	1.81268882175227	BP
+GO:0045332	phospholipid translocation	10	6	2.55	0.02149	2.35294117647059	BP
+GO:0005975	carbohydrate metabolic process	223	72	56.79	0.02623	1.26782884310618	BP
+GO:0006525	arginine metabolic process	19	9	4.84	0.03196	1.8595041322314	BP
+GO:0009084	glutamine family amino acid biosynthetic process	11	6	2.8	0.03725	2.14285714285714	BP
+GO:0000724	double-strand break repair via homologous recombination	11	6	2.8	0.03725	2.14285714285714	BP
+GO:0006807	nitrogen compound metabolic process	2824	707	719.13	0.03851	0.983132396089719	BP
+GO:0006206	pyrimidine nucleobase metabolic process	54	20	13.75	0.03918	1.45454545454545	BP
+GO:0071705	nitrogen compound transport	236	64	60.1	0.03985	1.0648918469218	BP
+GO:0006560	proline metabolic process	20	9	5.09	0.04532	1.76817288801572	BP
+GO:0016070	RNA metabolic process	676	202	172.14	0.05289	1.17346345997444	BP
+GO:0070286	axonemal dynein complex assembly	14	4	3.57	0.05354	1.12044817927171	BP
+GO:0015672	monovalent inorganic cation transport	76	19	19.35	0.05363	0.981912144702842	BP
+GO:0090502	RNA phosphodiester bond hydrolysis, endonucleolytic	24	10	6.11	0.06068	1.6366612111293	BP
+GO:0046487	glyoxylate metabolic process	15	7	3.82	0.06162	1.83246073298429	BP
+GO:0006446	regulation of translational initiation	40	15	10.19	0.06199	1.4720314033366	BP
+GO:0009451	RNA modification	83	33	21.14	0.06377	1.56102175969726	BP
+GO:0008283	cell population proliferation	14	4	3.57	0.06491	1.12044817927171	BP
+GO:0006364	rRNA processing	75	32	19.1	0.06897	1.67539267015707	BP
+GO:0006520	cellular amino acid metabolic process	322	112	82	0.06942	1.36585365853659	BP
+GO:0098662	inorganic cation transmembrane transport	86	22	21.9	0.07519	1.00456621004566	BP
+GO:0051493	regulation of cytoskeleton organization	25	6	6.37	0.07527	0.941915227629513	BP
+GO:0044270	cellular nitrogen compound catabolic process	77	23	19.61	0.08325	1.17287098419174	BP
+GO:0019953	sexual reproduction	21	8	5.35	0.08343	1.49532710280374	BP
+GO:1901264	carbohydrate derivative transport	10	5	2.55	0.08348	1.96078431372549	BP
+GO:0015931	nucleobase-containing compound transport	28	9	7.13	0.08361	1.26227208976157	BP
+GO:0030258	lipid modification	41	12	10.44	0.08369	1.14942528735632	BP
+GO:0006531	aspartate metabolic process	19	8	4.84	0.08454	1.65289256198347	BP
+GO:0016311	dephosphorylation	117	28	29.79	0.08617	0.939912722390064	BP
+GO:0009225	nucleotide-sugar metabolic process	16	7	4.07	0.08625	1.71990171990172	BP
+GO:0019643	reductive tricarboxylic acid cycle	13	6	3.31	0.08634	1.81268882175227	BP
+GO:0106074	aminoacyl-tRNA metabolism involved in translational fidelity	13	6	3.31	0.08634	1.81268882175227	BP
+GO:0035335	peptidyl-tyrosine dephosphorylation	29	11	7.38	0.09480	1.49051490514905	BP
+GO:0055085	transmembrane transport	367	101	93.46	0.10133	1.08067622512305	BP
+GO:0018193	peptidyl-amino acid modification	104	33	26.48	0.10401	1.24622356495468	BP
+GO:0051239	regulation of multicellular organismal process	17	5	4.33	0.10860	1.15473441108545	BP
+GO:0006813	potassium ion transport	22	6	5.6	0.10866	1.07142857142857	BP
+GO:0010638	positive regulation of organelle organization	15	4	3.82	0.10870	1.04712041884817	BP
+GO:0006522	alanine metabolic process	20	8	5.09	0.11070	1.57170923379175	BP
+GO:0006793	phosphorus metabolic process	810	195	206.27	0.11161	0.945362873903137	BP
+GO:0000162	tryptophan biosynthetic process	17	7	4.33	0.11564	1.61662817551963	BP
+GO:0006354	DNA-templated transcription, elongation	14	6	3.57	0.11974	1.68067226890756	BP
+GO:0007275	multicellular organism development	62	16	15.79	0.12054	1.01329955668144	BP
+GO:1901137	carbohydrate derivative biosynthetic process	149	42	37.94	0.12138	1.1070110701107	BP
+GO:0001101	response to acid chemical	11	5	2.8	0.12200	1.78571428571429	BP
+GO:0006730	one-carbon metabolic process	11	5	2.8	0.12200	1.78571428571429	BP
+GO:0000469	cleavage involved in rRNA processing	11	5	2.8	0.12200	1.78571428571429	BP
+GO:0006401	RNA catabolic process	41	12	10.44	0.12221	1.14942528735632	BP
+GO:0018205	peptidyl-lysine modification	47	13	11.97	0.12238	1.08604845446951	BP
+GO:0009117	nucleotide metabolic process	142	31	36.16	0.12444	0.857300884955752	BP
+GO:0034654	nucleobase-containing compound biosynthetic process	443	103	112.81	0.12625	0.913039624146796	BP
+GO:0009987	cellular process	4269	1083	1087.11	0.12920	0.996219333830063	BP
+GO:0043087	regulation of GTPase activity	109	32	27.76	0.12922	1.15273775216138	BP
+GO:0000413	protein peptidyl-prolyl isomerization	24	9	6.11	0.13226	1.47299509001637	BP
+GO:0071310	cellular response to organic substance	15	6	3.82	0.15848	1.57068062827225	BP
+GO:0046942	carboxylic acid transport	27	9	6.88	0.16126	1.30813953488372	BP
+GO:0006631	fatty acid metabolic process	42	11	10.7	0.16167	1.02803738317757	BP
+GO:0009124	nucleoside monophosphate biosynthetic process	13	3	3.31	0.16180	0.906344410876133	BP
+GO:0009132	nucleoside diphosphate metabolic process	37	8	9.42	0.16205	0.849256900212314	BP
+GO:0098813	nuclear chromosome segregation	37	8	9.42	0.16205	0.849256900212314	BP
+GO:0006725	cellular aromatic compound metabolic process	1456	363	370.77	0.16422	0.979043611942714	BP
+GO:0006555	methionine metabolic process	12	5	3.06	0.16715	1.63398692810458	BP
+GO:0060285	cilium-dependent cell motility	12	5	3.06	0.16715	1.63398692810458	BP
+GO:0032787	monocarboxylic acid metabolic process	113	31	28.78	0.17415	1.07713690062543	BP
+GO:0034404	nucleobase-containing small molecule biosynthetic process	23	7	5.86	0.17456	1.19453924914676	BP
+GO:0010629	negative regulation of gene expression	61	14	15.53	0.17769	0.901481004507405	BP
+GO:0051649	establishment of localization in cell	179	44	45.58	0.17773	0.965335673541027	BP
+GO:0019637	organophosphate metabolic process	269	59	68.5	0.18037	0.861313868613139	BP
+GO:1901361	organic cyclic compound catabolic process	86	25	21.9	0.18688	1.14155251141553	BP
+GO:0051726	regulation of cell cycle	64	17	16.3	0.18821	1.04294478527607	BP
+GO:0006144	purine nucleobase metabolic process	76	23	19.35	0.20014	1.18863049095607	BP
+GO:0009094	L-phenylalanine biosynthetic process	16	6	4.07	0.20182	1.47420147420147	BP
+GO:0003333	amino acid transmembrane transport	16	6	4.07	0.20182	1.47420147420147	BP
+GO:0044262	cellular carbohydrate metabolic process	45	14	11.46	0.21075	1.2216404886562	BP
+GO:0098771	inorganic ion homeostasis	13	5	3.31	0.21765	1.51057401812689	BP
+GO:0006334	nucleosome assembly	13	5	3.31	0.21765	1.51057401812689	BP
+GO:0005982	starch metabolic process	13	5	3.31	0.21765	1.51057401812689	BP
+GO:0005985	sucrose metabolic process	13	5	3.31	0.21765	1.51057401812689	BP
+GO:0002098	tRNA wobble uridine modification	13	5	3.31	0.21765	1.51057401812689	BP
+GO:0016042	lipid catabolic process	34	10	8.66	0.21782	1.15473441108545	BP
+GO:0006913	nucleocytoplasmic transport	26	7	6.62	0.21831	1.05740181268882	BP
+GO:0032446	protein modification by small protein conjugation	130	24	33.1	0.22319	0.725075528700906	BP
+GO:0071704	organic substance metabolic process	3201	810	815.14	0.22628	0.993694334715509	BP
+GO:0009058	biosynthetic process	1119	267	284.95	0.22760	0.937006492367082	BP
+GO:0019497	hexachlorocyclohexane metabolic process	10	4	2.55	0.23493	1.56862745098039	BP
+GO:0009416	response to light stimulus	10	4	2.55	0.23493	1.56862745098039	BP
+GO:0000460	maturation of 5.8S rRNA	10	4	2.55	0.23493	1.56862745098039	BP
+GO:0010628	positive regulation of gene expression	36	7	9.17	0.23661	0.763358778625954	BP
+GO:0007049	cell cycle	143	33	36.42	0.23723	0.906095551894563	BP
+GO:0055114	oxidation-reduction process	482	119	122.74	0.23823	0.969529085872576	BP
+GO:0006644	phospholipid metabolic process	94	17	23.94	0.23887	0.710108604845447	BP
+GO:0044249	cellular biosynthetic process	1045	246	266.11	0.24745	0.924429747097065	BP
+GO:0006571	tyrosine biosynthetic process	17	6	4.33	0.24883	1.38568129330254	BP
+GO:0030587	sorocarp development	17	6	4.33	0.24883	1.38568129330254	BP
+GO:0006013	mannose metabolic process	17	6	4.33	0.24883	1.38568129330254	BP
+GO:0030031	cell projection assembly	54	27	13.75	0.25220	1.96363636363636	BP
+GO:0022613	ribonucleoprotein complex biogenesis	248	73	63.15	0.25280	1.15597783056215	BP
+GO:0046939	nucleotide phosphorylation	40	9	10.19	0.25420	0.883218842001963	BP
+GO:0043412	macromolecule modification	893	229	227.4	0.25445	1.00703605980651	BP
+GO:0044283	small molecule biosynthetic process	202	53	51.44	0.25449	1.0303265940902	BP
+GO:0015693	magnesium ion transport	14	5	3.57	0.25452	1.40056022408964	BP
+GO:0009201	ribonucleoside triphosphate biosynthetic process	26	8	6.62	0.25453	1.20845921450151	BP
+GO:0009311	oligosaccharide metabolic process	19	6	4.84	0.25457	1.2396694214876	BP
+GO:0070972	protein localization to endoplasmic reticulum	15	4	3.82	0.25476	1.04712041884817	BP
+GO:0009101	glycoprotein biosynthetic process	44	11	11.2	0.25484	0.982142857142857	BP
+GO:0072524	pyridine-containing compound metabolic process	25	5	6.37	0.25506	0.784929356357928	BP
+GO:0051253	negative regulation of RNA metabolic process	26	5	6.62	0.25511	0.755287009063444	BP
+GO:0043254	regulation of protein-containing complex assembly	22	3	5.6	0.25530	0.535714285714286	BP
+GO:0009889	regulation of biosynthetic process	309	74	78.69	0.25577	0.940399034184776	BP
+GO:0015833	peptide transport	185	40	47.11	0.25623	0.849076629165782	BP
+GO:0043632	modification-dependent macromolecule catabolic process	115	21	29.28	0.25644	0.717213114754098	BP
+GO:0015711	organic anion transport	46	19	11.71	0.26746	1.62254483347566	BP
+GO:0015748	organophosphate ester transport	19	10	4.84	0.26817	2.06611570247934	BP
+GO:0006450	regulation of translational fidelity	17	8	4.33	0.26867	1.84757505773672	BP
+GO:0000096	sulfur amino acid metabolic process	16	7	4.07	0.26891	1.71990171990172	BP
+GO:0005976	polysaccharide metabolic process	19	7	4.84	0.26916	1.44628099173554	BP
+GO:1901135	carbohydrate derivative metabolic process	255	67	64.94	0.26918	1.03172158915922	BP
+GO:0044772	mitotic cell cycle phase transition	22	5	5.6	0.27008	0.892857142857143	BP
+GO:0006165	nucleoside diphosphate phosphorylation	33	6	8.4	0.27067	0.714285714285714	BP
+GO:1901606	alpha-amino acid catabolic process	44	14	11.2	0.27125	1.25	BP
+GO:0010498	proteasomal protein catabolic process	30	3	7.64	0.27141	0.392670157068063	BP
+GO:0045017	glycerolipid biosynthetic process	34	4	8.66	0.27142	0.46189376443418	BP
+GO:0055080	cation homeostasis	14	5	3.57	0.27204	1.40056022408964	BP
+GO:0006448	regulation of translational elongation	14	5	3.57	0.27204	1.40056022408964	BP
+GO:0044272	sulfur compound biosynthetic process	21	7	5.35	0.27272	1.30841121495327	BP
+GO:0006479	protein methylation	32	8	8.15	0.27297	0.98159509202454	BP
+GO:0016570	histone modification	56	15	14.26	0.27336	1.05189340813464	BP
+GO:0007017	microtubule-based process	164	45	41.76	0.29832	1.07758620689655	BP
+GO:0006771	riboflavin metabolic process	11	4	2.8	0.29945	1.42857142857143	BP
+GO:0030203	glycosaminoglycan metabolic process	11	4	2.8	0.29945	1.42857142857143	BP
+GO:0000027	ribosomal large subunit assembly	11	4	2.8	0.29945	1.42857142857143	BP
+GO:0051235	maintenance of location	11	4	2.8	0.29945	1.42857142857143	BP
+GO:0034655	nucleobase-containing compound catabolic process	67	18	17.06	0.29960	1.05509964830012	BP
+GO:0006400	tRNA modification	42	14	10.7	0.30614	1.30841121495327	BP
+GO:0000160	phosphorelay signal transduction system	29	9	7.38	0.30761	1.21951219512195	BP
+GO:0009069	serine family amino acid metabolic process	144	48	36.67	0.32803	1.3089719116444	BP
+GO:0006536	glutamate metabolic process	15	5	3.82	0.32883	1.30890052356021	BP
+GO:0006000	fructose metabolic process	15	5	3.82	0.32883	1.30890052356021	BP
+GO:0006040	amino sugar metabolic process	44	20	11.2	0.32920	1.78571428571429	BP
+GO:0042273	ribosomal large subunit biogenesis	28	10	7.13	0.33210	1.40252454417952	BP
+GO:0017038	protein import	19	5	4.84	0.33342	1.03305785123967	BP
+GO:0046907	intracellular transport	173	41	44.05	0.33504	0.930760499432463	BP
+GO:0030163	protein catabolic process	138	26	35.14	0.33807	0.739897552646557	BP
+GO:0006568	tryptophan metabolic process	36	13	9.17	0.34777	1.41766630316249	BP
+GO:0001522	pseudouridine synthesis	19	6	4.84	0.34976	1.2396694214876	BP
+GO:0045787	positive regulation of cell cycle	12	4	3.06	0.36561	1.30718954248366	BP
+GO:0018874	benzoate metabolic process	12	4	3.06	0.36561	1.30718954248366	BP
+GO:0009067	aspartate family amino acid biosynthetic process	12	4	3.06	0.36561	1.30718954248366	BP
+GO:0007033	vacuole organization	12	4	3.06	0.36561	1.30718954248366	BP
+GO:0042546	cell wall biogenesis	12	4	3.06	0.36561	1.30718954248366	BP
+GO:0043624	cellular protein complex disassembly	12	4	3.06	0.36561	1.30718954248366	BP
+GO:1902600	proton transmembrane transport	34	9	8.66	0.36641	1.03926096997691	BP
+GO:0009206	purine ribonucleoside triphosphate biosynthetic process	25	7	6.37	0.37704	1.0989010989011	BP
+GO:0043549	regulation of kinase activity	32	6	8.15	0.37818	0.736196319018405	BP
+GO:0031323	regulation of cellular metabolic process	424	98	107.97	0.38176	0.907659535056034	BP
+GO:0009097	isoleucine biosynthetic process	16	5	4.07	0.38656	1.22850122850123	BP
+GO:0006357	regulation of transcription by RNA polymerase II	86	22	21.9	0.38686	1.00456621004566	BP
+GO:0006397	mRNA processing	86	21	21.9	0.39112	0.958904109589041	BP
+GO:0044281	small molecule metabolic process	694	207	176.73	0.39384	1.17127822101511	BP
+GO:0007216	G protein-coupled glutamate receptor signaling pathway	58	16	14.77	0.40354	1.0832769126608	BP
+GO:0051252	regulation of RNA metabolic process	273	63	69.52	0.40641	0.906214039125432	BP
+GO:0098655	cation transmembrane transport	95	25	24.19	0.41231	1.0334849111203	BP
+GO:0006754	ATP biosynthetic process	20	5	5.09	0.41280	0.982318271119843	BP
+GO:0140352	export from cell	35	7	8.91	0.41380	0.785634118967452	BP
+GO:0006570	tyrosine metabolic process	45	14	11.46	0.42107	1.2216404886562	BP
+GO:0006468	protein phosphorylation	331	85	84.29	0.42748	1.00842330051014	BP
+GO:0019439	aromatic compound catabolic process	80	22	20.37	0.43075	1.08001963672067	BP
+GO:1901701	cellular response to oxygen-containing compound	13	4	3.31	0.43137	1.20845921450151	BP
+GO:0015994	chlorophyll metabolic process	13	4	3.31	0.43137	1.20845921450151	BP
+GO:0009098	leucine biosynthetic process	13	4	3.31	0.43137	1.20845921450151	BP
+GO:0009099	valine biosynthetic process	13	4	3.31	0.43137	1.20845921450151	BP
+GO:0009062	fatty acid catabolic process	13	4	3.31	0.43137	1.20845921450151	BP
+GO:0010639	negative regulation of organelle organization	13	4	3.31	0.43137	1.20845921450151	BP
+GO:1903830	magnesium ion transmembrane transport	13	4	3.31	0.43137	1.20845921450151	BP
+GO:0006928	movement of cell or subcellular component	107	35	27.25	0.44235	1.28440366972477	BP
+GO:0051056	regulation of small GTPase mediated signal transduction	36	14	9.17	0.44323	1.52671755725191	BP
+GO:0016999	antibiotic metabolic process	29	9	7.38	0.44324	1.21951219512195	BP
+GO:0032502	developmental process	113	32	28.78	0.44369	1.11188325225851	BP
+GO:0042435	indole-containing compound biosynthetic process	19	8	4.84	0.44372	1.65289256198347	BP
+GO:0055086	nucleobase-containing small molecule metabolic process	229	61	58.32	0.44383	1.04595336076818	BP
+GO:0001539	cilium or flagellum-dependent cell motility	14	6	3.57	0.44393	1.68067226890756	BP
+GO:0006550	isoleucine catabolic process	17	5	4.33	0.44394	1.15473441108545	BP
+GO:0006552	leucine catabolic process	17	5	4.33	0.44394	1.15473441108545	BP
+GO:0006574	valine catabolic process	17	5	4.33	0.44394	1.15473441108545	BP
+GO:0006221	pyrimidine nucleotide biosynthetic process	17	5	4.33	0.44394	1.15473441108545	BP
+GO:0009314	response to radiation	12	5	3.06	0.44407	1.63398692810458	BP
+GO:0007215	glutamate receptor signaling pathway	60	17	15.28	0.44413	1.11256544502618	BP
+GO:0012501	programmed cell death	19	6	4.84	0.44430	1.2396694214876	BP
+GO:0006915	apoptotic process	16	5	4.07	0.44437	1.22850122850123	BP
+GO:0009719	response to endogenous stimulus	16	5	4.07	0.44437	1.22850122850123	BP
+GO:0010941	regulation of cell death	17	5	4.33	0.44444	1.15473441108545	BP
+GO:0018393	internal peptidyl-lysine acetylation	21	6	5.35	0.44445	1.1214953271028	BP
+GO:0009068	aspartate family amino acid catabolic process	19	5	4.84	0.44459	1.03305785123967	BP
+GO:0072521	purine-containing compound metabolic process	145	37	36.92	0.44462	1.00216684723727	BP
+GO:0048583	regulation of response to stimulus	94	24	23.94	0.44462	1.00250626566416	BP
+GO:0009888	tissue development	13	3	3.31	0.44472	0.906344410876133	BP
+GO:0051304	chromosome separation	14	3	3.57	0.44480	0.840336134453782	BP
+GO:0009820	alkaloid metabolic process	14	3	3.57	0.44480	0.840336134453782	BP
+GO:0042157	lipoprotein metabolic process	23	4	5.86	0.44517	0.68259385665529	BP
+GO:0051156	glucose 6-phosphate metabolic process	27	3	6.88	0.44576	0.436046511627907	BP
+GO:0009057	macromolecule catabolic process	214	46	54.5	0.44720	0.844036697247706	BP
+GO:0006099	tricarboxylic acid cycle	34	12	8.66	0.45098	1.38568129330254	BP
+GO:0006508	proteolysis	386	90	98.3	0.45406	0.915564598168871	BP
+GO:0023014	signal transduction by protein phosphorylation	39	9	9.93	0.46189	0.906344410876133	BP
+GO:0044237	cellular metabolic process	2978	739	758.35	0.46202	0.974484077273027	BP
+GO:0010467	gene expression	876	238	223.07	0.46918	1.06692966333438	BP
+GO:0044036	cell wall macromolecule metabolic process	22	6	5.6	0.47716	1.07142857142857	BP
+GO:0031123	RNA 3'-end processing	17	4	4.33	0.47750	0.92378752886836	BP
+GO:0070085	glycosylation	49	12	12.48	0.47757	0.961538461538461	BP
+GO:0032270	positive regulation of cellular protein metabolic process	38	8	9.68	0.47812	0.826446280991736	BP
+GO:0035556	intracellular signal transduction	207	57	52.71	0.47863	1.08138873079112	BP
+GO:0065003	protein-containing complex assembly	160	35	40.74	0.48006	0.859106529209622	BP
+GO:0042440	pigment metabolic process	10	3	2.55	0.48842	1.17647058823529	BP
+GO:0006012	galactose metabolic process	10	3	2.55	0.48842	1.17647058823529	BP
+GO:0019359	nicotinamide nucleotide biosynthetic process	10	3	2.55	0.48842	1.17647058823529	BP
+GO:0051656	establishment of organelle localization	10	3	2.55	0.48842	1.17647058823529	BP
+GO:0007018	microtubule-based movement	95	30	24.19	0.48897	1.24018189334436	BP
+GO:0009116	nucleoside metabolic process	27	6	6.88	0.48919	0.872093023255814	BP
+GO:0030036	actin cytoskeleton organization	37	7	9.42	0.49009	0.743099787685775	BP
+GO:0007264	small GTPase mediated signal transduction	106	32	26.99	0.49208	1.18562430529826	BP
+GO:0006464	cellular protein modification process	811	196	206.52	0.49477	0.94906062366841	BP
+GO:0065002	intracellular protein transmembrane transport	14	4	3.57	0.49510	1.12044817927171	BP
+GO:0015698	inorganic anion transport	14	4	3.57	0.49510	1.12044817927171	BP
+GO:0009725	response to hormone	14	4	3.57	0.49510	1.12044817927171	BP
+GO:0042981	regulation of apoptotic process	14	4	3.57	0.49510	1.12044817927171	BP
+GO:0048523	negative regulation of cellular process	110	23	28.01	0.49886	0.821135308818279	BP
+GO:0034645	cellular macromolecule biosynthetic process	722	168	183.86	0.49935	0.913738714239095	BP
+GO:0046854	phosphatidylinositol phosphorylation	18	5	4.58	0.49989	1.09170305676856	BP
+GO:0007031	peroxisome organization	18	5	4.58	0.49989	1.09170305676856	BP
+GO:0002376	immune system process	18	5	4.58	0.49989	1.09170305676856	BP
+GO:0043650	dicarboxylic acid biosynthetic process	18	5	4.58	0.49989	1.09170305676856	BP
+GO:0009152	purine ribonucleotide biosynthetic process	38	10	9.68	0.49996	1.03305785123967	BP
+GO:0072594	establishment of protein localization to organelle	50	10	12.73	0.50231	0.785545954438335	BP
+GO:0046434	organophosphate catabolic process	22	6	5.6	0.50366	1.07142857142857	BP
+GO:0009653	anatomical structure morphogenesis	39	7	9.93	0.50648	0.704934541792548	BP
+GO:0043547	positive regulation of GTPase activity	58	15	14.77	0.52284	1.0155721056195	BP
+GO:0017144	drug metabolic process	199	71	50.68	0.52927	1.40094711917916	BP
+GO:0016579	protein deubiquitination	51	13	12.99	0.55229	1.00076982294072	BP
+GO:0016573	histone acetylation	19	5	4.84	0.55350	1.03305785123967	BP
+GO:0030154	cell differentiation	33	8	8.4	0.55394	0.952380952380952	BP
+GO:0006261	DNA-dependent DNA replication	38	7	9.68	0.55474	0.723140495867769	BP
+GO:0030001	metal ion transport	105	23	26.74	0.55524	0.860134629768138	BP
+GO:0006338	chromatin remodeling	15	4	3.82	0.55556	1.04712041884817	BP
+GO:0006032	chitin catabolic process	15	4	3.82	0.55556	1.04712041884817	BP
+GO:0003006	developmental process involved in reproduction	15	4	3.82	0.55556	1.04712041884817	BP
+GO:0006810	transport	807	204	205.5	0.55613	0.992700729927007	BP
+GO:0008380	RNA splicing	71	16	18.08	0.55714	0.884955752212389	BP
+GO:0071702	organic substance transport	261	69	66.46	0.55783	1.03821847727957	BP
+GO:0051345	positive regulation of hydrolase activity	69	18	17.57	0.55914	1.02447353443369	BP
+GO:0000470	maturation of LSU-rRNA	11	3	2.8	0.55928	1.07142857142857	BP
+GO:0007276	gamete generation	11	3	2.8	0.55928	1.07142857142857	BP
+GO:0009790	embryo development	11	3	2.8	0.55928	1.07142857142857	BP
+GO:0006612	protein targeting to membrane	11	3	2.8	0.55928	1.07142857142857	BP
+GO:0000387	spliceosomal snRNP assembly	11	3	2.8	0.55928	1.07142857142857	BP
+GO:0080090	regulation of primary metabolic process	417	97	106.19	0.56257	0.913457011017987	BP
+GO:1901565	organonitrogen compound catabolic process	212	48	53.99	0.56309	0.889053528431191	BP
+GO:0090407	organophosphate biosynthetic process	139	29	35.4	0.56328	0.819209039548023	BP
+GO:0043603	cellular amide metabolic process	371	88	94.48	0.56353	0.931414055884843	BP
+GO:0098656	anion transmembrane transport	29	9	7.38	0.56603	1.21951219512195	BP
+GO:0072528	pyrimidine-containing compound biosynthetic process	24	7	6.11	0.56638	1.14566284779051	BP
+GO:0098660	inorganic ion transmembrane transport	93	24	23.68	0.56665	1.01351351351351	BP
+GO:0006790	sulfur compound metabolic process	84	21	21.39	0.56699	0.981767180925666	BP
+GO:0043086	negative regulation of catalytic activity	18	4	4.58	0.56708	0.873362445414847	BP
+GO:0006767	water-soluble vitamin metabolic process	49	10	12.48	0.56799	0.801282051282051	BP
+GO:0042180	cellular ketone metabolic process	32	4	8.15	0.56879	0.49079754601227	BP
+GO:0006732	coenzyme metabolic process	102	16	25.97	0.57164	0.616095494801694	BP
+GO:0046034	ATP metabolic process	103	15	26.23	0.57224	0.571864277544796	BP
+GO:0032259	methylation	147	42	37.43	0.57312	1.12209457654288	BP
+GO:0034470	ncRNA processing	154	56	39.22	0.58048	1.4278429372769	BP
+GO:0120031	plasma membrane bounded cell projection assembly	53	26	13.5	0.58199	1.92592592592593	BP
+GO:0010970	transport along microtubule	14	9	3.57	0.58432	2.52100840336134	BP
+GO:0032984	protein-containing complex disassembly	15	5	3.82	0.58570	1.30890052356021	BP
+GO:0006778	porphyrin-containing compound metabolic process	16	5	4.07	0.58578	1.22850122850123	BP
+GO:0022414	reproductive process	40	11	10.19	0.58582	1.07948969578018	BP
+GO:0035082	axoneme assembly	17	5	4.33	0.58587	1.15473441108545	BP
+GO:0006473	protein acetylation	25	7	6.37	0.58588	1.0989010989011	BP
+GO:0006026	aminoglycan catabolic process	18	5	4.58	0.58595	1.09170305676856	BP
+GO:0010564	regulation of cell cycle process	28	7	7.13	0.58613	0.981767180925666	BP
+GO:0010646	regulation of cell communication	83	21	21.14	0.58613	0.993377483443709	BP
+GO:0006402	mRNA catabolic process	30	7	7.64	0.58629	0.916230366492147	BP
+GO:0048585	negative regulation of response to stimulus	23	5	5.86	0.58636	0.853242320819113	BP
+GO:0051130	positive regulation of cellular component organization	23	5	5.86	0.58636	0.853242320819113	BP
+GO:0043043	peptide biosynthetic process	278	70	70.79	0.58636	0.98884023167114	BP
+GO:0048584	positive regulation of response to stimulus	16	3	4.07	0.58643	0.737100737100737	BP
+GO:0016571	histone methylation	16	3	4.07	0.58643	0.737100737100737	BP
+GO:0007062	sister chromatid cohesion	13	2	3.31	0.58651	0.604229607250755	BP
+GO:1901987	regulation of cell cycle phase transition	21	4	5.35	0.58652	0.747663551401869	BP
+GO:0016051	carbohydrate biosynthetic process	53	12	13.5	0.58657	0.888888888888889	BP
+GO:0008154	actin polymerization or depolymerization	20	3	5.09	0.58676	0.589390962671906	BP
+GO:0006739	NADP metabolic process	28	3	7.13	0.58742	0.420757363253857	BP
+GO:0019219	regulation of nucleobase-containing compound metabolic process	277	64	70.54	0.58832	0.907286645874681	BP
+GO:0044257	cellular protein catabolic process	127	23	32.34	0.58917	0.711193568336425	BP
+GO:0006979	response to oxidative stress	24	6	6.11	0.59869	0.981996726677578	BP
+GO:0006486	protein glycosylation	43	10	10.95	0.59940	0.91324200913242	BP
+GO:0046486	glycerolipid metabolic process	97	18	24.7	0.60080	0.728744939271255	BP
+GO:0098869	cellular oxidant detoxification	20	5	5.09	0.60412	0.982318271119843	BP
+GO:0006950	response to stress	256	51	65.19	0.60456	0.782328578002761	BP
+GO:0016998	cell wall macromolecule catabolic process	16	4	4.07	0.61189	0.982800982800983	BP
+GO:0003341	cilium movement	16	4	4.07	0.61189	0.982800982800983	BP
+GO:0050794	regulation of cellular process	954	231	242.94	0.61527	0.95085206223759	BP
+GO:0044267	cellular protein metabolic process	1180	282	300.49	0.61863	0.938467170288529	BP
+GO:0006302	double-strand break repair	23	9	5.86	0.62194	1.5358361774744	BP
+GO:0035461	vitamin transmembrane transport	12	3	3.06	0.62383	0.980392156862745	BP
+GO:0006796	phosphate-containing compound metabolic process	799	189	203.47	0.63383	0.928883864943235	BP
+GO:0035023	regulation of Rho protein signal transduction	25	6	6.37	0.64233	0.941915227629513	BP
+GO:0042537	benzene-containing compound metabolic process	20	6	5.09	0.64414	1.17878192534381	BP
+GO:1901659	glycosyl compound biosynthetic process	22	5	5.6	0.64485	0.892857142857143	BP
+GO:0019725	cellular homeostasis	57	12	14.52	0.64577	0.826446280991736	BP
+GO:0031328	positive regulation of cellular biosynthetic process	34	5	8.66	0.64631	0.577367205542725	BP
+GO:0010557	positive regulation of macromolecule biosynthetic process	34	5	8.66	0.64631	0.577367205542725	BP
+GO:0044255	cellular lipid metabolic process	187	41	47.62	0.64782	0.860982780344393	BP
+GO:0006119	oxidative phosphorylation	56	7	14.26	0.64807	0.490883590462833	BP
+GO:0050896	response to stimulus	714	168	181.82	0.65214	0.923990760092399	BP
+GO:0002181	cytoplasmic translation	27	11	6.88	0.66058	1.59883720930233	BP
+GO:0008033	tRNA processing	76	22	19.35	0.66340	1.13695090439276	BP
+GO:0006554	lysine catabolic process	17	4	4.33	0.66357	0.92378752886836	BP
+GO:0015976	carbon utilization	17	4	4.33	0.66357	0.92378752886836	BP
+GO:1903046	meiotic cell cycle process	17	4	4.33	0.66357	0.92378752886836	BP
+GO:0006637	acyl-CoA metabolic process	17	4	4.33	0.66357	0.92378752886836	BP
+GO:0006090	pyruvate metabolic process	46	8	11.71	0.66584	0.683176771989752	BP
+GO:0006869	lipid transport	28	11	7.13	0.67917	1.54277699859748	BP
+GO:0043436	oxoacid metabolic process	426	137	108.48	0.68141	1.26290560471976	BP
+GO:0051028	mRNA transport	13	3	3.31	0.68157	0.906344410876133	BP
+GO:0001934	positive regulation of protein phosphorylation	13	3	3.31	0.68157	0.906344410876133	BP
+GO:0009267	cellular response to starvation	13	3	3.31	0.68157	0.906344410876133	BP
+GO:0042455	ribonucleoside biosynthetic process	13	3	3.31	0.68157	0.906344410876133	BP
+GO:0010948	negative regulation of cell cycle process	13	3	3.31	0.68157	0.906344410876133	BP
+GO:0006935	chemotaxis	13	3	3.31	0.68157	0.906344410876133	BP
+GO:0052547	regulation of peptidase activity	13	3	3.31	0.68157	0.906344410876133	BP
+GO:0000288	nuclear-transcribed mRNA catabolic process, deadenylation-dependent decay	13	3	3.31	0.68157	0.906344410876133	BP
+GO:0034637	cellular carbohydrate biosynthetic process	13	3	3.31	0.68157	0.906344410876133	BP
+GO:0080134	regulation of response to stress	13	3	3.31	0.68157	0.906344410876133	BP
+GO:0006366	transcription by RNA polymerase II	110	27	28.01	0.68198	0.963941449482328	BP
+GO:0050793	regulation of developmental process	25	5	6.37	0.68217	0.784929356357928	BP
+GO:0006897	endocytosis	26	6	6.62	0.68299	0.906344410876133	BP
+GO:0006139	nucleobase-containing compound metabolic process	1356	339	345.31	0.68629	0.981726564536214	BP
+GO:0051188	cofactor biosynthetic process	99	14	25.21	0.68787	0.555335184450615	BP
+GO:0018130	heterocycle biosynthetic process	509	118	129.62	0.68870	0.910353340533868	BP
+GO:0051336	regulation of hydrolase activity	135	38	34.38	0.69029	1.10529377545084	BP
+GO:1901362	organic cyclic compound biosynthetic process	524	119	133.44	0.69048	0.891786570743405	BP
+GO:0048870	cell motility	18	7	4.58	0.69071	1.52838427947598	BP
+GO:0051129	negative regulation of cellular component organization	17	5	4.33	0.69127	1.15473441108545	BP
+GO:0043543	protein acylation	29	8	7.38	0.69129	1.0840108401084	BP
+GO:0071103	DNA conformation change	50	13	12.73	0.69140	1.02120974076984	BP
+GO:0070646	protein modification by small protein removal	55	14	14.01	0.69149	0.999286224125625	BP
+GO:0009165	nucleotide biosynthetic process	80	19	20.37	0.69194	0.932744231713304	BP
+GO:0006760	folic acid-containing compound metabolic process	15	2	3.82	0.69207	0.523560209424084	BP
+GO:0044093	positive regulation of molecular function	95	22	24.19	0.69220	0.909466721785862	BP
+GO:0006497	protein lipidation	21	3	5.35	0.69224	0.560747663551402	BP
+GO:0065009	regulation of molecular function	206	50	52.46	0.69231	0.953107129241327	BP
+GO:0006066	alcohol metabolic process	26	4	6.62	0.69233	0.604229607250755	BP
+GO:0032940	secretion by cell	26	4	6.62	0.69233	0.604229607250755	BP
+GO:0006664	glycolipid metabolic process	23	3	5.86	0.69241	0.511945392491468	BP
+GO:0016052	carbohydrate catabolic process	33	5	8.4	0.69258	0.595238095238095	BP
+GO:0140014	mitotic nuclear division	38	6	9.68	0.69267	0.619834710743802	BP
+GO:0045333	cellular respiration	71	14	18.08	0.69281	0.774336283185841	BP
+GO:0090304	nucleic acid metabolic process	1146	286	291.83	0.69392	0.980022615906521	BP
+GO:0008610	lipid biosynthetic process	102	17	25.97	0.69441	0.6546014632268	BP
+GO:0006749	glutathione metabolic process	22	5	5.6	0.69471	0.892857142857143	BP
+GO:0006091	generation of precursor metabolites and energy	168	30	42.78	0.69571	0.701262272089762	BP
+GO:1901576	organic substance biosynthetic process	1079	256	274.77	0.69906	0.931688321141318	BP
+GO:0042274	ribosomal small subunit biogenesis	29	12	7.38	0.70869	1.6260162601626	BP
+GO:0006323	DNA packaging	23	7	5.86	0.71028	1.19453924914676	BP
+GO:0007034	vacuolar transport	18	4	4.58	0.71034	0.873362445414847	BP
+GO:0016197	endosomal transport	18	4	4.58	0.71034	0.873362445414847	BP
+GO:0008152	metabolic process	3728	933	949.34	0.71110	0.982788042218805	BP
+GO:0006518	peptide metabolic process	307	76	78.18	0.71186	0.97211563059606	BP
+GO:0090305	nucleic acid phosphodiester bond hydrolysis	111	29	28.27	0.72795	1.02582242660064	BP
+GO:0007165	signal transduction	414	103	105.43	0.73212	0.976951531822062	BP
+GO:0045047	protein targeting to ER	14	3	3.57	0.73243	0.840336134453782	BP
+GO:0006278	RNA-dependent DNA biosynthetic process	14	3	3.57	0.73243	0.840336134453782	BP
+GO:0048468	cell development	14	3	3.57	0.73243	0.840336134453782	BP
+GO:0045944	positive regulation of transcription by RNA polymerase II	14	3	3.57	0.73243	0.840336134453782	BP
+GO:0006351	transcription, DNA-templated	298	66	75.89	0.73247	0.869679799710107	BP
+GO:0000956	nuclear-transcribed mRNA catabolic process	27	6	6.88	0.73260	0.872093023255814	BP
+GO:0009605	response to external stimulus	41	9	10.44	0.73290	0.862068965517241	BP
+GO:0010468	regulation of gene expression	342	85	87.09	0.73333	0.976001837179929	BP
+GO:0032508	DNA duplex unwinding	23	5	5.86	0.73425	0.853242320819113	BP
+GO:0006487	protein N-linked glycosylation	19	4	4.84	0.75216	0.826446280991736	BP
+GO:0009628	response to abiotic stimulus	40	11	10.19	0.75339	1.07948969578018	BP
+GO:0006633	fatty acid biosynthetic process	28	6	7.13	0.75481	0.841514726507714	BP
+GO:0006260	DNA replication	79	16	20.12	0.75493	0.795228628230616	BP
+GO:0008654	phospholipid biosynthetic process	49	6	12.48	0.75558	0.480769230769231	BP
+GO:0006996	organelle organization	422	94	107.46	0.76039	0.874744090824493	BP
+GO:0006094	gluconeogenesis	37	8	9.42	0.76188	0.849256900212314	BP
+GO:0006413	translational initiation	50	17	12.73	0.76451	1.33542812254517	BP
+GO:0032006	regulation of TOR signaling	10	2	2.55	0.76656	0.784313725490196	BP
+GO:0046128	purine ribonucleoside metabolic process	10	2	2.55	0.76656	0.784313725490196	BP
+GO:0000122	negative regulation of transcription by RNA polymerase II	10	2	2.55	0.76656	0.784313725490196	BP
+GO:1903050	regulation of proteolysis involved in cellular protein catabolic process	10	2	2.55	0.76656	0.784313725490196	BP
+GO:1902532	negative regulation of intracellular signal transduction	10	2	2.55	0.76656	0.784313725490196	BP
+GO:0006383	transcription by RNA polymerase III	10	2	2.55	0.76656	0.784313725490196	BP
+GO:1990542	mitochondrial transmembrane transport	10	2	2.55	0.76656	0.784313725490196	BP
+GO:0033674	positive regulation of kinase activity	10	2	2.55	0.76656	0.784313725490196	BP
+GO:0018202	peptidyl-histidine modification	10	2	2.55	0.76656	0.784313725490196	BP
+GO:0051225	spindle assembly	10	2	2.55	0.76656	0.784313725490196	BP
+GO:0008299	isoprenoid biosynthetic process	10	2	2.55	0.76656	0.784313725490196	BP
+GO:0006888	endoplasmic reticulum to Golgi vesicle-mediated transport	10	2	2.55	0.76656	0.784313725490196	BP
+GO:0009968	negative regulation of signal transduction	20	4	5.09	0.76680	0.785854616895874	BP
+GO:0051604	protein maturation	30	6	7.64	0.76703	0.785340314136126	BP
+GO:0042133	neurotransmitter metabolic process	40	19	10.19	0.76737	1.86457311089303	BP
+GO:0000070	mitotic sister chromatid segregation	32	5	8.15	0.76767	0.613496932515337	BP
+GO:0009260	ribonucleotide biosynthetic process	43	11	10.95	0.77002	1.00456621004566	BP
+GO:0006553	lysine metabolic process	22	5	5.6	0.77021	0.892857142857143	BP
+GO:0000075	cell cycle checkpoint	16	3	4.07	0.77036	0.737100737100737	BP
+GO:0033044	regulation of chromosome organization	17	3	4.33	0.77043	0.69284064665127	BP
+GO:0007015	actin filament organization	25	4	6.37	0.77074	0.627943485086342	BP
+GO:0001932	regulation of protein phosphorylation	35	6	8.91	0.77091	0.673400673400673	BP
+GO:0051641	cellular localization	215	49	54.75	0.77182	0.894977168949772	BP
+GO:0060255	regulation of macromolecule metabolic process	446	104	113.57	0.77315	0.915734789116844	BP
+GO:0007186	G protein-coupled receptor signaling pathway	109	27	27.76	0.78520	0.972622478386167	BP
+GO:0016485	protein processing	20	4	5.09	0.78917	0.785854616895874	BP
+GO:0006629	lipid metabolic process	246	52	62.64	0.80200	0.830140485312899	BP
+GO:0090501	RNA phosphodiester bond hydrolysis	37	12	9.42	0.81132	1.27388535031847	BP
+GO:0043648	dicarboxylic acid metabolic process	53	16	13.5	0.81134	1.18518518518519	BP
+GO:0006259	DNA metabolic process	452	76	115.1	0.81166	0.660295395308428	BP
+GO:0060429	epithelium development	11	2	2.8	0.81263	0.714285714285714	BP
+GO:0007093	mitotic cell cycle checkpoint	11	2	2.8	0.81263	0.714285714285714	BP
+GO:0015986	ATP synthesis coupled proton transport	11	2	2.8	0.81263	0.714285714285714	BP
+GO:0033014	tetrapyrrole biosynthetic process	11	2	2.8	0.81263	0.714285714285714	BP
+GO:0007167	enzyme linked receptor protein signaling pathway	11	2	2.8	0.81263	0.714285714285714	BP
+GO:0044743	protein transmembrane import into intracellular organelle	11	2	2.8	0.81263	0.714285714285714	BP
+GO:0043628	ncRNA 3'-end processing	11	2	2.8	0.81263	0.714285714285714	BP
+GO:0051346	negative regulation of hydrolase activity	11	2	2.8	0.81263	0.714285714285714	BP
+GO:0045936	negative regulation of phosphate metabolic process	11	2	2.8	0.81263	0.714285714285714	BP
+GO:0006887	exocytosis	22	3	5.6	0.81332	0.535714285714286	BP
+GO:0006352	DNA-templated transcription, initiation	29	4	7.38	0.81363	0.542005420054201	BP
+GO:0006952	defense response	16	3	4.07	0.81466	0.737100737100737	BP
+GO:0006308	DNA catabolic process	16	3	4.07	0.81466	0.737100737100737	BP
+GO:0009190	cyclic nucleotide biosynthetic process	16	3	4.07	0.81466	0.737100737100737	BP
+GO:0046497	nicotinate nucleotide metabolic process	16	3	4.07	0.81466	0.737100737100737	BP
+GO:0048522	positive regulation of cellular process	110	21	28.01	0.81745	0.749732238486255	BP
+GO:0006511	ubiquitin-dependent protein catabolic process	113	20	28.78	0.82302	0.694927032661571	BP
+GO:0000398	mRNA splicing, via spliceosome	55	12	14.01	0.82548	0.856531049250535	BP
+GO:0006558	L-phenylalanine metabolic process	22	7	5.6	0.82820	1.25	BP
+GO:1905039	carboxylic acid transmembrane transport	22	7	5.6	0.82820	1.25	BP
+GO:0006325	chromatin organization	91	24	23.17	0.82835	1.03582218385844	BP
+GO:0031401	positive regulation of protein modification process	19	4	4.84	0.82880	0.826446280991736	BP
+GO:0051347	positive regulation of transferase activity	16	3	4.07	0.82886	0.737100737100737	BP
+GO:1901990	regulation of mitotic cell cycle phase transition	18	3	4.58	0.82900	0.655021834061135	BP
+GO:0030833	regulation of actin filament polymerization	16	2	4.07	0.82913	0.491400491400491	BP
+GO:1903047	mitotic cell cycle process	54	11	13.75	0.82931	0.8	BP
+GO:0019220	regulation of phosphate metabolic process	51	10	12.99	0.82938	0.769822940723634	BP
+GO:2000112	regulation of cellular macromolecule biosynthetic process	305	73	77.67	0.82989	0.939873825157719	BP
+GO:0034613	cellular protein localization	157	34	39.98	0.83021	0.850425212606303	BP
+GO:0019438	aromatic compound biosynthetic process	494	114	125.8	0.83203	0.906200317965024	BP
+GO:0006355	regulation of transcription, DNA-templated	235	52	59.84	0.83333	0.868983957219251	BP
+GO:0045454	cell redox homeostasis	49	10	12.48	0.83666	0.801282051282051	BP
+GO:0022900	electron transport chain	64	7	16.3	0.84336	0.429447852760736	BP
+GO:0016310	phosphorylation	533	126	135.73	0.84398	0.928313563692625	BP
+GO:0042493	response to drug	17	3	4.33	0.84704	0.69284064665127	BP
+GO:0071805	potassium ion transmembrane transport	17	3	4.33	0.84704	0.69284064665127	BP
+GO:0045859	regulation of protein kinase activity	27	4	6.88	0.84769	0.581395348837209	BP
+GO:0006417	regulation of translation	65	21	16.55	0.84846	1.26888217522659	BP
+GO:2000026	regulation of multicellular organismal development	12	2	3.06	0.85039	0.65359477124183	BP
+GO:0007267	cell-cell signaling	12	2	3.06	0.85039	0.65359477124183	BP
+GO:0006769	nicotinamide metabolic process	12	2	3.06	0.85039	0.65359477124183	BP
+GO:0042127	regulation of cell population proliferation	12	2	3.06	0.85039	0.65359477124183	BP
+GO:0030071	regulation of mitotic metaphase/anaphase transition	12	2	3.06	0.85039	0.65359477124183	BP
+GO:0048731	system development	45	8	11.46	0.85070	0.698080279232112	BP
+GO:0032269	negative regulation of cellular protein metabolic process	26	4	6.62	0.85093	0.604229607250755	BP
+GO:0048285	organelle fission	58	9	14.77	0.85202	0.609343263371699	BP
+GO:0007346	regulation of mitotic cell cycle	29	5	7.38	0.87276	0.677506775067751	BP
+GO:0006811	ion transport	254	67	64.68	0.87286	1.03586889301175	BP
+GO:0042592	homeostatic process	74	16	18.84	0.87287	0.849256900212314	BP
+GO:0031399	regulation of protein modification process	56	9	14.26	0.87343	0.631136044880785	BP
+GO:0048518	positive regulation of biological process	122	24	31.07	0.87387	0.772449308014162	BP
+GO:0051301	cell division	23	4	5.86	0.87415	0.68259385665529	BP
+GO:0048513	animal organ development	23	4	5.86	0.87415	0.68259385665529	BP
+GO:0071897	DNA biosynthetic process	37	7	9.42	0.87439	0.743099787685775	BP
+GO:0051603	proteolysis involved in cellular protein catabolic process	124	22	31.58	0.87446	0.696643445218493	BP
+GO:0051171	regulation of nitrogen compound metabolic process	409	94	104.15	0.87474	0.902544407105137	BP
+GO:0006886	intracellular protein transport	138	31	35.14	0.88068	0.882185543540125	BP
+GO:0046856	phosphatidylinositol dephosphorylation	13	2	3.31	0.88108	0.604229607250755	BP
+GO:0016050	vesicle organization	13	2	3.31	0.88108	0.604229607250755	BP
+GO:0046173	polyol biosynthetic process	13	2	3.31	0.88108	0.604229607250755	BP
+GO:0009967	positive regulation of signal transduction	13	2	3.31	0.88108	0.604229607250755	BP
+GO:0045862	positive regulation of proteolysis	13	2	3.31	0.88108	0.604229607250755	BP
+GO:0034968	histone lysine methylation	13	2	3.31	0.88108	0.604229607250755	BP
+GO:0071426	ribonucleoprotein complex export from nucleus	13	2	3.31	0.88108	0.604229607250755	BP
+GO:0006605	protein targeting	40	6	10.19	0.88196	0.588812561334642	BP
+GO:0051128	regulation of cellular component organization	76	13	19.35	0.88262	0.671834625322997	BP
+GO:0000226	microtubule cytoskeleton organization	64	13	16.3	0.89615	0.797546012269939	BP
+GO:0006289	nucleotide-excision repair	19	3	4.84	0.89729	0.619834710743802	BP
+GO:0010035	response to inorganic substance	19	3	4.84	0.89729	0.619834710743802	BP
+GO:0006414	translational elongation	22	6	5.6	0.90464	1.07142857142857	BP
+GO:0044242	cellular lipid catabolic process	21	5	5.35	0.90479	0.934579439252337	BP
+GO:1901136	carbohydrate derivative catabolic process	26	6	6.62	0.90484	0.906344410876133	BP
+GO:0031329	regulation of cellular catabolic process	18	3	4.58	0.90503	0.655021834061135	BP
+GO:0007051	spindle organization	18	3	4.58	0.90503	0.655021834061135	BP
+GO:0072330	monocarboxylic acid biosynthetic process	36	7	9.17	0.90515	0.763358778625954	BP
+GO:0019751	polyol metabolic process	21	3	5.35	0.90518	0.560747663551402	BP
+GO:1901617	organic hydroxy compound biosynthetic process	22	3	5.6	0.90523	0.535714285714286	BP
+GO:0033365	protein localization to organelle	59	12	15.02	0.90532	0.798934753661784	BP
+GO:0033043	regulation of organelle organization	52	10	13.24	0.90536	0.755287009063444	BP
+GO:0000280	nuclear division	46	7	11.71	0.90566	0.597779675491033	BP
+GO:1901700	response to oxygen-containing compound	27	6	6.88	0.90567	0.872093023255814	BP
+GO:0000165	MAPK cascade	14	2	3.57	0.90586	0.560224089635854	BP
+GO:0031400	negative regulation of protein modification process	14	2	3.57	0.90586	0.560224089635854	BP
+GO:0043604	amide biosynthetic process	303	73	77.16	0.90660	0.946086054950752	BP
+GO:0050789	regulation of biological process	1007	240	256.43	0.90868	0.935927933549117	BP
+GO:0044238	primary metabolic process	3035	764	772.87	0.91083	0.988523296285274	BP
+GO:0006914	autophagy	25	4	6.37	0.91274	0.627943485086342	BP
+GO:0022618	ribonucleoprotein complex assembly	52	17	13.24	0.91466	1.28398791540786	BP
+GO:0044260	cellular macromolecule metabolic process	1942	448	494.53	0.91851	0.905910662649384	BP
+GO:0070925	organelle assembly	96	33	24.45	0.92332	1.34969325153374	BP
+GO:0010256	endomembrane system organization	15	2	3.82	0.92573	0.523560209424084	BP
+GO:0006665	sphingolipid metabolic process	15	2	3.82	0.92573	0.523560209424084	BP
+GO:0070588	calcium ion transmembrane transport	15	2	3.82	0.92573	0.523560209424084	BP
+GO:0045892	negative regulation of transcription, DNA-templated	25	4	6.37	0.92586	0.627943485086342	BP
+GO:0042398	cellular modified amino acid biosynthetic process	20	2	5.09	0.92947	0.392927308447937	BP
+GO:0016192	vesicle-mediated transport	161	29	41	0.93078	0.707317073170732	BP
+GO:0015031	protein transport	184	39	46.86	0.93087	0.832266325224072	BP
+GO:0044419	interspecies interaction between organisms	21	3	5.35	0.93217	0.560747663551402	BP
+GO:0042737	drug catabolic process	31	6	7.89	0.94157	0.760456273764259	BP
+GO:0060627	regulation of vesicle-mediated transport	16	2	4.07	0.94160	0.491400491400491	BP
+GO:0036158	outer dynein arm assembly	10	1	2.55	0.94724	0.392156862745098	BP
+GO:0007064	mitotic sister chromatid cohesion	10	1	2.55	0.94724	0.392156862745098	BP
+GO:0030838	positive regulation of actin filament polymerization	10	1	2.55	0.94724	0.392156862745098	BP
+GO:0033108	mitochondrial respiratory chain complex assembly	10	1	2.55	0.94724	0.392156862745098	BP
+GO:0016482	cytosolic transport	10	1	2.55	0.94724	0.392156862745098	BP
+GO:0071900	regulation of protein serine/threonine kinase activity	10	1	2.55	0.94724	0.392156862745098	BP
+GO:0009156	ribonucleoside monophosphate biosynthetic process	10	1	2.55	0.94724	0.392156862745098	BP
+GO:0051049	regulation of transport	26	3	6.62	0.94753	0.453172205438066	BP
+GO:0032879	regulation of localization	36	4	9.17	0.94774	0.436205016357688	BP
+GO:0051276	chromosome organization	160	35	40.74	0.94784	0.859106529209622	BP
+GO:0006814	sodium ion transport	17	2	4.33	0.95421	0.46189376443418	BP
+GO:0016226	iron-sulfur cluster assembly	17	2	4.33	0.95421	0.46189376443418	BP
+GO:0006506	GPI anchor biosynthetic process	17	2	4.33	0.95421	0.46189376443418	BP
+GO:0034220	ion transmembrane transport	147	37	37.43	0.95537	0.988511888859204	BP
+GO:0009108	coenzyme biosynthetic process	69	9	17.57	0.95689	0.512236767216847	BP
+GO:0006096	glycolytic process	29	4	7.38	0.95984	0.542005420054201	BP
+GO:0009060	aerobic respiration	45	13	11.46	0.96032	1.13438045375218	BP
+GO:0032501	multicellular organismal process	82	22	20.88	0.96037	1.0536398467433	BP
+GO:0009396	folic acid-containing compound biosynthetic process	11	1	2.8	0.96070	0.357142857142857	BP
+GO:0006904	vesicle docking involved in exocytosis	11	1	2.8	0.96070	0.357142857142857	BP
+GO:0022402	cell cycle process	99	22	25.21	0.96087	0.872669575565252	BP
+GO:0006974	cellular response to DNA damage stimulus	153	30	38.96	0.96153	0.770020533880904	BP
+GO:0042254	ribosome biogenesis	217	61	55.26	0.96234	1.10387260224394	BP
+GO:0006367	transcription initiation from RNA polymerase II promoter	18	2	4.58	0.96419	0.436681222707424	BP
+GO:1901566	organonitrogen compound biosynthetic process	522	136	132.93	0.97022	1.02309486195742	BP
+GO:0022607	cellular component assembly	252	63	64.17	0.97065	0.981767180925666	BP
+GO:0043248	proteasome assembly	12	1	3.06	0.97073	0.326797385620915	BP
+GO:0007155	cell adhesion	12	1	3.06	0.97073	0.326797385620915	BP
+GO:0034622	cellular protein-containing complex assembly	153	32	38.96	0.97119	0.82135523613963	BP
+GO:0061025	membrane fusion	19	2	4.84	0.97206	0.413223140495868	BP
+GO:0065008	regulation of biological quality	180	55	45.84	0.97731	1.19982547993019	BP
+GO:0048193	Golgi vesicle transport	36	5	9.17	0.97735	0.54525627044711	BP
+GO:0009966	regulation of signal transduction	80	20	20.37	0.97806	0.981836033382425	BP
+GO:0065004	protein-DNA complex assembly	26	6	6.62	0.97808	0.906344410876133	BP
+GO:0006694	steroid biosynthetic process	13	1	3.31	0.97820	0.302114803625378	BP
+GO:0006626	protein targeting to mitochondrion	13	1	3.31	0.97820	0.302114803625378	BP
+GO:0042364	water-soluble vitamin biosynthetic process	20	2	5.09	0.97825	0.392927308447937	BP
+GO:0007166	cell surface receptor signaling pathway	85	20	21.65	0.98371	0.92378752886836	BP
+GO:0050790	regulation of catalytic activity	197	48	50.17	0.98375	0.956747059996014	BP
+GO:0065007	biological regulation	1154	291	293.87	0.98382	0.990233776840099	BP
+GO:0006281	DNA repair	142	29	36.16	0.98611	0.801991150442478	BP
+GO:0010243	response to organonitrogen compound	15	1	3.82	0.98791	0.261780104712042	BP
+GO:0006270	DNA replication initiation	15	1	3.82	0.98791	0.261780104712042	BP
+GO:0007005	mitochondrion organization	38	3	9.68	0.98809	0.309917355371901	BP
+GO:0006310	DNA recombination	71	14	18.08	0.99296	0.774336283185841	BP
+GO:0000902	cell morphogenesis	17	1	4.33	0.99330	0.23094688221709	BP
+GO:0006098	pentose-phosphate shunt	25	2	6.37	0.99394	0.313971742543171	BP
+GO:0006744	ubiquinone biosynthetic process	25	2	6.37	0.99394	0.313971742543171	BP
+GO:0016567	protein ubiquitination	117	19	29.79	0.99427	0.637797918764686	BP
+GO:0006470	protein dephosphorylation	85	18	21.65	0.99463	0.831408775981524	BP
+GO:0061024	membrane organization	47	9	11.97	0.99500	0.75187969924812	BP
+GO:0033554	cellular response to stress	192	35	48.89	0.99559	0.715892820617713	BP
+GO:0043161	proteasome-mediated ubiquitin-dependent protein catabolic process	26	1	6.62	0.99953	0.151057401812689	BP
+GO:0006412	translation	275	69	70.03	0.99983	0.985292017706697	BP
+GO:0042775	mitochondrial ATP synthesis coupled electron transport	31	1	7.89	0.99989	0.126742712294043	BP
+GO:0015074	DNA integration	240	34	61.12	1.00000	0.556282722513089	BP
+GO:0043038	amino acid activation	53	27	13.5	1.00000	2	BP
+GO:0019693	ribose phosphate metabolic process	83	17	21.14	1.00000	0.804162724692526	BP
+GO:0043039	tRNA aminoacylation	53	27	13.5	1.00000	2	BP
+GO:0031324	negative regulation of cellular metabolic process	54	9	13.75	1.00000	0.654545454545455	BP
+GO:0046474	glycerophospholipid biosynthetic process	30	2	7.64	1.00000	0.261780104712042	BP
+GO:0009141	nucleoside triphosphate metabolic process	30	8	7.64	1.00000	1.04712041884817	BP
+GO:0031325	positive regulation of cellular metabolic process	66	12	16.81	1.00000	0.713860797144557	BP
+GO:0009142	nucleoside triphosphate biosynthetic process	26	8	6.62	1.00000	1.20845921450151	BP
+GO:0031326	regulation of cellular biosynthetic process	308	73	78.43	1.00000	0.930766288410047	BP
+GO:0031327	negative regulation of cellular biosynthetic process	31	4	7.89	1.00000	0.506970849176172	BP
+GO:0009144	purine nucleoside triphosphate metabolic process	25	7	6.37	1.00000	1.0989010989011	BP
+GO:0009145	purine nucleoside triphosphate biosynthetic process	25	7	6.37	1.00000	1.0989010989011	BP
+GO:0051674	localization of cell	18	7	4.58	1.00000	1.52838427947598	BP
+GO:0032774	RNA biosynthetic process	300	66	76.4	1.00000	0.863874345549738	BP
+GO:0006163	purine nucleotide metabolic process	79	16	20.12	1.00000	0.795228628230616	BP
+GO:0006164	purine nucleotide biosynthetic process	38	10	9.68	1.00000	1.03305785123967	BP
+GO:0006816	calcium ion transport	20	2	5.09	1.00000	0.392927308447937	BP
+GO:0042325	regulation of phosphorylation	40	8	10.19	1.00000	0.785083415112856	BP
+GO:0042327	positive regulation of phosphorylation	14	4	3.57	1.00000	1.12044817927171	BP
+GO:0031929	TOR signaling	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0009135	purine nucleoside diphosphate metabolic process	30	4	7.64	1.00000	0.523560209424084	BP
+GO:0051306	mitotic sister chromatid separation	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0031667	response to nutrient levels	16	3	4.07	1.00000	0.737100737100737	BP
+GO:0031668	cellular response to extracellular stimulus	13	3	3.31	1.00000	0.906344410876133	BP
+GO:0031669	cellular response to nutrient levels	13	3	3.31	1.00000	0.906344410876133	BP
+GO:0019318	hexose metabolic process	55	16	14.01	1.00000	1.14204139900071	BP
+GO:0019319	hexose biosynthetic process	37	8	9.42	1.00000	0.849256900212314	BP
+GO:0022406	membrane docking	12	1	3.06	1.00000	0.326797385620915	BP
+GO:0071554	cell wall organization or biogenesis	28	8	7.13	1.00000	1.12201963534362	BP
+GO:0031334	positive regulation of protein-containing complex assembly	15	1	3.82	1.00000	0.261780104712042	BP
+GO:0008213	protein alkylation	32	8	8.15	1.00000	0.98159509202454	BP
+GO:0051640	organelle localization	24	4	6.11	1.00000	0.654664484451718	BP
+GO:0008219	cell death	22	7	5.6	1.00000	1.25	BP
+GO:0045786	negative regulation of cell cycle	22	5	5.6	1.00000	0.892857142857143	BP
+GO:0042330	taxis	13	3	3.31	1.00000	0.906344410876133	BP
+GO:0019941	modification-dependent protein catabolic process	114	20	29.03	1.00000	0.688942473303479	BP
+GO:0040011	locomotion	32	10	8.15	1.00000	1.22699386503067	BP
+GO:0009100	glycoprotein metabolic process	48	11	12.22	1.00000	0.900163666121113	BP
+GO:0140056	organelle localization by membrane tethering	12	1	3.06	1.00000	0.326797385620915	BP
+GO:0033865	nucleoside bisphosphate metabolic process	20	4	5.09	1.00000	0.785854616895874	BP
+GO:0051783	regulation of nuclear division	14	2	3.57	1.00000	0.560224089635854	BP
+GO:0051495	positive regulation of cytoskeleton organization	10	1	2.55	1.00000	0.392156862745098	BP
+GO:0030705	cytoskeleton-dependent intracellular transport	14	9	3.57	1.00000	2.52100840336134	BP
+GO:0006805	xenobiotic metabolic process	16	4	4.07	1.00000	0.982800982800983	BP
+GO:0010562	positive regulation of phosphorus metabolic process	14	4	3.57	1.00000	1.12044817927171	BP
+GO:0010563	negative regulation of phosphorus metabolic process	11	2	2.8	1.00000	0.714285714285714	BP
+GO:0072329	monocarboxylic acid catabolic process	13	4	3.31	1.00000	1.20845921450151	BP
+GO:0140029	exocytic process	11	1	2.8	1.00000	0.357142857142857	BP
+GO:0033875	ribonucleoside bisphosphate metabolic process	20	4	5.09	1.00000	0.785854616895874	BP
+GO:0007265	Ras protein signal transduction	35	13	8.91	1.00000	1.45903479236813	BP
+GO:0010556	regulation of macromolecule biosynthetic process	306	73	77.92	1.00000	0.936858316221766	BP
+GO:0007266	Rho protein signal transduction	25	6	6.37	1.00000	0.941915227629513	BP
+GO:0010558	negative regulation of macromolecule biosynthetic process	30	4	7.64	1.00000	0.523560209424084	BP
+GO:0051716	cellular response to stimulus	632	146	160.94	1.00000	0.907170374052442	BP
+GO:0008202	steroid metabolic process	13	1	3.31	1.00000	0.302114803625378	BP
+GO:0061919	process utilizing autophagic mechanism	26	4	6.62	1.00000	0.604229607250755	BP
+GO:0099120	socially cooperative development	17	6	4.33	1.00000	1.38568129330254	BP
+GO:0008064	regulation of actin polymerization or depolymerization	16	2	4.07	1.00000	0.491400491400491	BP
+GO:0043413	macromolecule glycosylation	43	10	10.95	1.00000	0.91324200913242	BP
+GO:0043414	macromolecule methylation	59	20	15.02	1.00000	1.33155792276964	BP
+GO:0019752	carboxylic acid metabolic process	422	136	107.46	1.00000	1.26558719523544	BP
+GO:0031497	chromatin assembly	14	5	3.57	1.00000	1.40056022408964	BP
+GO:0099111	microtubule-based transport	14	9	3.57	1.00000	2.52100840336134	BP
+GO:0016053	organic acid biosynthetic process	107	34	27.25	1.00000	1.24770642201835	BP
+GO:0016054	organic acid catabolic process	56	17	14.26	1.00000	1.19214586255259	BP
+GO:0099118	microtubule-based protein transport	11	8	2.8	1.00000	2.85714285714286	BP
+GO:0072655	establishment of protein localization to mitochondrion	13	1	3.31	1.00000	0.302114803625378	BP
+GO:0072657	protein localization to membrane	19	3	4.84	1.00000	0.619834710743802	BP
+GO:0008652	cellular amino acid biosynthetic process	62	27	15.79	1.00000	1.70994300189994	BP
+GO:0048519	negative regulation of biological process	144	31	36.67	1.00000	0.845377692937006	BP
+GO:0042773	ATP synthesis coupled electron transport	31	1	7.89	1.00000	0.126742712294043	BP
+GO:0016071	mRNA metabolic process	115	28	29.28	1.00000	0.956284153005464	BP
+GO:0016072	rRNA metabolic process	79	32	20.12	1.00000	1.59045725646123	BP
+GO:0009259	ribonucleotide metabolic process	83	17	21.14	1.00000	0.804162724692526	BP
+GO:0042726	flavin-containing compound metabolic process	11	4	2.8	1.00000	1.42857142857143	BP
+GO:0070647	protein modification by small protein conjugation or removal	185	38	47.11	1.00000	0.806622797707493	BP
+GO:0006551	leucine metabolic process	28	9	7.13	1.00000	1.26227208976157	BP
+GO:0051703	intraspecies interaction between organisms	17	6	4.33	1.00000	1.38568129330254	BP
+GO:0051704	multi-organism process	27	8	6.88	1.00000	1.16279069767442	BP
+GO:0090702	non-reproductive fruiting body development	17	6	4.33	1.00000	1.38568129330254	BP
+GO:0009991	response to extracellular stimulus	16	3	4.07	1.00000	0.737100737100737	BP
+GO:0046165	alcohol biosynthetic process	14	2	3.57	1.00000	0.560224089635854	BP
+GO:0048278	vesicle docking	12	1	3.06	1.00000	0.326797385620915	BP
+GO:0006586	indolalkylamine metabolic process	36	13	9.17	1.00000	1.41766630316249	BP
+GO:0000819	sister chromatid segregation	34	6	8.66	1.00000	0.69284064665127	BP
+GO:0045893	positive regulation of transcription, DNA-templated	26	3	6.62	1.00000	0.453172205438066	BP
+GO:0007091	metaphase/anaphase transition of mitotic cell cycle	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0016043	cellular component organization	562	124	143.11	1.00000	0.866466354552442	BP
+GO:0006573	valine metabolic process	28	9	7.13	1.00000	1.26227208976157	BP
+GO:0006575	cellular modified amino acid metabolic process	46	7	11.71	1.00000	0.597779675491033	BP
+GO:0006576	cellular biogenic amine metabolic process	42	17	10.7	1.00000	1.58878504672897	BP
+GO:0046834	lipid phosphorylation	18	5	4.58	1.00000	1.09170305676856	BP
+GO:0070727	cellular macromolecule localization	157	34	39.98	1.00000	0.850425212606303	BP
+GO:0046839	phospholipid dephosphorylation	13	2	3.31	1.00000	0.604229607250755	BP
+GO:0015980	energy derivation by oxidation of organic compounds	75	14	19.1	1.00000	0.732984293193717	BP
+GO:0015985	energy coupled proton transport, down electrochemical gradient	11	2	2.8	1.00000	0.714285714285714	BP
+GO:0030162	regulation of proteolysis	22	4	5.6	1.00000	0.714285714285714	BP
+GO:0050801	ion homeostasis	14	5	3.57	1.00000	1.40056022408964	BP
+GO:0009247	glycolipid biosynthetic process	19	2	4.84	1.00000	0.413223140495868	BP
+GO:0015977	carbon fixation	13	6	3.31	1.00000	1.81268882175227	BP
+GO:1903362	regulation of cellular protein catabolic process	10	2	2.55	1.00000	0.784313725490196	BP
+GO:0010965	regulation of mitotic sister chromatid separation	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0009095	aromatic amino acid family biosynthetic process, prephenate pathway	17	6	4.33	1.00000	1.38568129330254	BP
+GO:1903506	regulation of nucleic acid-templated transcription	236	52	60.1	1.00000	0.86522462562396	BP
+GO:1903507	negative regulation of nucleic acid-templated transcription	25	4	6.37	1.00000	0.627943485086342	BP
+GO:1903508	positive regulation of nucleic acid-templated transcription	26	3	6.62	1.00000	0.453172205438066	BP
+GO:1903509	liposaccharide metabolic process	23	3	5.86	1.00000	0.511945392491468	BP
+GO:0030832	regulation of actin filament length	16	2	4.07	1.00000	0.491400491400491	BP
+GO:0006549	isoleucine metabolic process	31	10	7.89	1.00000	1.26742712294043	BP
+GO:0002183	cytoplasmic translational initiation	10	7	2.55	1.00000	2.74509803921569	BP
+GO:0015914	phospholipid transport	15	8	3.82	1.00000	2.09424083769634	BP
+GO:0007059	chromosome segregation	40	9	10.19	1.00000	0.883218842001963	BP
+GO:0006399	tRNA metabolic process	133	49	33.87	1.00000	1.44670800118099	BP
+GO:0042430	indole-containing compound metabolic process	38	14	9.68	1.00000	1.44628099173554	BP
+GO:0007088	regulation of mitotic nuclear division	14	2	3.57	1.00000	0.560224089635854	BP
+GO:0009205	purine ribonucleoside triphosphate metabolic process	25	7	6.37	1.00000	1.0989010989011	BP
+GO:0009063	cellular amino acid catabolic process	45	14	11.46	1.00000	1.2216404886562	BP
+GO:0044106	cellular amine metabolic process	42	17	10.7	1.00000	1.58878504672897	BP
+GO:0009064	glutamine family amino acid metabolic process	41	18	10.44	1.00000	1.72413793103448	BP
+GO:0006220	pyrimidine nucleotide metabolic process	18	5	4.58	1.00000	1.09170305676856	BP
+GO:0009066	aspartate family amino acid metabolic process	75	31	19.1	1.00000	1.62303664921466	BP
+GO:0009056	catabolic process	377	84	96	1.00000	0.875	BP
+GO:0009059	macromolecule biosynthetic process	734	175	186.91	1.00000	0.936279492804023	BP
+GO:0006505	GPI anchor metabolic process	17	2	4.33	1.00000	0.46189376443418	BP
+GO:0009081	branched-chain amino acid metabolic process	31	10	7.89	1.00000	1.26742712294043	BP
+GO:0009082	branched-chain amino acid biosynthetic process	16	5	4.07	1.00000	1.22850122850123	BP
+GO:0043170	macromolecule metabolic process	2459	609	626.19	1.00000	0.972548268097542	BP
+GO:0034248	regulation of cellular amide metabolic process	65	21	16.55	1.00000	1.26888217522659	BP
+GO:0009083	branched-chain amino acid catabolic process	17	5	4.33	1.00000	1.15473441108545	BP
+GO:0007010	cytoskeleton organization	111	20	28.27	1.00000	0.707463742483198	BP
+GO:0009072	aromatic amino acid family metabolic process	69	21	17.57	1.00000	1.19521912350598	BP
+GO:0009073	aromatic amino acid family biosynthetic process	19	7	4.84	1.00000	1.44628099173554	BP
+GO:1902531	regulation of intracellular signal transduction	54	16	13.75	1.00000	1.16363636363636	BP
+GO:0009078	pyruvate family amino acid metabolic process	20	8	5.09	1.00000	1.57170923379175	BP
+GO:0036211	protein modification process	811	196	206.52	1.00000	0.94906062366841	BP
+GO:0051168	nuclear export	13	2	3.31	1.00000	0.604229607250755	BP
+GO:0051169	nuclear transport	26	7	6.62	1.00000	1.05740181268882	BP
+GO:0045184	establishment of protein localization	190	39	48.38	1.00000	0.806118230673832	BP
+GO:0090150	establishment of protein localization to membrane	19	3	4.84	1.00000	0.619834710743802	BP
+GO:0097237	cellular response to toxic substance	21	5	5.35	1.00000	0.934579439252337	BP
+GO:0071496	cellular response to external stimulus	13	3	3.31	1.00000	0.906344410876133	BP
+GO:0098754	detoxification	21	5	5.35	1.00000	0.934579439252337	BP
+GO:0051180	vitamin transport	12	3	3.06	1.00000	0.980392156862745	BP
+GO:0009308	amine metabolic process	42	17	10.7	1.00000	1.58878504672897	BP
+GO:1902221	erythrose 4-phosphate/phosphoenolpyruvate family amino acid metabolic process	22	7	5.6	1.00000	1.25	BP
+GO:0009309	amine biosynthetic process	22	11	5.6	1.00000	1.96428571428571	BP
+GO:1902223	erythrose 4-phosphate/phosphoenolpyruvate family amino acid biosynthetic process	16	6	4.07	1.00000	1.47420147420147	BP
+GO:0051186	cofactor metabolic process	160	28	40.74	1.00000	0.687285223367698	BP
+GO:0042886	amide transport	188	40	47.87	1.00000	0.83559640693545	BP
+GO:0042196	chlorinated hydrocarbon metabolic process	10	4	2.55	1.00000	1.56862745098039	BP
+GO:1901564	organonitrogen compound metabolic process	1816	452	462.45	1.00000	0.977402962482431	BP
+GO:0042197	halogenated hydrocarbon metabolic process	10	4	2.55	1.00000	1.56862745098039	BP
+GO:0034204	lipid translocation	10	6	2.55	1.00000	2.35294117647059	BP
+GO:0023051	regulation of signaling	80	20	20.37	1.00000	0.981836033382425	BP
+GO:0023052	signaling	417	104	106.19	1.00000	0.979376589132687	BP
+GO:0044264	cellular polysaccharide metabolic process	15	5	3.82	1.00000	1.30890052356021	BP
+GO:0044265	cellular macromolecule catabolic process	200	41	50.93	1.00000	0.805026506970351	BP
+GO:0110053	regulation of actin filament organization	16	2	4.07	1.00000	0.491400491400491	BP
+GO:0023056	positive regulation of signaling	13	2	3.31	1.00000	0.604229607250755	BP
+GO:0023057	negative regulation of signaling	20	4	5.09	1.00000	0.785854616895874	BP
+GO:0051172	negative regulation of nitrogen compound metabolic process	51	9	12.99	1.00000	0.69284064665127	BP
+GO:0051173	positive regulation of nitrogen compound metabolic process	61	11	15.53	1.00000	0.708306503541533	BP
+GO:0034660	ncRNA metabolic process	214	82	54.5	1.00000	1.5045871559633	BP
+GO:0051174	regulation of phosphorus metabolic process	51	10	12.99	1.00000	0.769822940723634	BP
+GO:0051179	localization	862	216	219.51	1.00000	0.984009840098401	BP
+GO:0006661	phosphatidylinositol biosynthetic process	22	2	5.6	1.00000	0.357142857142857	BP
+GO:0031163	metallo-sulfur cluster assembly	17	2	4.33	1.00000	0.46189376443418	BP
+GO:1901293	nucleoside phosphate biosynthetic process	81	20	20.63	1.00000	0.969461948618517	BP
+GO:0044282	small molecule catabolic process	66	17	16.81	1.00000	1.01130279595479	BP
+GO:0071466	cellular response to xenobiotic stimulus	16	4	4.07	1.00000	0.982800982800983	BP
+GO:0009636	response to toxic substance	22	5	5.6	1.00000	0.892857142857143	BP
+GO:0006650	glycerophospholipid metabolic process	65	9	16.55	1.00000	0.54380664652568	BP
+GO:0010033	response to organic substance	38	8	9.68	1.00000	0.826446280991736	BP
+GO:0010647	positive regulation of cell communication	13	2	3.31	1.00000	0.604229607250755	BP
+GO:0006081	cellular aldehyde metabolic process	20	7	5.09	1.00000	1.37524557956778	BP
+GO:0010648	negative regulation of cell communication	20	4	5.09	1.00000	0.785854616895874	BP
+GO:0006333	chromatin assembly or disassembly	16	5	4.07	1.00000	1.22850122850123	BP
+GO:0006082	organic acid metabolic process	426	137	108.48	1.00000	1.26290560471976	BP
+GO:0005996	monosaccharide metabolic process	57	16	14.52	1.00000	1.10192837465565	BP
+GO:0044271	cellular nitrogen compound biosynthetic process	766	182	195.06	1.00000	0.933046242181893	BP
+GO:1901575	organic substance catabolic process	348	80	88.62	1.00000	0.902730760550666	BP
+GO:0070887	cellular response to chemical stimulus	55	15	14.01	1.00000	1.07066381156317	BP
+GO:1902099	regulation of metaphase/anaphase transition of cell cycle	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0006073	cellular glucan metabolic process	14	5	3.57	1.00000	1.40056022408964	BP
+GO:0097659	nucleic acid-templated transcription	299	66	76.14	1.00000	0.86682427107959	BP
+GO:0042158	lipoprotein biosynthetic process	21	3	5.35	1.00000	0.560747663551402	BP
+GO:0042181	ketone biosynthetic process	25	2	6.37	1.00000	0.313971742543171	BP
+GO:0006022	aminoglycan metabolic process	43	20	10.95	1.00000	1.82648401826484	BP
+GO:0046390	ribose phosphate biosynthetic process	43	11	10.95	1.00000	1.00456621004566	BP
+GO:0046394	carboxylic acid biosynthetic process	107	34	27.25	1.00000	1.24770642201835	BP
+GO:0046395	carboxylic acid catabolic process	56	17	14.26	1.00000	1.19214586255259	BP
+GO:0048609	multicellular organismal reproductive process	12	3	3.06	1.00000	0.980392156862745	BP
+GO:0042176	regulation of protein catabolic process	15	2	3.82	1.00000	0.523560209424084	BP
+GO:0010604	positive regulation of macromolecule metabolic process	65	13	16.55	1.00000	0.785498489425982	BP
+GO:0044248	cellular catabolic process	316	70	80.47	1.00000	0.869889399776314	BP
+GO:0010605	negative regulation of macromolecule metabolic process	82	17	20.88	1.00000	0.814176245210728	BP
+GO:0006611	protein export from nucleus	13	2	3.31	1.00000	0.604229607250755	BP
+GO:0010608	posttranscriptional regulation of gene expression	65	21	16.55	1.00000	1.26888217522659	BP
+GO:0034641	cellular nitrogen compound metabolic process	1667	404	424.5	1.00000	0.95170789163722	BP
+GO:0006766	vitamin metabolic process	49	10	12.48	1.00000	0.801282051282051	BP
+GO:0000278	mitotic cell cycle	67	12	17.06	1.00000	0.703399765533412	BP
+GO:0034032	purine nucleoside bisphosphate metabolic process	20	4	5.09	1.00000	0.785854616895874	BP
+GO:0044092	negative regulation of molecular function	19	4	4.84	1.00000	0.826446280991736	BP
+GO:0006643	membrane lipid metabolic process	33	4	8.4	1.00000	0.476190476190476	BP
+GO:0006753	nucleoside phosphate metabolic process	145	33	36.92	1.00000	0.893824485373781	BP
+GO:0006757	ATP generation from ADP	29	4	7.38	1.00000	0.542005420054201	BP
+GO:0005984	disaccharide metabolic process	18	5	4.58	1.00000	1.09170305676856	BP
+GO:0046364	monosaccharide biosynthetic process	37	8	9.42	1.00000	0.849256900212314	BP
+GO:0070838	divalent metal ion transport	35	7	8.91	1.00000	0.785634118967452	BP
+GO:0046219	indolalkylamine biosynthetic process	17	7	4.33	1.00000	1.61662817551963	BP
+GO:1902680	positive regulation of RNA biosynthetic process	26	3	6.62	1.00000	0.453172205438066	BP
+GO:2000113	negative regulation of cellular macromolecule biosynthetic process	30	4	7.64	1.00000	0.523560209424084	BP
+GO:0097035	regulation of membrane lipid distribution	10	6	2.55	1.00000	2.35294117647059	BP
+GO:0032268	regulation of cellular protein metabolic process	142	33	36.16	1.00000	0.912610619469027	BP
+GO:0018394	peptidyl-lysine acetylation	21	6	5.35	1.00000	1.1214953271028	BP
+GO:0035383	thioester metabolic process	17	4	4.33	1.00000	0.92378752886836	BP
+GO:1901360	organic cyclic compound metabolic process	1489	372	379.18	1.00000	0.981064402130914	BP
+GO:0008150	biological_process	5160	1314	1314	1.00000	1	BP
+GO:1902679	negative regulation of RNA biosynthetic process	25	4	6.37	1.00000	0.627943485086342	BP
+GO:0009410	response to xenobiotic stimulus	17	4	4.33	1.00000	0.92378752886836	BP
+GO:0034728	nucleosome organization	13	5	3.31	1.00000	1.51057401812689	BP
+GO:0006720	isoprenoid metabolic process	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0032392	DNA geometric change	23	5	5.86	1.00000	0.853242320819113	BP
+GO:0032535	regulation of cellular component size	19	2	4.84	1.00000	0.413223140495868	BP
+GO:0042594	response to starvation	14	3	3.57	1.00000	0.840336134453782	BP
+GO:0006006	glucose metabolic process	39	8	9.93	1.00000	0.80563947633434	BP
+GO:0032271	regulation of protein polymerization	16	2	4.07	1.00000	0.491400491400491	BP
+GO:1902903	regulation of supramolecular fiber organization	16	2	4.07	1.00000	0.491400491400491	BP
+GO:0032273	positive regulation of protein polymerization	10	1	2.55	1.00000	0.392156862745098	BP
+GO:1902905	positive regulation of supramolecular fiber organization	10	1	2.55	1.00000	0.392156862745098	BP
+GO:0000375	RNA splicing, via transesterification reactions	56	12	14.26	1.00000	0.841514726507714	BP
+GO:0000377	RNA splicing, via transesterification reactions with bulged adenosine as nucleophile	55	12	14.01	1.00000	0.856531049250535	BP
+GO:0044085	cellular component biogenesis	460	123	117.14	1.00000	1.05002561038074	BP
+GO:0006740	NADPH regeneration	25	2	6.37	1.00000	0.313971742543171	BP
+GO:0044087	regulation of cellular component biogenesis	29	3	7.38	1.00000	0.40650406504065	BP
+GO:0044089	positive regulation of cellular component biogenesis	16	1	4.07	1.00000	0.245700245700246	BP
+GO:0006743	ubiquinone metabolic process	25	2	6.37	1.00000	0.313971742543171	BP
+GO:0009890	negative regulation of biosynthetic process	31	4	7.89	1.00000	0.506970849176172	BP
+GO:0009891	positive regulation of biosynthetic process	34	5	8.66	1.00000	0.577367205542725	BP
+GO:0009892	negative regulation of metabolic process	84	17	21.39	1.00000	0.794763908368396	BP
+GO:0009893	positive regulation of metabolic process	71	14	18.08	1.00000	0.774336283185841	BP
+GO:0009894	regulation of catabolic process	23	3	5.86	1.00000	0.511945392491468	BP
+GO:1901698	response to nitrogen compound	15	1	3.82	1.00000	0.261780104712042	BP
+GO:0032504	multicellular organism reproduction	12	3	3.06	1.00000	0.980392156862745	BP
+GO:0006733	oxidoreduction coenzyme metabolic process	45	6	11.46	1.00000	0.523560209424084	BP
+GO:0050657	nucleic acid transport	18	4	4.58	1.00000	0.873362445414847	BP
+GO:0050658	RNA transport	18	4	4.58	1.00000	0.873362445414847	BP
+GO:0002097	tRNA wobble base modification	13	5	3.31	1.00000	1.51057401812689	BP
+GO:0001578	microtubule bundle formation	17	5	4.33	1.00000	1.15473441108545	BP
+GO:0022610	biological adhesion	13	1	3.31	1.00000	0.302114803625378	BP
+GO:0046348	amino sugar catabolic process	15	4	3.82	1.00000	1.04712041884817	BP
+GO:0022904	respiratory electron transport chain	33	1	8.4	1.00000	0.119047619047619	BP
+GO:0033013	tetrapyrrole metabolic process	18	5	4.58	1.00000	1.09170305676856	BP
+GO:0051254	positive regulation of RNA metabolic process	27	3	6.88	1.00000	0.436046511627907	BP
+GO:0006475	internal protein amino acid acetylation	22	6	5.6	1.00000	1.07142857142857	BP
+GO:0051258	protein polymerization	28	2	7.13	1.00000	0.280504908835905	BP
+GO:0042558	pteridine-containing compound metabolic process	20	2	5.09	1.00000	0.392927308447937	BP
+GO:0042559	pteridine-containing compound biosynthetic process	14	1	3.57	1.00000	0.280112044817927	BP
+GO:0033045	regulation of sister chromatid segregation	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0033047	regulation of mitotic sister chromatid segregation	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0032956	regulation of actin cytoskeleton organization	18	2	4.58	1.00000	0.436681222707424	BP
+GO:1901661	quinone metabolic process	25	2	6.37	1.00000	0.313971742543171	BP
+GO:1901663	quinone biosynthetic process	25	2	6.37	1.00000	0.313971742543171	BP
+GO:0044042	glucan metabolic process	14	5	3.57	1.00000	1.40056022408964	BP
+GO:0033036	macromolecule localization	242	54	61.63	1.00000	0.87619665747201	BP
+GO:0048869	cellular developmental process	35	8	8.91	1.00000	0.897867564534231	BP
+GO:0120036	plasma membrane bounded cell projection organization	59	27	15.02	1.00000	1.79760319573901	BP
+GO:0071824	protein-DNA complex subunit organization	27	6	6.88	1.00000	0.872093023255814	BP
+GO:0072599	establishment of protein localization to endoplasmic reticulum	14	3	3.57	1.00000	0.840336134453782	BP
+GO:0071826	ribonucleoprotein complex subunit organization	52	17	13.24	1.00000	1.28398791540786	BP
+GO:0018208	peptidyl-proline modification	24	9	6.11	1.00000	1.47299509001637	BP
+GO:1901657	glycosyl compound metabolic process	36	8	9.17	1.00000	0.872410032715376	BP
+GO:0032970	regulation of actin filament-based process	18	2	4.58	1.00000	0.436681222707424	BP
+GO:1901071	glucosamine-containing compound metabolic process	34	16	8.66	1.00000	1.84757505773672	BP
+GO:1901072	glucosamine-containing compound catabolic process	15	4	3.82	1.00000	1.04712041884817	BP
+GO:0044782	cilium organization	53	26	13.5	1.00000	1.92592592592593	BP
+GO:0071166	ribonucleoprotein complex localization	13	2	3.31	1.00000	0.604229607250755	BP
+GO:0044784	metaphase/anaphase transition of cell cycle	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0009199	ribonucleoside triphosphate metabolic process	26	8	6.62	1.00000	1.20845921450151	BP
+GO:0071840	cellular component organization or biogenesis	763	182	194.3	1.00000	0.936695831188883	BP
+GO:0046903	secretion	27	4	6.88	1.00000	0.581395348837209	BP
+GO:0070585	protein localization to mitochondrion	13	1	3.31	1.00000	0.302114803625378	BP
+GO:0044770	cell cycle phase transition	25	6	6.37	1.00000	0.941915227629513	BP
+GO:0008104	protein localization	206	42	52.46	1.00000	0.800609988562714	BP
+GO:0007154	cell communication	426	107	108.48	1.00000	0.986356932153392	BP
+GO:0048878	chemical homeostasis	17	5	4.33	1.00000	1.15473441108545	BP
+GO:0097435	supramolecular fiber organization	36	4	9.17	1.00000	0.436205016357688	BP
+GO:0051246	regulation of protein metabolic process	146	33	37.18	1.00000	0.887573964497041	BP
+GO:0043067	regulation of programmed cell death	15	4	3.82	1.00000	1.04712041884817	BP
+GO:0051247	positive regulation of protein metabolic process	39	8	9.93	1.00000	0.80563947633434	BP
+GO:0042255	ribosome assembly	21	4	5.35	1.00000	0.747663551401869	BP
+GO:0051248	negative regulation of protein metabolic process	26	4	6.62	1.00000	0.604229607250755	BP
+GO:0046031	ADP metabolic process	29	4	7.38	1.00000	0.542005420054201	BP
+GO:0098840	protein transport along microtubule	11	8	2.8	1.00000	2.85714285714286	BP
+GO:0015849	organic acid transport	27	9	6.88	1.00000	1.30813953488372	BP
+GO:0030029	actin filament-based process	39	7	9.93	1.00000	0.704934541792548	BP
+GO:0010876	lipid localization	30	11	7.64	1.00000	1.43979057591623	BP
+GO:0051234	establishment of localization	816	206	207.8	1.00000	0.991337824831569	BP
+GO:0016569	covalent chromatin modification	60	15	15.28	1.00000	0.981675392670157	BP
+GO:0051236	establishment of RNA localization	18	4	4.58	1.00000	0.873362445414847	BP
+GO:0001505	regulation of neurotransmitter levels	40	19	10.19	1.00000	1.86457311089303	BP
+GO:0018022	peptidyl-lysine methylation	15	2	3.82	1.00000	0.523560209424084	BP
+GO:1901615	organic hydroxy compound metabolic process	38	5	9.68	1.00000	0.516528925619835	BP
+GO:0009161	ribonucleoside monophosphate metabolic process	11	1	2.8	1.00000	0.357142857142857	BP
+GO:0019538	protein metabolic process	1393	334	354.73	1.00000	0.941561187381952	BP
+GO:0046496	nicotinamide nucleotide metabolic process	12	3	3.06	1.00000	0.980392156862745	BP
+GO:0009163	nucleoside biosynthetic process	14	3	3.57	1.00000	0.840336134453782	BP
+GO:2001141	regulation of RNA biosynthetic process	236	52	60.1	1.00000	0.86522462562396	BP
+GO:0051983	regulation of chromosome segregation	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0006403	RNA localization	20	4	5.09	1.00000	0.785854616895874	BP
+GO:0043085	positive regulation of catalytic activity	91	21	23.17	1.00000	0.906344410876133	BP
+GO:0030041	actin filament polymerization	17	2	4.33	1.00000	0.46189376443418	BP
+GO:0006405	RNA export from nucleus	13	2	3.31	1.00000	0.604229607250755	BP
+GO:0009150	purine ribonucleotide metabolic process	78	16	19.86	1.00000	0.80563947633434	BP
+GO:0042278	purine nucleoside metabolic process	11	2	2.8	1.00000	0.714285714285714	BP
+GO:0043933	protein-containing complex subunit organization	172	39	43.8	1.00000	0.89041095890411	BP
+GO:1903825	organic acid transmembrane transport	22	7	5.6	1.00000	1.25	BP
+GO:0051321	meiotic cell cycle	18	4	4.58	1.00000	0.873362445414847	BP
+GO:0042221	response to chemical	119	25	30.3	1.00000	0.825082508250825	BP
+GO:0030030	cell projection organization	61	28	15.53	1.00000	1.80296200901481	BP
+GO:0006865	amino acid transport	18	6	4.58	1.00000	1.31004366812227	BP
+GO:0031503	protein-containing complex localization	27	10	6.88	1.00000	1.45348837209302	BP
+GO:0019222	regulation of metabolic process	465	107	118.41	1.00000	0.903639895279115	BP
+GO:0071806	protein transmembrane transport	15	4	3.82	1.00000	1.04712041884817	BP
+GO:0009185	ribonucleoside diphosphate metabolic process	30	4	7.64	1.00000	0.523560209424084	BP
+GO:0009187	cyclic nucleotide metabolic process	17	3	4.33	1.00000	0.69284064665127	BP
+GO:0072522	purine-containing compound biosynthetic process	39	10	9.93	1.00000	1.00704934541793	BP
+GO:0030490	maturation of SSU-rRNA	20	10	5.09	1.00000	1.96463654223969	BP
+GO:0000003	reproduction	45	11	11.46	1.00000	0.959860383944154	BP
+GO:0000725	recombinational repair	11	6	2.8	1.00000	2.14285714285714	BP
+GO:0072525	pyridine-containing compound biosynthetic process	14	3	3.57	1.00000	0.840336134453782	BP
+GO:0072527	pyrimidine-containing compound metabolic process	63	21	16.04	1.00000	1.30922693266833	BP
+GO:0019362	pyridine nucleotide metabolic process	20	4	5.09	1.00000	0.785854616895874	BP
+GO:0019363	pyridine nucleotide biosynthetic process	10	3	2.55	1.00000	1.17647058823529	BP
+GO:0090066	regulation of anatomical structure size	19	2	4.84	1.00000	0.413223140495868	BP
+GO:0046467	membrane lipid biosynthetic process	21	2	5.35	1.00000	0.373831775700935	BP
+GO:0022411	cellular component disassembly	17	5	4.33	1.00000	1.15473441108545	BP
+GO:0072511	divalent inorganic cation transport	35	7	8.91	1.00000	0.785634118967452	BP
+GO:0009179	purine ribonucleoside diphosphate metabolic process	30	4	7.64	1.00000	0.523560209424084	BP
+GO:0045930	negative regulation of mitotic cell cycle	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0009123	nucleoside monophosphate metabolic process	14	3	3.57	1.00000	0.840336134453782	BP
+GO:0045934	negative regulation of nucleobase-containing compound metabolic process	26	5	6.62	1.00000	0.755287009063444	BP
+GO:0045935	positive regulation of nucleobase-containing compound metabolic process	28	3	7.13	1.00000	0.420757363253857	BP
+GO:1990748	cellular detoxification	21	5	5.35	1.00000	0.934579439252337	BP
+GO:0045937	positive regulation of phosphate metabolic process	14	4	3.57	1.00000	1.12044817927171	BP
+GO:0046483	heterocycle metabolic process	1449	361	368.99	1.00000	0.978346296647606	BP
+GO:0051338	regulation of transferase activity	39	7	9.93	1.00000	0.704934541792548	BP
+GO:1901605	alpha-amino acid metabolic process	304	103	77.41	1.00000	1.33057744477458	BP
+GO:0009110	vitamin biosynthetic process	20	2	5.09	1.00000	0.392927308447937	BP
+GO:0044703	multi-organism reproductive process	22	8	5.6	1.00000	1.42857142857143	BP
+GO:0009112	nucleobase metabolic process	90	27	22.92	1.00000	1.17801047120419	BP
+GO:0046488	phosphatidylinositol metabolic process	52	9	13.24	1.00000	0.6797583081571	BP
+GO:1905818	regulation of chromosome separation	12	2	3.06	1.00000	0.65359477124183	BP
+GO:0006820	anion transport	60	23	15.28	1.00000	1.50523560209424	BP
+GO:0009119	ribonucleoside metabolic process	15	3	3.82	1.00000	0.785340314136126	BP
+GO:0005929	cilium	89	37	21.07	0.00043	1.75605125771239	CC
+GO:0005730	nucleolus	102	38	24.15	0.00132	1.57349896480331	CC
+GO:0032040	small-subunit processome	14	9	3.31	0.00140	2.7190332326284	CC
+GO:0005852	eukaryotic translation initiation factor 3 complex	14	9	3.31	0.00140	2.7190332326284	CC
+GO:0033290	eukaryotic 48S preinitiation complex	10	7	2.37	0.00248	2.9535864978903	CC
+GO:0016282	eukaryotic 43S preinitiation complex	10	7	2.37	0.00248	2.9535864978903	CC
+GO:0030684	preribosome	32	18	7.58	0.02099	2.37467018469657	CC
+GO:0031514	motile cilium	48	18	11.36	0.02179	1.58450704225352	CC
+GO:0043226	organelle	1796	407	425.19	0.04690	0.957219125567393	CC
+GO:0031982	vesicle	65	13	15.39	0.05963	0.844704353476283	CC
+GO:0005615	extracellular space	16	7	3.79	0.06131	1.84696569920844	CC
+GO:0019898	extrinsic component of membrane	17	7	4.02	0.08366	1.74129353233831	CC
+GO:0030286	dynein complex	31	9	7.34	0.08408	1.22615803814714	CC
+GO:0005887	integral component of plasma membrane	22	7	5.21	0.08993	1.34357005758157	CC
+GO:0010008	endosome membrane	11	5	2.6	0.09423	1.92307692307692	CC
+GO:0032991	protein-containing complex	1066	248	252.37	0.11509	0.982684154218013	CC
+GO:0031966	mitochondrial membrane	86	15	20.36	0.12357	0.736738703339882	CC
+GO:0000323	lytic vacuole	12	5	2.84	0.13124	1.76056338028169	CC
+GO:0070013	intracellular organelle lumen	296	77	70.08	0.14023	1.09874429223744	CC
+GO:0005643	nuclear pore	19	7	4.5	0.14025	1.55555555555556	CC
+GO:0043232	intracellular non-membrane-bounded organelle	650	149	153.88	0.14434	0.96828697686509	CC
+GO:1990904	ribonucleoprotein complex	174	47	41.19	0.15407	1.14105365379947	CC
+GO:0005773	vacuole	35	11	8.29	0.17325	1.32689987937274	CC
+GO:0009365	protein histidine kinase complex	24	8	5.68	0.18780	1.40845070422535	CC
+GO:0005681	spliceosomal complex	41	10	9.71	0.18913	1.02986611740474	CC
+GO:0030687	preribosome, large subunit precursor	10	4	2.37	0.19382	1.68776371308017	CC
+GO:0005669	transcription factor TFIID complex	10	4	2.37	0.19382	1.68776371308017	CC
+GO:0000786	nucleosome	17	6	4.02	0.19526	1.49253731343284	CC
+GO:1902494	catalytic complex	390	81	92.33	0.20457	0.877287988736056	CC
+GO:0042995	cell projection	99	40	23.44	0.23349	1.70648464163823	CC
+GO:0055029	nuclear DNA-directed RNA polymerase complex	37	11	8.76	0.23911	1.25570776255708	CC
+GO:0005930	axoneme	18	4	4.26	0.23995	0.938967136150235	CC
+GO:0000228	nuclear chromosome	53	11	12.55	0.24003	0.876494023904382	CC
+GO:0031967	organelle envelope	127	28	30.07	0.24057	0.931160625207848	CC
+GO:0016021	integral component of membrane	2641	633	625.23	0.24616	1.01242742670697	CC
+GO:0000793	condensed chromosome	21	6	4.97	0.25092	1.20724346076459	CC
+GO:0005777	peroxisome	34	7	8.05	0.28479	0.869565217391304	CC
+GO:0098797	plasma membrane protein complex	45	12	10.65	0.33702	1.12676056338028	CC
+GO:0030117	membrane coat	24	5	5.68	0.33987	0.880281690140845	CC
+GO:0009507	chloroplast	13	4	3.08	0.37129	1.2987012987013	CC
+GO:0005813	centrosome	13	4	3.08	0.37129	1.2987012987013	CC
+GO:0005938	cell cortex	24	5	5.68	0.37237	0.880281690140845	CC
+GO:0005622	intracellular	2256	510	534.09	0.41145	0.954895242374881	CC
+GO:0005732	small nucleolar ribonucleoprotein complex	14	4	3.31	0.43165	1.20845921450151	CC
+GO:0030118	clathrin coat	10	3	2.37	0.43433	1.26582278481013	CC
+GO:1902495	transmembrane transporter complex	32	6	7.58	0.43544	0.79155672823219	CC
+GO:0045298	tubulin complex	81	20	19.18	0.45715	1.04275286757039	CC
+GO:0005737	cytoplasm	987	212	233.66	0.45918	0.907301206881794	CC
+GO:0005840	ribosome	193	35	45.69	0.46231	0.766031954475815	CC
+GO:1990234	transferase complex	191	40	45.22	0.46456	0.884564352056612	CC
+GO:0043231	intracellular membrane-bounded organelle	1254	279	296.87	0.49439	0.939805301984033	CC
+GO:0005758	mitochondrial intermembrane space	11	3	2.6	0.50318	1.15384615384615	CC
+GO:1905348	endonuclease complex	11	3	2.6	0.50318	1.15384615384615	CC
+GO:0005667	transcription regulator complex	67	17	15.86	0.52549	1.0718789407314	CC
+GO:1905368	peptidase complex	50	5	11.84	0.57203	0.422297297297297	CC
+GO:0032993	protein-DNA complex	25	8	5.92	0.59814	1.35135135135135	CC
+GO:0008076	voltage-gated potassium channel complex	17	4	4.02	0.59883	0.995024875621891	CC
+GO:0099080	supramolecular complex	115	23	27.23	0.60153	0.844656628718325	CC
+GO:0030054	cell junction	13	3	3.08	0.62625	0.974025974025974	CC
+GO:0019013	viral nucleocapsid	18	4	4.26	0.64756	0.938967136150235	CC
+GO:0016459	myosin complex	18	4	4.26	0.64756	0.938967136150235	CC
+GO:0120025	plasma membrane bounded cell projection	98	39	23.2	0.65843	1.68103448275862	CC
+GO:0031248	protein acetyltransferase complex	29	6	6.87	0.66108	0.873362445414847	CC
+GO:0005829	cytosol	181	35	42.85	0.66120	0.816802800466744	CC
+GO:0016591	RNA polymerase II, holoenzyme	33	9	7.81	0.66426	1.15236875800256	CC
+GO:0061695	transferase complex, transferring phosphorus-containing groups	98	25	23.2	0.66589	1.07758620689655	CC
+GO:0098796	membrane protein complex	175	35	41.43	0.67079	0.844798455225682	CC
+GO:0000775	chromosome, centromeric region	14	3	3.31	0.67932	0.906344410876133	CC
+GO:0005815	microtubule organizing center	41	10	9.71	0.68063	1.02986611740474	CC
+GO:1990204	oxidoreductase complex	29	6	6.87	0.71617	0.873362445414847	CC
+GO:1902911	protein kinase complex	34	10	8.05	0.72390	1.24223602484472	CC
+GO:0000794	condensed nuclear chromosome	10	2	2.37	0.72506	0.843881856540084	CC
+GO:0019867	outer membrane	10	2	2.37	0.72506	0.843881856540084	CC
+GO:0008023	transcription elongation factor complex	10	2	2.37	0.72506	0.843881856540084	CC
+GO:0097525	spliceosomal snRNP complex	21	3	4.97	0.72585	0.603621730382294	CC
+GO:0033176	proton-transporting V-type ATPase complex	15	3	3.55	0.72657	0.845070422535211	CC
+GO:0090575	RNA polymerase II transcription regulator complex	30	8	7.1	0.73150	1.12676056338028	CC
+GO:0005634	nucleus	844	203	199.81	0.73253	1.01596516690856	CC
+GO:0005657	replication fork	39	8	9.23	0.73737	0.866738894907909	CC
+GO:0000123	histone acetyltransferase complex	25	5	5.92	0.74017	0.844594594594595	CC
+GO:0044815	DNA packaging complex	22	7	5.21	0.74045	1.34357005758157	CC
+GO:0012505	endomembrane system	233	48	55.16	0.74511	0.870195794053662	CC
+GO:0005874	microtubule	94	20	22.25	0.74629	0.898876404494382	CC
+GO:0031090	organelle membrane	241	40	57.05	0.74714	0.7011393514461	CC
+GO:0016020	membrane	2972	700	703.6	0.75870	0.99488345650938	CC
+GO:0005576	extracellular region	56	15	13.26	0.76120	1.13122171945701	CC
+GO:0110165	cellular anatomical entity	4655	1098	1102.03	0.76399	0.996343112256472	CC
+GO:0005739	mitochondrion	216	41	51.14	0.76675	0.801720766523269	CC
+GO:0005774	vacuolar membrane	16	3	3.79	0.76818	0.79155672823219	CC
+GO:0030176	integral component of endoplasmic reticulum membrane	16	3	3.79	0.76818	0.79155672823219	CC
+GO:0016592	mediator complex	16	3	3.79	0.76818	0.79155672823219	CC
+GO:0045259	proton-transporting ATP synthase complex	11	2	2.6	0.77437	0.769230769230769	CC
+GO:0005635	nuclear envelope	25	8	5.92	0.80169	1.35135135135135	CC
+GO:0005783	endoplasmic reticulum	56	11	13.26	0.80655	0.829562594268477	CC
+GO:0005789	endoplasmic reticulum membrane	72	14	17.05	0.80731	0.821114369501466	CC
+GO:0033178	proton-transporting two-sector ATPase complex, catalytic domain	12	2	2.84	0.81576	0.704225352112676	CC
+GO:0042575	DNA polymerase complex	23	4	5.45	0.82981	0.73394495412844	CC
+GO:0015629	actin cytoskeleton	41	8	9.71	0.82996	0.82389289392379	CC
+GO:0005654	nucleoplasm	124	25	29.36	0.83723	0.85149863760218	CC
+GO:0033177	proton-transporting two-sector ATPase complex, proton-transporting domain	13	2	3.08	0.85021	0.649350649350649	CC
+GO:0030660	Golgi-associated vesicle membrane	13	2	3.08	0.85021	0.649350649350649	CC
+GO:0043227	membrane-bounded organelle	1327	294	314.16	0.85662	0.935828877005348	CC
+GO:0005623	cell	45	8	10.65	0.86878	0.751173708920188	CC
+GO:0005794	Golgi apparatus	72	10	17.05	0.87167	0.586510263929619	CC
+GO:0008287	protein serine/threonine phosphatase complex	25	4	5.92	0.87671	0.675675675675676	CC
+GO:0005858	axonemal dynein complex	14	2	3.31	0.87869	0.604229607250755	CC
+GO:0031461	cullin-RING ubiquitin ligase complex	15	2	3.55	0.90210	0.563380281690141	CC
+GO:0043229	intracellular organelle	1694	366	401.04	0.90430	0.912627169359665	CC
+GO:0005768	endosome	20	6	4.73	0.91178	1.26849894291755	CC
+GO:0070469	respirasome	32	3	7.58	0.91301	0.395778364116095	CC
+GO:0005743	mitochondrial inner membrane	71	9	16.81	0.92602	0.535395597858418	CC
+GO:0046540	U4/U6 x U5 tri-snRNP complex	10	1	2.37	0.93309	0.421940928270042	CC
+GO:0000922	spindle pole	10	1	2.37	0.93309	0.421940928270042	CC
+GO:0036464	cytoplasmic ribonucleoprotein granule	10	1	2.37	0.93309	0.421940928270042	CC
+GO:0000785	chromatin	46	9	10.89	0.93318	0.826446280991735	CC
+GO:0005886	plasma membrane	94	21	22.25	0.93338	0.943820224719101	CC
+GO:0005694	chromosome	143	29	33.85	0.93746	0.85672082717873	CC
+GO:0000145	exocyst	11	1	2.6	0.94896	0.384615384615385	CC
+GO:0071013	catalytic step 2 spliceosome	11	1	2.6	0.94896	0.384615384615385	CC
+GO:0005875	microtubule associated complex	49	11	11.6	0.94909	0.948275862068966	CC
+GO:0005819	spindle	21	2	4.97	0.94917	0.402414486921529	CC
+GO:0000790	nuclear chromatin	25	3	5.92	0.95651	0.506756756756757	CC
+GO:0005779	integral component of peroxisomal membrane	12	1	2.84	0.96107	0.352112676056338	CC
+GO:0022624	proteasome accessory complex	12	1	2.84	0.96107	0.352112676056338	CC
+GO:0030120	vesicle coat	12	1	2.84	0.96107	0.352112676056338	CC
+GO:0071011	precatalytic spliceosome	12	1	2.84	0.96107	0.352112676056338	CC
+GO:0098805	whole membrane	66	10	15.62	0.96154	0.640204865556978	CC
+GO:0031410	cytoplasmic vesicle	57	9	13.49	0.96806	0.667160859896219	CC
+GO:0099023	vesicle tethering complex	24	2	5.68	0.97047	0.352112676056338	CC
+GO:0098588	bounding membrane of organelle	90	12	21.31	0.97105	0.563115908024402	CC
+GO:0022627	cytosolic small ribosomal subunit	21	2	4.97	0.97440	0.402414486921529	CC
+GO:0034708	methyltransferase complex	14	1	3.31	0.97736	0.302114803625378	CC
+GO:0022625	cytosolic large ribosomal subunit	22	2	5.21	0.97968	0.383877159309021	CC
+GO:0098803	respiratory chain complex	23	2	5.45	0.98389	0.36697247706422	CC
+GO:0005759	mitochondrial matrix	24	2	5.68	0.98725	0.352112676056338	CC
+GO:0098800	inner mitochondrial membrane protein complex	27	2	6.39	0.99373	0.312989045383412	CC
+GO:0000139	Golgi membrane	27	2	6.39	0.99373	0.312989045383412	CC
+GO:0005856	cytoskeleton	223	48	52.79	0.99743	0.909263118014776	CC
+GO:0000502	proteasome complex	38	2	9	0.99914	0.222222222222222	CC
+GO:0097708	intracellular vesicle	57	9	13.49	1.00000	0.667160859896219	CC
+GO:0031981	nuclear lumen	258	70	61.08	1.00000	1.14603798297315	CC
+GO:0030880	RNA polymerase complex	37	11	8.76	1.00000	1.25570776255708	CC
+GO:0030532	small nuclear ribonucleoprotein complex	22	3	5.21	1.00000	0.575815738963532	CC
+GO:1990351	transporter complex	34	6	8.05	1.00000	0.745341614906832	CC
+GO:0030659	cytoplasmic vesicle membrane	17	1	4.02	1.00000	0.248756218905473	CC
+GO:0000428	DNA-directed RNA polymerase complex	37	11	8.76	1.00000	1.25570776255708	CC
+GO:0099568	cytoplasmic region	20	4	4.73	1.00000	0.845665961945032	CC
+GO:0031970	organelle envelope lumen	11	3	2.6	1.00000	1.15384615384615	CC
+GO:0031974	membrane-enclosed lumen	296	77	70.08	1.00000	1.09874429223744	CC
+GO:0031975	envelope	128	28	30.3	1.00000	0.924092409240924	CC
+GO:1903293	phosphatase complex	25	4	5.92	1.00000	0.675675675675676	CC
+GO:0035770	ribonucleoprotein granule	10	1	2.37	1.00000	0.421940928270042	CC
+GO:0019866	organelle inner membrane	72	9	17.05	1.00000	0.527859237536657	CC
+GO:0044423	virion part	24	4	5.68	1.00000	0.704225352112676	CC
+GO:0005778	peroxisomal membrane	15	1	3.55	1.00000	0.28169014084507	CC
+GO:0019028	viral capsid	22	4	5.21	1.00000	0.767754318618042	CC
+GO:0015934	large ribosomal subunit	35	2	8.29	1.00000	0.241254523522316	CC
+GO:0015935	small ribosomal subunit	31	2	7.34	1.00000	0.272479564032698	CC
+GO:0005575	cellular_component	4959	1174	1174	1.00000	1	CC
+GO:0042175	nuclear outer membrane-endoplasmic reticulum membrane network	72	14	17.05	1.00000	0.821114369501466	CC
+GO:0019012	virion	24	4	5.68	1.00000	0.704225352112676	CC
+GO:0000151	ubiquitin ligase complex	23	2	5.45	1.00000	0.36697247706422	CC
+GO:0099081	supramolecular polymer	97	20	22.96	1.00000	0.871080139372822	CC
+GO:0031300	intrinsic component of organelle membrane	44	4	10.42	1.00000	0.383877159309021	CC
+GO:0031301	integral component of organelle membrane	44	4	10.42	1.00000	0.383877159309021	CC
+GO:0016469	proton-transporting two-sector ATPase complex	27	5	6.39	1.00000	0.782472613458529	CC
+GO:0048475	coated membrane	24	5	5.68	1.00000	0.880281690140845	CC
+GO:1902493	acetyltransferase complex	29	6	6.87	1.00000	0.873362445414847	CC
+GO:0005740	mitochondrial envelope	98	18	23.2	1.00000	0.775862068965517	CC
+GO:0098798	mitochondrial protein complex	34	2	8.05	1.00000	0.248447204968944	CC
+GO:0031224	intrinsic component of membrane	2642	633	625.47	1.00000	1.01203894671207	CC
+GO:0031226	intrinsic component of plasma membrane	22	7	5.21	1.00000	1.34357005758157	CC
+GO:0031227	intrinsic component of endoplasmic reticulum membrane	16	3	3.79	1.00000	0.79155672823219	CC
+GO:0042579	microbody	34	7	8.05	1.00000	0.869565217391304	CC
+GO:0097526	spliceosomal tri-snRNP complex	11	1	2.6	1.00000	0.384615384615385	CC
+GO:0022626	cytosolic ribosome	44	4	10.42	1.00000	0.383877159309021	CC
+GO:0032838	plasma membrane bounded cell projection cytoplasm	19	4	4.5	1.00000	0.888888888888889	CC
+GO:0099512	supramolecular fiber	97	20	22.96	1.00000	0.871080139372822	CC
+GO:0099513	polymeric cytoskeletal fiber	96	20	22.73	1.00000	0.87989441267048	CC
+GO:0098687	chromosomal region	18	3	4.26	1.00000	0.704225352112676	CC
+GO:0034702	ion channel complex	26	4	6.16	1.00000	0.649350649350649	CC
+GO:0034703	cation channel complex	26	4	6.16	1.00000	0.649350649350649	CC
+GO:0015630	microtubule cytoskeleton	161	36	38.12	1.00000	0.944386149003148	CC
+GO:0034705	potassium channel complex	17	4	4.02	1.00000	0.995024875621891	CC
+GO:0005798	Golgi-associated vesicle	13	2	3.08	1.00000	0.649350649350649	CC
+GO:0043228	non-membrane-bounded organelle	650	149	153.88	1.00000	0.96828697686509	CC
+GO:0120114	Sm-like protein family complex	25	3	5.92	1.00000	0.506756756756757	CC
+GO:0097014	ciliary plasm	19	4	4.5	1.00000	0.888888888888889	CC
+GO:0031231	intrinsic component of peroxisomal membrane	12	1	2.84	1.00000	0.352112676056338	CC
+GO:0012506	vesicle membrane	18	1	4.26	1.00000	0.234741784037559	CC
+GO:0031903	microbody membrane	15	1	3.55	1.00000	0.28169014084507	CC
+GO:1905369	endopeptidase complex	38	2	9	1.00000	0.222222222222222	CC
+GO:0070993	translation preinitiation complex	10	7	2.37	1.00000	2.9535864978903	CC
+GO:0043233	organelle lumen	296	77	70.08	1.00000	1.09874429223744	CC
+GO:0030135	coated vesicle	14	1	3.31	1.00000	0.302114803625378	CC
+GO:0030662	coated vesicle membrane	13	1	3.08	1.00000	0.324675324675325	CC
+GO:0044391	ribosomal subunit	66	4	15.62	1.00000	0.256081946222791	CC
+GO:0009536	plastid	15	4	3.55	1.00000	1.12676056338028	CC
+GO:0071944	cell periphery	117	26	27.7	1.00000	0.938628158844765	CC

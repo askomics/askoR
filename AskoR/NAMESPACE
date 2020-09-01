@@ -1,6 +1,0 @@
-export("AskoStats",
-		"asko3c",
-		"NormCountsMean")
-
-importFrom("stringr", "str_detect", "str_replace")
-importFrom("stats", "p.adjust")
