@@ -19,8 +19,8 @@ You'll find a test set in the **inst/extdata/input** folder. It'll be used for t
 
 ### Vignettes
 
-* [User Guide]()
-* [Parameters Table]()
+* User Guide
+* Parameters Table
 
 ### Download
 
