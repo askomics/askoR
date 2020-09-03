@@ -2038,3 +2038,484 @@ GOenrichment<-function(resDEG, data, parameters){
   }
 }
 
+#' @title ClustAndGO
+#'
+#' @description
+#' Clusterize genes with same profile, proceed to GO-enrichment on clusters, search for contrasts enriched with genes of specific clusters, and identify intersections of DE list genes
+#' \itemize{
+#'    \item Graphs of clusters (heatmap and boxplot)
+#'    \item Expression profiles in each cluster
+#'    \item GO enrichments in each cluster
+#'    \item Over-representation of genes of each cluster in each contrast
+#'    \item Intersections of DE list genes in each cluster
+#' }
+#'
+#' @param asko_norm, large DGEList with normalized counts by GEnorm function.
+#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
+#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @return none
+#'
+#' @example
+#' \dontrun{
+#'    ClustAndGO(asko_norm, resDEG, parameters)
+#' }
+#'
+#' @export
+
+ClustAndGO <- function(asko_norm, resDEG, parameters){
+  library("coseq")
+  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
+  image_dir = paste0(study_dir, "images/")
+  input_path = paste0(parameters$dir_path, "/input/")
+  img_Clustering_dir = paste0(study_dir, "Clustering/")
+  if(dir.exists(img_Clustering_dir)==FALSE){
+    dir.create(img_Clustering_dir)
+    cat("Directory: ",img_Clustering_dir," created\n")
+  }
+
+
+  # for image size
+  nsamples <- ncol(asko_norm$counts)
+  sizeImg=15*nsamples
+  if(sizeImg < 1024){ sizeImg=1024 }
+
+  # import normalized MEAN counts in CPM
+  moys<-read.csv(paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
+
+  # import normalized counts (all samples) in CPM
+  object=read.csv(paste0(study_dir, parameters$analysis_name,"_CPM_NormCounts.txt"), header=TRUE, sep="\t", row.names=1)
+  resDEG2=resDEG
+  resDEG2[resDEG2==-1]<-1
+  # keep only DE genes in at least "coseq_ContrastsThreshold" contrasts
+  object=object[which(rowSums(resDEG2)>=parameters$coseq_ContrastsThreshold),]
+
+  cat("Number of differentially expressed genes kept : ")
+  print(nrow(object))
+
+  conds=asko_norm$samples$condition
+
+  ###############
+  ## run coseq ##
+  ###############
+
+  if (length(parameters$coseq_ClustersNb)==1 & parameters$coseq_model=="kmeans"){
+    cat("BOUCLE IF")
+    coexpr=coseq(object, K=2:12, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = "none", seed = 12345)
+    clust=as.data.frame(clusters(coexpr, K=parameters$coseq_ClustersNb))
+    names(clust)=c("clusters(coexpr)")
+  }
+  else{
+    cat("BOUCLE ELSE")
+    coexpr=coseq(object, K=parameters$coseq_ClustersNb, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = "none", seed = 12345)
+    clust=as.data.frame(clusters(coexpr))
+    cat("\nSummary of CoSeq\n")
+    print(summary(coexpr))
+  }
+
+
+  if (length(unique(clust$`clusters(coexpr)`)) > 12){
+    detach("package:coseq")
+    stop("TOO MANY CLUSTERS : Please set parameters$coseq_ClustersNb to default or under 12")
+  }
+
+  GeneToClusters<-merge(clust,moys,by="row.names")
+
+  img_transfo_dir = paste0(img_Clustering_dir,parameters$coseq_model,"_",parameters$coseq_transformation,"_",length(unique(clust$`clusters(coexpr)`)),"clusters/")
+  if(dir.exists(img_transfo_dir)==FALSE){
+    dir.create(img_transfo_dir)
+    cat("Directory: ",img_transfo_dir," created\n")
+  }
+
+  write.table(GeneToClusters,paste0(img_transfo_dir, parameters$analysis_name,"_GeneCPM_to_Cluster_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"),sep="\t",dec=".",row.names = TRUE,col.names = NA)
+
+  ###################
+  ## Global graphs ##
+  ###################
+  # Boxplots (scaled expression)
+  GeneToClustersScaled=GeneToClusters
+  GeneToClustersScaled=GeneToClustersScaled[,-2]
+  rownames(GeneToClustersScaled)=GeneToClustersScaled$Row.names
+  GeneToClustersScaled=GeneToClustersScaled[,-1]
+  GeneToClustersScaled=t(apply(as.matrix(GeneToClustersScaled), 1, scale))
+  colnames(GeneToClustersScaled)=colnames(GeneToClusters[,-c(1:2)])
+
+  final=data.frame()
+  n=as.numeric(ncol(GeneToClustersScaled))
+  for (i in 1:n) {
+    BDD <- data.frame(gene=rownames(GeneToClustersScaled))
+    BDD$cluster=GeneToClusters$`clusters(coexpr)`
+    BDD$expression=GeneToClustersScaled[,i]
+    BDD$sample=colnames(GeneToClusters[i+2])
+    final=rbind(final,BDD)
+  }
+  lab=c()
+  for (x in unique(final$cluster)){
+    lab=c(lab,paste0("Cluster ",x," (",nrow(GeneToClusters[GeneToClusters$`clusters(coexpr)`==x,])," genes)"))
+  }
+  names(lab)<-unique(final$cluster)
+  ggplot(final,aes(x=sample, y=expression,fill=sample))+geom_boxplot()+
+    stat_summary(fun=mean, geom="line", aes(group=1), colour="red")+
+    stat_summary(fun=mean, geom="point", colour="red")+
+    facet_wrap(~final$cluster, labeller = as_labeller(lab))+
+    theme_bw()+
+    theme(strip.text.x = element_text(size=12),
+          axis.text.x =element_blank(),
+          axis.text.y=element_text(size=12),
+          axis.ticks = element_blank(),
+          axis.title.x=element_blank(),
+          axis.title.y=element_text(size=15),
+          legend.title = element_text(size=15,face="bold"),
+          legend.text = element_text(size=12))+
+    scale_y_continuous(name="Scaled expression")+
+    scale_fill_discrete(name="Experimental \nconditions")
+  if (length(unique(final$cluster)) > 3 & length(unique(final$cluster)) <= 6){
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=8)
+  }
+  else if (length(unique(final$cluster)) <= 3) {
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=4)
+  }
+  else {
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=12)
+  }
+
+  # Global expression profiles with probability (red genes are under proba 0.8)
+  plot(coexpr, graphs="profiles", K=length(unique(clust$`clusters(coexpr)`)))
+  if (length(unique(final$cluster)) > 3 & length(unique(final$cluster)) <= 6){
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Profiles_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=8)
+  }
+  else if (length(unique(final$cluster)) <= 3) {
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Profiles_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=4)
+  }
+  else {
+    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Profiles_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=12)
+  }
+
+  # boxplots of probabilities
+  plot(coexpr, graphs="probapost_boxplots", K=length(unique(clust$`clusters(coexpr)`)))
+  ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplot_Probabilities_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"))
+
+  # Heatmap on ScaledCPM
+  m=n+2
+  mat = as.matrix(GeneToClusters[, 3:m])
+  mat_scaled = t(apply(mat, 1, scale))
+  colnames(mat_scaled)=colnames(mat)
+  rownames(mat_scaled)=GeneToClusters[,1]
+  mat_normalized=mat[,]/GeneToClusters$somme
+
+  cluster=GeneToClusters[,2]
+  min=0
+  max=0
+  for (i in ncol(mat_scaled)) {
+    min2 = min(mat_scaled[,i])
+    if (min2<min){
+      min =min2
+    }
+  }
+  for (i in ncol(mat_scaled)) {
+    max2 = max(mat_scaled[,i])
+    if (max2>max){
+      max =max2
+    }
+  }
+
+  ht_list = Heatmap(t(mat_scaled),column_order=order(cluster), name = "Scaled CPM expression",column_split = cluster,
+                    heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
+                    col = colorRamp2(c(min, 0, max), c("steelblue", "white", "red")),
+                    show_column_names = F,
+                    column_title_gp = gpar(fill = grey.colors(0.5), col="white", font = 5),
+                    row_gap = unit(2, "mm"), column_gap = unit(2, "mm")
+  )
+  png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
+  draw(ht_list, heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
+  dev.off()
+
+  detach("package:coseq")
+
+  #############################
+  ## Graphs for each cluster ##
+  #############################
+
+  # import data and create vectors for color and cluster
+  geneID2GO <- readMappings(file = paste0(input_path,parameters$geneID2GO_file))
+  geneNames <- names(geneID2GO)
+
+  uniqClust=unique(GeneToClusters$`clusters(coexpr)`)
+
+  GoCoul=c("palegreen", "skyblue", "lightsalmon", "thistle", "tan", "pink", "aquamarine", "violetred", "darkorange", "yellow", "mediumpurple", "wheat")
+
+  # create file with matrix of DE genes and cluster for each gene
+  resDEG3=resDEG2[which(rowSums(resDEG2)>=parameters$coseq_ContrastsThreshold),]
+  # delete contrasts with no DE genes
+  resDEG3=resDEG3[,(apply(resDEG3,2,sum)!=0)]
+
+  rownames(GeneToClusters)=GeneToClusters$`Row.names`
+  ForContrast<-merge(resDEG3,GeneToClusters,by="row.names")
+  #write.table(ForContrast,paste0(img_transfo_dir, parameters$analysis_name,"_GlobalMatrix_And_Cluster_",parameters$coseq_model,"_",parameters$coseq_transformation,".csv"),sep=";",dec=".",row.names = T,col.names = NA)
+  write.table(ForContrast,paste0(img_transfo_dir, parameters$analysis_name,"_GlobalMatrix_And_Cluster_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"), sep="\t",dec=".",row.names = TRUE,col.names = NA)
+
+  FileForContrast=data.frame()
+  for (z in 2:(ncol(resDEG3)+1)){
+    tab <- data.frame(cluster=uniqClust)
+    tab$contrast <- colnames(ForContrast[z])
+    tab$TotalGenesInContrast <- sum(ForContrast[,z])
+    tab$GenesOfContrastInCluster <- 0
+    for (y in tab$cluster){
+      ligne=which(tab$cluster==y)
+      if (length(which((ForContrast$`clusters(coexpr)`==y) & (ForContrast[,z]=="1"))) >= 1) {
+        tab$GenesOfContrastInCluster[ligne] <- length(which((ForContrast$`clusters(coexpr)`==y) & (ForContrast[,z]=="1")))
+      }
+    }
+    tab$ObservedProportion <- paste0(round((tab$GenesOfContrastInCluster * 100 / tab$TotalGenesInContrast),1),"%")
+    tab$ExpectedProportion <- 0
+    tab$ChiTest <- ""
+    FileForContrast=rbind(FileForContrast,tab)
+  }
+
+  for (clustered in uniqClust){
+
+    img_CLUST_dir = paste0(img_transfo_dir,"Cluster_",clustered,"/")
+    if(dir.exists(img_CLUST_dir)==FALSE){
+      dir.create(img_CLUST_dir)
+      cat("Directory: ",img_CLUST_dir," created\n")
+    }
+
+    img_GOtoGene_dir = paste0(img_CLUST_dir,"SignificantGO_to_Genes/")
+    if(dir.exists(img_GOtoGene_dir)==FALSE){
+      dir.create(img_GOtoGene_dir)
+      cat("Directory: ",img_GOtoGene_dir," created\n")
+    }
+
+    # Upset On each cluster
+    cols=ncol(resDEG3)+1
+    ForUpset = ForContrast[which(ForContrast$`clusters(coexpr)`==clustered),2:cols]
+    ForUpset = ForUpset[,(apply(ForUpset,2,sum)!=0)]
+    png(paste0(img_CLUST_dir,parameters$analysis_name,"_UpSet_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"), width=1600, height=1024, units = "px")
+    print(upset(data=ForUpset, sets=rev(colnames(ForUpset)), nsets=ncol(ForUpset), keep.order=TRUE, att.color ="black" ,sets.bar.color=GoCoul[clustered],point.size = 5, line.size = 1.5, nintersects=NA, text.scale = 2))
+    grid.text(paste0("All differentially expressed genes (up+down) in cluster ",clustered), x=0.65, y=0.95, gp=gpar(fontsize=20))
+    dev.off()
+
+    # Scaled expression of each condition in the cluster
+    if (nrow(GeneToClusters[GeneToClusters$`clusters(coexpr)`==clustered,])<=750) {alph=1} else {alph=0.2}
+
+    ggplot(final[which(final$cluster==clustered),],aes(x=sample, y=expression))+theme_bw()+
+      geom_boxplot(alpha = 1, colour = "black",size=1)+
+      labs(title = paste0("Scaled Expression of Cluster ",clustered, "\n (",nrow(GeneToClusters[GeneToClusters$`clusters(coexpr)`==clustered,])," genes)"), x="", y="Scaled Expression") +
+      theme(legend.position = "none",
+            axis.text.x =element_text(size=10,angle=90),
+            axis.text.y=element_text(size=10),
+            axis.ticks = element_blank(),
+            plot.title = element_text(face="bold",size=15),
+            axis.title.x=element_text(size=12),
+            axis.title.y=element_text(size=12))+
+      geom_point(colour =GoCoul[clustered], alpha = alph, position = "jitter")
+    ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_ScaledExpression_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height=10)
+
+    # Genes of each contrast in cluster and significance (Chi2) of enrichment of the cluster in each contrast
+    FileForContrast$ExpectedProportion[FileForContrast$cluster==clustered] = length(which(GeneToClusters[,2]==clustered)) / nrow(resDEG3)
+    proportion = length(which(GeneToClusters[,2]==clustered)) / nrow(resDEG3)
+    pr=1-proportion
+
+    for (a in which(FileForContrast$cluster==clustered)){
+      b=FileForContrast$GenesOfContrastInCluster[a]
+      d=FileForContrast$TotalGenesInContrast[a] - FileForContrast$GenesOfContrastInCluster[a]
+      obs1=c(b,d)
+      obs2=FileForContrast$GenesOfContrastInCluster[a]/FileForContrast$TotalGenesInContrast[a]
+      proba=c(proportion,pr)
+      if (chisq.test(obs1,p=proba)$p.value<0.001 & obs2>=proportion) {
+        FileForContrast$ChiTest[a]<-"***"
+        FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
+      }
+      else if (chisq.test(obs1,p=proba)$p.value>=0.001 & chisq.test(obs1,p=proba)$p.value<0.01  & obs2>=proportion){
+        FileForContrast$ChiTest[a]<-"**"
+        FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
+      }
+      else if (chisq.test(obs1,p=proba)$p.value>=0.01 & chisq.test(obs1,p=proba)$p.value<0.05  & obs2>=proportion){
+        FileForContrast$ChiTest[a]<-"*"
+        FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
+      }
+    }
+
+    ggplot(FileForContrast[FileForContrast$cluster==clustered,], aes(x=contrast, y=GenesOfContrastInCluster)) +
+      coord_flip()+
+      geom_col(fill=GoCoul[clustered])+
+      theme_classic()+
+      geom_text(aes(label=ObservedProportion), position=position_stack(0.5),color="black")+
+      scale_y_reverse()+
+      labs(title = paste0("DE Genes in contrasts for cluster ",clustered, "\n (",length(which(GeneToClusters[,2]==clustered))," genes in the cluster)"), x="Contrasts", y="Number of genes") +
+      scale_x_discrete(position = "top")+
+      theme(
+        axis.text.y = element_text(face="bold",size=10),
+        axis.text.x = element_text(face="bold",size=10),
+        axis.title.x=element_text(face="bold",size=12),
+        axis.title.y=element_blank(),
+        legend.title = element_text(size=12,face="bold"),
+        plot.title = element_text(face="bold",size=15),
+        legend.text = element_text(size=12),
+        panel.background = element_rect(colour = "black", size=0.5, fill=NA))
+    ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_GenesInContrasts_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height = 8)
+
+    # GO enrichment in the cluster for MF, CC, and BP category
+    geneList <- factor(as.integer(geneNames %in% GeneToClusters[which(GeneToClusters$`clusters(coexpr)`==clustered),1]))
+    names(geneList) <- geneNames
+
+    if(nrow(GeneToClusters[which(GeneToClusters$`clusters(coexpr)`==clustered),])==0){
+      cat("\n -> No DE genes found!\n")
+      next
+    }
+
+    if(sum(levels(geneList)==1)==0){
+      cat("\n -> No DE genes with GO annotation!\n")
+      next
+    }
+
+    GO=NULL
+
+    listOnto <- c("MF","BP","CC")
+    for(ontology in listOnto){
+      GOdata <- new("topGOdata",
+                    nodeSize = parameters$GO_min_num_genes,
+                    ontology = ontology,
+                    allGenes = geneList,
+                    annot = annFUN.gene2GO,
+                    gene2GO = geneID2GO)
+
+      resultTest <- runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
+      resGenTab <- GenTable(GOdata, numChar = 100,statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(nodes(graph(GOdata))) )
+      resGenTab$Ratio = as.numeric(as.numeric(resGenTab$Significant)/as.numeric(resGenTab$Expected))
+      resGenTab$GO_cat <- ontology
+
+      annot<-read.csv(paste0(input_path, parameters$annotation), header = T, row.names = 1, sep = '\t', quote = "")
+
+      myterms = as.character(resGenTab$GO.ID[resGenTab$statisticTest<=parameters$GO_threshold])
+
+      if (length(myterms) != "0"){
+        cat("\nAskoR is saving one file per enriched GO-term in cluster ", clustered, " (category ", ontology, ") : PLEASE WAIT, this step should be long\n")
+        mygenes <- genesInTerm(GOdata, myterms)
+        noms=names(mygenes)
+        nomss=str_replace(noms,":","_")
+        for (z in 1:length(mygenes)){
+          listes=mygenes[[z]][mygenes[[z]] %in% GeneToClusters[which(GeneToClusters$`clusters(coexpr)`==clustered),1] == TRUE]
+          GOtab <- data.frame(Gene=listes)
+          GOtab$Gene_cluster = clustered
+          rownames(GOtab)=GOtab$Gene
+          GOtab = merge(GOtab, annot, by="row.names")
+          GOtab = GOtab[,-1]
+          GOtab = GOtab[,1:3]
+          colnames(GOtab)[3] <- "Gene_description"
+          rownames(GOtab)=GOtab$Gene
+          GOtab = merge(GOtab, resDEG, by="row.names")
+          GOtab = GOtab[,-1]
+          rownames(GOtab)=GOtab$Gene
+          GOtab = merge(GOtab, moys, by="row.names")
+          GOtab = GOtab[,-1]
+          GOtab$GO_ID = noms[z]
+          GOtab$GO_term = resGenTab[which(resGenTab$GO.ID==noms[z]),2]
+          GOtab$GO_cat = resGenTab[which(resGenTab$GO.ID==noms[z]),8]
+          write.table(GOtab,paste0(img_GOtoGene_dir, ontology, "_", nomss[z],".txt"), sep="\t", dec=".", row.names = FALSE, col.names = TRUE, quote=FALSE)
+        }
+      }
+
+      if(ontology == "MF"){
+        TabCompl<-resGenTab
+        resGenTab[resGenTab=="< 1e-30"]<-"1.0e-30"
+
+        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,])!=0){
+          maxi<-parameters$GO_max_top_terms
+          TabSigCompl<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,]
+          if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
+          TabSigCompl<-TabSigCompl[1:maxi,]
+        }else{
+          cat("\n\n->Cluster ",clustered," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
+        }
+      }else{
+        TabCompl=rbind(TabCompl,resGenTab)
+        resGenTab[resGenTab=="< 1e-30"]<-"1.0e-30"
+
+        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,])!=0){
+          maxi<-parameters$GO_max_top_terms
+          tempSig<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,]
+          if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
+          TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
+        }else{
+          cat("\n\n->Cluster ",clustered," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
+        }
+      }
+
+      if (ontology == "BP"){
+        goCat= "Biological Process"
+      }
+      if (ontology == "CC"){
+        goCat= "Cellular Component"
+      }
+      if (ontology == "MF"){
+        goCat= "Molecular Function"
+      }
+
+      ## Bargraph in each GO cat separately (ratio, pval, and number of genes)
+      if(exists("TabSigCompl")==TRUE){
+        if(nrow(TabSigCompl[TabSigCompl$GO_cat==ontology,])>=1){
+          ggplot(TabSigCompl[TabSigCompl$GO_cat==ontology,], aes(x=stringr::str_wrap(Term, 55), y=Ratio,fill=-1*log10(as.numeric(statisticTest)))) +
+            coord_flip()+
+            geom_col()+
+            theme_classic()+
+            geom_text(aes(label=Significant), position=position_stack(0.5),color="white")+
+            scale_fill_gradient(name="-log10pval",low=GoCoul[clustered],high=paste0(GoCoul[clustered],"4"))+
+            scale_y_reverse()+
+            labs(title = paste0("GO Enrichment in cluster ",clustered, " (", goCat, " category)", "\n (",length(which(geneList==1)), " annotated genes of ",length(which(GeneToClusters[,2]==clustered))," in the cluster)"), x="GOterm", y="Ratio Significant / Expected") +
+            scale_x_discrete(position = "top")+
+            theme(
+              axis.text.y = element_text(face="bold",size=10),
+              axis.text.x = element_text(face="bold",size=10),
+              axis.title.x=element_text(face="bold",size=12),
+              axis.title.y=element_blank(),
+              legend.title = element_text(size=12,face="bold"),
+              plot.title = element_text(face="bold",size=15),
+              legend.text = element_text(size=12),
+              panel.background = element_rect(colour = "black", size=0.5, fill=NA))
+          ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_GOEnrichment_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,"_", ontology,".png"),width=10, height = 8)
+        }
+      }
+    }
+
+    TabCompl<-TabCompl[TabCompl$Significant > 0,]
+    write.table(TabCompl, file=paste0(img_CLUST_dir,parameters$analysis_name,"_GOEnrichmentTable_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered, ".txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
+
+    ## Dotplot of all GO cat
+    if(exists("TabSigCompl")==TRUE){
+      if(nrow(TabSigCompl)>=1){
+        comp_names <- c( `MF` = "Molecular Function", `BP` = "Biological Process", `CC` = "Cellular Component")
+        coul <- c(`MF` = "green4", `BP` = "red", `CC` = "blue")
+        comp_names2 <- c(`MF` = "MF", `BP` = "BP", `CC` = "CC")
+
+        TabSigCompl$Term = factor(TabSigCompl$Term, levels = unique(TabSigCompl$Term))
+        minR=(min(TabSigCompl$Ratio)+max(TabSigCompl$Ratio))/4
+        minP=(min(as.numeric(TabSigCompl$statisticTest))+max(as.numeric(TabSigCompl$statisticTest)))/4
+
+        # Ratio Graph
+        ggplot(TabSigCompl, aes(x=Ratio, y=Term, size=Significant, color=GO_cat)) +
+          geom_point(alpha=1) +
+          labs(title = paste0("GO Enrichment for Cluster ",clustered, "\n (",length(which(geneList==1)), " annotated genes on ",length(which(GeneToClusters[,2]==clustered))," in the cluster)"), x="Ratio Significant / Expected", y="GOterm") +
+          scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
+          facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
+          scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minR)) +
+          scale_y_discrete(labels = function(x) str_trunc(x, width = 70)) +
+          theme_linedraw() + theme(
+            panel.background = element_rect(fill = "grey93", colour = "grey93", size = 0.5, linetype = "solid"),
+            panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
+            panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
+            axis.text.y = element_text(face="bold",size=8),
+            axis.text.x = element_text(face="bold",size=10),
+            legend.title = element_text(size=9,face="bold"),
+            plot.title = element_text(face="bold",size=10),
+            legend.text = element_text(size=9),
+            strip.text.y = element_text(size=12, face="bold"))
+        ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_Ratio_BUBBLESgraph_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered, ".png"),width=10, height=10)
+      }
+    }else{
+      cat("\n\nToo few results to display the graph.\n\n")
+    }
+
+  }
+
+}
+
