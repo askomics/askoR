@@ -234,5 +234,11 @@ parameters$GO_stats = "fisher"               # statistical tests which are acces
 
 GOenrichment(resDEG, parameters)
 
-
+# Parameters for Co-expression analysis
+#----------------------------------------------------------------------
+# parameters$coseq_model = "kmeans"        # (default kmeans)
+# parameters$coseq_transformation = "clr"  # (default clr)
+# parameters$coseq_ClustersNb = 2:12       # (default : automatic selection between 2 to 12, you can fix the number of clusters to be build only with the "Normal" model)
+# parameters$coseq_ContrastsThreshold = 1  # (default 1)
+ClustAndGO(asko_norm,resDEG,parameters)
 
