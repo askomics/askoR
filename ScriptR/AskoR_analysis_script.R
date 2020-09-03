@@ -1,12 +1,16 @@
 # Removes all objects from the current workspace (R memory)
 rm(list=ls())
-askor_path<-"<path AskoR folder" # !!!!!!!!!!!!!!!!!!!! change path !!!!!!!!!!!!!!!!!!!!
-source(paste0(askor_path,"/AskoR.R"))
+
+# source AskoR.R file
+source("/directory/where/you/downloaded/the/file/AskoR.R")
+# defined your workspace 
+setwd("/path/to/workspace/") 
+
 
 ##############################################
 ##                Parameters                ##  
 ##############################################
-setwd("path to workspace") # !!!!!!!!!!!!!!!!!!!! change path !!!!!!!!!!!!!!!!!!!!
+# Run askoR
 parameters<-Asko_start()
 
 # Data and input files descriptions
