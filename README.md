@@ -32,7 +32,8 @@ devtools::install_github("asusete/askoR")
 ```
 For Windows users only: install [Rtools](https://cran.r-project.org/bin/windows/Rtools/) or check that it is already installed (needed to build the package).
  
-If you don't want to install it: You can use the AskoR.R file in [ScriptR](https://github.com/asusete/askoR/tree/master/ScriptR) instead and "run file" in the same directory. Just source it in your R script file (see _AskoR_analysis_script.R_):  
+If you don't want to install it: You can use the AskoR.R file in [ScriptR](https://github.com/asusete/askoR/tree/master/ScriptR) instead and "run file" in the same directory.  
+Just source it in your R script file (see _AskoR_analysis_script.R_):  
 ```
 source("/directory/where/you/downloaded/the/file/AskoR.R")
 ```
