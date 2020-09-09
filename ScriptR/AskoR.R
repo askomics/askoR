@@ -825,7 +825,7 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
     # Normalized mean by conditions
     #-------------------------------
     # heatmap mean counts per condition
-    n_count <- askoR::NormCountsMean(norm_GE, ASKOlist = asko_list)
+    n_count <- NormCountsMean(norm_GE, ASKOlist = asko_list)
     countscale  <- scale(t(n_count))
     tcountscale <- t(countscale)
 
