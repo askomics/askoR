@@ -24,143 +24,141 @@ Asko_start <- function(){
 
   # Specify desired options in a list
   option_list = list(
-    make_option(c("-o", "--out"), type="character", default="DE_analysis",dest="analysis_name",
-                help="output directory name [default= %default]", metavar="character"),
-    make_option(c("-d", "--dir"), type="character", default=".",dest="dir_path",
-                help="data directory path [default= %default]", metavar="character"),
-    make_option(c("-O", "--org"), type="character", default="Asko", dest="organism",
-                help="Organism name [default= %default]", metavar="character"),
-    make_option(c("-f", "--fileofcount"), type="character", default=NULL, dest="fileofcount",
-                help="file of counts [default= %default]", metavar="character"),
-    make_option(c("-G", "--col_genes"), type="integer", default=1, dest="col_genes",
-                help="col of genes ids in count files [default= %default]", metavar="integer"),
-    make_option(c("-C", "--col_counts"), type="integer", default=7,dest="col_counts",
-                help="col of counts in count files [default= %default (featureCounts) ]", metavar="integer"),
-    make_option(c("-t", "--sep"), type="character", default="\t", dest="sep",
-                help="field separator for count files or count matrix [default= %default]", metavar="character"),
-    make_option(c("-a", "--annotation"), type="character", default=NULL, dest="annotation",
-                help="annotation file [default= %default]", metavar="character"),
-    make_option(c("-s", "--sample"), type="character", default="Samples.txt", dest="sample_file",
-                help="Samples file [default= %default]", metavar="character"),
-    make_option(c("-c", "--contrasts"), type="character", default="Contrasts.txt",dest="contrast_file",
-                help="Contrasts file [default= %default]", metavar="character"),
-    make_option(c("-k", "--mk_context"), type="logical", default=FALSE,dest="mk_context",
-                help="generate automatically the context names [default= %default]", metavar="logical"),
-    make_option(c("--palette"), type="character", default="Set2", dest="palette",
-                help="Color palette (ggplot)[default= %default]", metavar="character"),
-    make_option(c("-R", "--regex"), type="logical", default=FALSE, dest="regex",
-                help="use regex when selecting/removing samples [default= %default]", metavar="logical"),
-    make_option(c("-S", "--select"), type="character", default=NULL, dest="select_sample",
-                help="selected samples [default= %default]", metavar="character"),
-    make_option(c("-r", "--remove"), type="character", default=NULL, dest="rm_sample",
-                help="removed samples [default= %default]", metavar="character"),
-    make_option(c("--th_cpm"), type="double", default=0.5, dest="threshold_cpm",
-                help="CPM's threshold [default= %default]", metavar="double"),
-    make_option(c("--rep"), type="integer", default=3, dest="replicate_cpm",
-                help="Minimum number of replicates [default= %default]", metavar="integer"),
-    make_option(c("--th_FDR"), type="double", default=0.05, dest="threshold_FDR",
-                help="FDR threshold [default= %default]", metavar="double"),
-    make_option(c("-n", "--normalization"), type="character", default="TMM", dest="normal_method",
-                help="normalization method (TMM/RLE/upperquartile/none) [default= %default]", metavar="character"),
-    make_option(c("--adj"), type="character", default="fdr", dest="p_adj_method",
-                help="p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none) [default= %default]", metavar="character"),
-    make_option("--glm", type="character", default="qlf", dest="glm",
-                help="GLM method (lrt/qlf) [default= %default]", metavar="character"),
-    make_option("--glmDisp", type="logical", default=FALSE, dest="glm_disp",
-                help="Estimate Common, Trended and Tagwise Negative Binomial dispersions GLMs (TRUE/FALSE) [default= %default]", metavar="logical"),
-    make_option(c("--lfc"), type="logical", default=TRUE, dest="logFC",
-                help="logFC in the summary table [default= %default]", metavar="logical"),
-    make_option(c("--th_lfc"), type="double", default=1, dest="threshold_logFC",
-                help="logFC threshold [default= %default]", metavar="double"),
-    make_option("--fc", type="logical", default=TRUE, dest="FC",
-                help="FC in the summary table [default= %default]", metavar="logical"),
-    make_option(c("--lcpm"), type="logical", default=FALSE, dest="logCPM",
-                help="logCPm in the summary table [default= %default]", metavar="logical"),
-    make_option("--fdr", type="logical", default=TRUE, dest="FDR",
-                help="FDR in the summary table [default= %default]", metavar="logical"),
-    make_option("--lr", type="logical", default=FALSE, dest="LR",
-                help="LR in the summary table [default= %default]", metavar="logical"),
-    make_option(c("--sign"), type="logical", default=TRUE, dest="Sign",
-                help="Significance (1/0/-1) in the summary table [default= %default]", metavar="logical"),
-    make_option(c("--expr"), type="logical", default=TRUE, dest="Expression",
-                help="Significance expression in the summary table [default= %default]", metavar="logical"),
-    make_option(c("--mc"), type="logical", default=TRUE, dest="mean_counts",
-                help="Mean counts in the summary table [default= %default]", metavar="logical"),
-    make_option(c("--dclust"), type="character", default="euclidean", dest="distcluts",
-                help="The distance measure to be used : euclidean, maximum, manhattan, canberra, binary or minkowski [default= %default]", metavar="character"),
-    make_option(c("--hclust"), type="character", default="complete", dest="hclust",
-                help="The agglomeration method to be used : ward.D, ward.D2, single, complete, average, mcquitty, median or centroid [default= %default]", metavar="character"),
-    make_option(c("--hm"), type="logical", default=TRUE, dest="heatmap",
-                help="generation of the expression heatmap [default= %default]", metavar="logical"),
-    make_option(c("--nh"), type="integer", default="50", dest="numhigh",
-                help="number of genes in the heatmap [default= %default]", metavar="integer"),
-    make_option(c("--norm_factor"), type="logical", default=FALSE, dest="norm_factor",
-                help="generate file with normalize factor for each condition/sample [default= %default]", metavar="logical"),
-    make_option(c("--norm_counts"), type="logical", default=FALSE, dest="norm_counts",
-                help="Generate files with mormalized counts [default= %default]", metavar="logical"),
-    make_option(c("--VD"), type="character", default=NULL, dest="VD",
-                help="Plot VennDiagram, precise type of comparison: all, down, up or both [default=%default]", metavar = "character"),
-    make_option(c("--compaVD"), type="character", default=NULL, dest="compaVD",
-                help="Contrast comparison list to display in VennDiagram", metavar="character"),
-    make_option(c("--GO"), type="character", default=NULL, dest="GO",
-                help="GO enrichment analysis for gene expressed 'up', 'down' or 'both', NULL for no GO enrichment.", metavar="character"),
-    make_option(c("--ID2GO"), type="character", default=NULL, dest="geneID2GO_file",
-                help="GO annotation file [default= %default]", metavar="character"),
-    make_option(c("--GO_threshold"), type="numeric", default="0.05", dest="GO_threshold",
-                help="the significant threshold used to filter p-values", metavar="double"),
-    make_option(c("--GO_min_num_genes"), type="integer", default="10", dest="GO_min_num_genes",
-                help="the minimum number of genes for each GO terms", metavar="integer"),
-    make_option(c("--GO_max_top_terms"), type="integer", default="10", dest="GO_max_top_terms",
-                help="the maximum number of GO terms plot", metavar="integer"),
-    make_option(c("--GO_algo"), type="character", default="weight01", dest="GO_algo",
-                help="algorithms which are accessible via the runTest function: shown by the whichAlgorithms() function, [default=%default]", metavar="character"),
-    make_option(c("--GO_stats"), type="character", default="fisher", dest="GO_stats",
-                help = "statistical tests which are accessible via the runTest function: shown by the whichTests() function, [default=%default]", metavar = "character"),
-    make_option(c("--Ratio_threshold"), type="numeric", default="0", dest="Ratio_threshold",
-                help="the minimum ratio value to display GO in graph", metavar="double"),
-    make_option(c("--plotMD"),type="logical", default=FALSE, dest="plotMD", metavar="logical",
-                help="Mean-Difference Plot of Expression Data (aka MA plot) [default= %default]"),
-    make_option(c("--plotVO"),type="logical", default=FALSE, dest="plotVO", metavar="logical",
-                help="Volcano plot for a specified coefficient/contrast of a linear model [default= %default]"),
-    make_option(c("--glimMD"),type="logical", default=FALSE, dest="glimMD", metavar="logical",
-                help="Glimma - Interactif Mean-Difference Plot of Expression Data (aka MA plot) [default= %default]"),
-    make_option(c("--glimVO"),type="logical", default=FALSE, dest="glimVO", metavar="logical",
-                help="Glimma - Interactif Volcano plot for a specified coefficient/contrast of a linear model [default= %default]"),
-    make_option(c("--dens_bottom_mar"), type="integer", default="20", dest="densbotmar", metavar="integer",
-                help="Set bottom margin of density plot to help position the legend [default= %default]"),
-    make_option(c("--dens_inset"), type="double", default="0.45", dest="densinset", metavar="double",
-                help="Set position the legend in bottom density graphe [default= %default]"),
-    make_option(c("--legend_col"), type="integer", default="6", dest="legendcol", metavar="integer",
-                help="Set numbers of column for density plot legends [default= %default]"),
-    make_option(c("--upset_basic"),type="character", default=NULL, dest="upset_basic",
-                help="Display UpSetR charts for all contrasts, precise type of comparison: all, down, up, mixed [default=%default].", metavar = "character"),
-    make_option(c("--upset_type"),type="character", default=NULL, dest="upset_type",
-                help="Display UpSetR charts for list of contrasts, precise type of comparison: all, down, up, mixed [default=%default].", metavar = "character"),
-    make_option(c("--upset_list"), type="character", default=NULL, dest="upset_list",
-                help="Contrast comparison list to display in UpSetR chart. See documentation. [default=%default]", metavar="character"),
-    make_option("--coseq_model", type="character", default="kmeans", dest="coseq_model",
-                help="Coseq model (kmeans, Normal) [default= %default]", metavar="character"),
-    make_option("--coseq_transformation", type="character", default="clr", dest="coseq_transformation",
-                help="Coseq tranformation (arcsin, logit, logclr, clr, alr, ilr, none) [default= %default]", metavar="character"),
-    make_option("--coseq_ClustersNb", type="double", default=2:12, dest="coseq_ClustersNb",
-                help="Coseq : number of clusters desired (2:12 (auto), number from 2 to 12) [default= %default]", metavar="double"),
-    make_option("--coseq_ContrastsThreshold", type="integer", default="1", dest="coseq_ContrastsThreshold",
-                help="Coseq : number of contrasts in which DE genes are found for clustering [default= %default]", metavar="integer"),
-    make_option("--coseq_normFactors", type="character", default="none", dest="coseq_normFactors",
-                help="Coseq normalization factor (TC , UQ, Med , DESeq, TMM , none) [default= %default]", metavar="character")
+    optparse::make_option(c("-o", "--out"), type="character", default="DE_analysis",dest="analysis_name",
+                          help="output directory name [default= %default]", metavar="character"),
+    optparse::make_option(c("-d", "--dir"), type="character", default=".",dest="dir_path",
+                          help="data directory path [default= %default]", metavar="character"),
+    optparse::make_option(c("-O", "--org"), type="character", default="Asko", dest="organism",
+                          help="Organism name [default= %default]", metavar="character"),
+    optparse::make_option(c("-f", "--fileofcount"), type="character", default=NULL, dest="fileofcount",
+                          help="file of counts [default= %default]", metavar="character"),
+    optparse::make_option(c("-G", "--col_genes"), type="integer", default=1, dest="col_genes",
+                          help="col of genes ids in count files [default= %default]", metavar="integer"),
+    optparse::make_option(c("-C", "--col_counts"), type="integer", default=7,dest="col_counts",
+                          help="col of counts in count files [default= %default (featureCounts) ]", metavar="integer"),
+    optparse::make_option(c("-t", "--sep"), type="character", default="\t", dest="sep",
+                          help="field separator for count files or count matrix [default= %default]", metavar="character"),
+    optparse::make_option(c("-a", "--annotation"), type="character", default=NULL, dest="annotation",
+                          help="annotation file [default= %default]", metavar="character"),
+    optparse::make_option(c("-s", "--sample"), type="character", default="Samples.txt", dest="sample_file",
+                          help="Samples file [default= %default]", metavar="character"),
+    optparse::make_option(c("-c", "--contrasts"), type="character", default="Contrasts.txt",dest="contrast_file",
+                          help="Contrasts file [default= %default]", metavar="character"),
+    optparse::make_option(c("-k", "--mk_context"), type="logical", default=FALSE,dest="mk_context",
+                          help="generate automatically the context names [default= %default]", metavar="logical"),
+    optparse::make_option(c("--palette"), type="character", default="Set2", dest="palette",
+                          help="Color palette (ggplot)[default= %default]", metavar="character"),
+    optparse::make_option(c("-R", "--regex"), type="logical", default=FALSE, dest="regex",
+                          help="use regex when selecting/removing samples [default= %default]", metavar="logical"),
+    optparse::make_option(c("-S", "--select"), type="character", default=NULL, dest="select_sample",
+                          help="selected samples [default= %default]", metavar="character"),
+    optparse::make_option(c("-r", "--remove"), type="character", default=NULL, dest="rm_sample",
+                          help="removed samples [default= %default]", metavar="character"),
+    optparse::make_option(c("--th_cpm"), type="double", default=0.5, dest="threshold_cpm",
+                          help="CPM's threshold [default= %default]", metavar="double"),
+    optparse::make_option(c("--rep"), type="integer", default=3, dest="replicate_cpm",
+                          help="Minimum number of replicates [default= %default]", metavar="integer"),
+    optparse::make_option(c("--th_FDR"), type="double", default=0.05, dest="threshold_FDR",
+                          help="FDR threshold [default= %default]", metavar="double"),
+    optparse::make_option(c("-n", "--normalization"), type="character", default="TMM", dest="normal_method",
+                          help="normalization method (TMM/RLE/upperquartile/none) [default= %default]", metavar="character"),
+    optparse::make_option(c("--adj"), type="character", default="fdr", dest="p_adj_method",
+                          help="p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none) [default= %default]", metavar="character"),
+    optparse::make_option("--glm", type="character", default="qlf", dest="glm",
+                          help="GLM method (lrt/qlf) [default= %default]", metavar="character"),
+    optparse::make_option("--glmDisp", type="logical", default=FALSE, dest="glm_disp",
+                          help="Estimate Common, Trended and Tagwise Negative Binomial dispersions GLMs (TRUE/FALSE) [default= %default]", metavar="logical"),
+    optparse::make_option(c("--lfc"), type="logical", default=TRUE, dest="logFC",
+                          help="logFC in the summary table [default= %default]", metavar="logical"),
+    optparse::make_option(c("--th_lfc"), type="double", default=1, dest="threshold_logFC",
+                          help="logFC threshold [default= %default]", metavar="double"),
+    optparse::make_option("--fc", type="logical", default=TRUE, dest="FC",
+                          help="FC in the summary table [default= %default]", metavar="logical"),
+    optparse::make_option(c("--lcpm"), type="logical", default=FALSE, dest="logCPM",
+                          help="logCPm in the summary table [default= %default]", metavar="logical"),
+    optparse::make_option("--fdr", type="logical", default=TRUE, dest="FDR",
+                          help="FDR in the summary table [default= %default]", metavar="logical"),
+    optparse::make_option("--lr", type="logical", default=FALSE, dest="LR",
+                          help="LR in the summary table [default= %default]", metavar="logical"),
+    optparse::make_option(c("--sign"), type="logical", default=TRUE, dest="Sign",
+                          help="Significance (1/0/-1) in the summary table [default= %default]", metavar="logical"),
+    optparse::make_option(c("--expr"), type="logical", default=TRUE, dest="Expression",
+                          help="Significance expression in the summary table [default= %default]", metavar="logical"),
+    optparse::make_option(c("--mc"), type="logical", default=TRUE, dest="mean_counts",
+                          help="Mean counts in the summary table [default= %default]", metavar="logical"),
+    optparse::make_option(c("--dclust"), type="character", default="euclidean", dest="distcluts",
+                          help="The distance measure to be used : euclidean, maximum, manhattan, canberra, binary or minkowski [default= %default]", metavar="character"),
+    optparse::make_option(c("--hclust"), type="character", default="complete", dest="hclust",
+                          help="The agglomeration method to be used : ward.D, ward.D2, single, complete, average, mcquitty, median or centroid [default= %default]", metavar="character"),
+    optparse::make_option(c("--hm"), type="logical", default=TRUE, dest="heatmap",
+                          help="generation of the expression heatmap [default= %default]", metavar="logical"),
+    optparse::make_option(c("--nh"), type="integer", default="50", dest="numhigh",
+                          help="number of genes in the heatmap [default= %default]", metavar="integer"),
+    optparse::make_option(c("--norm_factor"), type="logical", default=FALSE, dest="norm_factor",
+                          help="generate file with normalize factor for each condition/sample [default= %default]", metavar="logical"),
+    optparse::make_option(c("--norm_counts"), type="logical", default=FALSE, dest="norm_counts",
+                          help="Generate files with mormalized counts [default= %default]", metavar="logical"),
+    optparse::make_option(c("--VD"), type="character", default=NULL, dest="VD",
+                          help="Plot VennDiagram, precise type of comparison: all, down, up or both [default=%default]", metavar = "character"),
+    optparse::make_option(c("--compaVD"), type="character", default=NULL, dest="compaVD",
+                          help="Contrast comparison list to display in VennDiagram", metavar="character"),
+    optparse::make_option(c("--GO"), type="character", default=NULL, dest="GO",
+                          help="GO enrichment analysis for gene expressed 'up', 'down' or 'both', NULL for no GO enrichment.", metavar="character"),
+    optparse::make_option(c("--ID2GO"), type="character", default=NULL, dest="geneID2GO_file",
+                          help="GO annotation file [default= %default]", metavar="character"),
+    optparse::make_option(c("--GO_threshold"), type="numeric", default="0.05", dest="GO_threshold",
+                          help="the significant threshold used to filter p-values", metavar="double"),
+    optparse::make_option(c("--GO_min_num_genes"), type="integer", default="10", dest="GO_min_num_genes",
+                          help="the minimum number of genes for each GO terms", metavar="integer"),
+    optparse::make_option(c("--GO_max_top_terms"), type="integer", default="10", dest="GO_max_top_terms",
+                          help="the maximum number of GO terms plot", metavar="integer"),
+    optparse::make_option(c("--GO_algo"), type="character", default="weight01", dest="GO_algo",
+                          help="algorithms which are accessible via the runTest function: shown by the whichAlgorithms() function, [default=%default]", metavar="character"),
+    optparse::make_option(c("--GO_stats"), type="character", default="fisher", dest="GO_stats",
+                          help = "statistical tests which are accessible via the runTest function: shown by the whichTests() function, [default=%default]", metavar = "character"),
+    optparse::make_option(c("--Ratio_threshold"), type="numeric", default="0", dest="Ratio_threshold",
+                          help="the minimum ratio value to display GO in graph", metavar="double"),
+    optparse::make_option(c("--plotMD"),type="logical", default=FALSE, dest="plotMD", metavar="logical",
+                          help="Mean-Difference Plot of Expression Data (aka MA plot) [default= %default]"),
+    optparse::make_option(c("--plotVO"),type="logical", default=FALSE, dest="plotVO", metavar="logical",
+                          help="Volcano plot for a specified coefficient/contrast of a linear model [default= %default]"),
+    optparse::make_option(c("--glimMD"),type="logical", default=FALSE, dest="glimMD", metavar="logical",
+                          help="Glimma - Interactif Mean-Difference Plot of Expression Data (aka MA plot) [default= %default]"),
+    optparse::make_option(c("--glimVO"),type="logical", default=FALSE, dest="glimVO", metavar="logical",
+                          help="Glimma - Interactif Volcano plot for a specified coefficient/contrast of a linear model [default= %default]"),
+    optparse::make_option(c("--dens_bottom_mar"), type="integer", default="20", dest="densbotmar", metavar="integer",
+                          help="Set bottom margin of density plot to help position the legend [default= %default]"),
+    optparse::make_option(c("--dens_inset"), type="double", default="0.45", dest="densinset", metavar="double",
+                          help="Set position the legend in bottom density graphe [default= %default]"),
+    optparse::make_option(c("--legend_col"), type="integer", default="6", dest="legendcol", metavar="integer",
+                          help="Set numbers of column for density plot legends [default= %default]"),
+    optparse::make_option(c("--upset_basic"),type="character", default=NULL, dest="upset_basic",
+                          help="Display UpSetR charts for all contrasts, precise type of comparison: all, down, up, mixed [default=%default].", metavar = "character"),
+    optparse::make_option(c("--upset_type"),type="character", default=NULL, dest="upset_type",
+                          help="Display UpSetR charts for list of contrasts, precise type of comparison: all, down, up, mixed [default=%default].", metavar = "character"),
+    optparse::make_option(c("--upset_list"), type="character", default=NULL, dest="upset_list",
+                          help="Contrast comparison list to display in UpSetR chart. See documentation. [default=%default]", metavar="character"),
+    optparse::make_option("--coseq_model", type="character", default="kmeans", dest="coseq_model",
+                          help="Coseq model (kmeans, Normal) [default= %default]", metavar="character"),
+    optparse::make_option("--coseq_transformation", type="character", default="clr", dest="coseq_transformation",
+                          help="Coseq tranformation (voom, logRPKM, arcsin, logit, logMedianRef, logclr, clr, alr, ilr, none) [default= %default]", metavar="character"),
+    optparse::make_option("--coseq_ClustersNb", type="double", default=2:12, dest="coseq_ClustersNb",
+                          help="Coseq : number of clusters desired (2:12 (auto), number from 2 to 12) [default= %default]", metavar="double"),
+    optparse::make_option("--coseq_ContrastsThreshold", type="integer", default="1", dest="coseq_ContrastsThreshold",
+                          help="Coseq : number of contrasts in which DE genes are found for clustering [default= %default]", metavar="integer")
   )
   # Get command line options
-  opt_parser = OptionParser(option_list=option_list)
-  parameters = parse_args(opt_parser)
+  opt_parser = optparse::OptionParser(option_list=option_list)
+  parameters = optparse::parse_args(opt_parser)
 
   if(is.null(parameters$rm_sample) == FALSE ) {
-    str_replace_all(parameters$rm_sample, " ", "")
-    parameters$rm_sample<-strsplit2(parameters$rm_sample, ",")
+    stringr::str_replace_all(parameters$rm_sample, " ", "")
+    parameters$rm_sample<-limma::strsplit2(parameters$rm_sample, ",")
   }
 
   if(is.null(parameters$select_sample) == FALSE ) {
-    str_replace_all(parameters$select_sample, " ", "")
-    parameters$select_sample<-strsplit2(parameters$select_sample, ",")
+    stringr::str_replace_all(parameters$select_sample, " ", "")
+    parameters$select_sample<-limma::strsplit2(parameters$select_sample, ",")
   }
 
   return(parameters)
@@ -170,16 +168,20 @@ Asko_start <- function(){
 #'
 #' @description
 #' Function to load :
-#'   - Count data :
-#'      ... count matrix : 1 file with all counts for each samples/conditions or mutiple
-#'    OR
-#'      ... list of files : 1 file of count per conditions, files names contained in sample file
-#'   - Metatdata :
-#'      ... sample file : file describing the samples and the experimental design
-#'      ... contrast file : matrix which specifies which comparisons you would like to make between the samples
-#'      ... (optional) annotation file : functional/genomic annotation for each genes
-#'      ... (optional) GO terms annotations files : GO annotations for each genes
-#'
+#' \itemize{
+#'   \item Count data (one of this below):
+#'   \itemize{
+#'      \item count matrix : 1 file with all counts for each samples/conditions or multiple
+#'      \item list of files : 1 file of count per conditions, files names contained in sample file
+#'   }
+#'   \item Metatdata :
+#'   \itemize{
+#'      \item sample file : file describing the samples and the experimental design
+#'      \item contrast file : matrix which specifies which comparisons you would like to make between the samples
+#'      \item (optional) annotation file : functional/genomic annotation for each genes
+#'      \item (optional) GO terms annotations files : GO annotations for each genes
+#'   }
+#' }
 #' Three output directory will be create :
 #' \itemize{
 #'   \item images : contains all the images created when running this pipeline with the exception of the upsetR and Venn graphs.
@@ -189,10 +191,13 @@ Asko_start <- function(){
 #' }
 #'
 #' @param parameters, list that contains all arguments charged in Asko_start
-#' @return data, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @return data, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)
 #'
-#' @example
-#'    data<-loadData(parameters)
+#' @examples
+#' \dontrun{
+#'     parameters<-Asko_start()
+#'     data<-loadData(parameters)
+#' }
 #'
 #' @export
 loadData <- function(parameters){
@@ -230,7 +235,7 @@ loadData <- function(parameters){
 
   # Sample file
   sample_path<-paste0(input_path, parameters$sample_file)
-  samples<-read.csv(sample_path, header=TRUE, sep="\t", row.names=1)
+  samples<-utils::read.csv(sample_path, header=TRUE, sep="\t", row.names=1)
 
   # Selecting some sample (select_sample parameter)
   if(is.null(parameters$select_sample)==FALSE){
@@ -265,7 +270,7 @@ loadData <- function(parameters){
   if(is.null(samples$color)==TRUE){
     condition<-unique(samples$condition)
     if(length(condition)<3){ color=c("#FF9999","#99CCFF") }
-    else{ color<-colorRampPalette(brewer.pal(11,"Spectral"))(length(condition)) }
+    else{ color<-grDevices::colorRampPalette(RColorBrewer::brewer.pal(11,"Spectral"))(length(condition)) }
     samples$color<-NA
     j=0
     for(name in condition){
@@ -291,8 +296,8 @@ loadData <- function(parameters){
     print(rownames(samples))
 
     # creates a DGEList object from a table of counts
-    dge<-readDGE(paste0(input_path,samples$file), labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
-    dge<-DGEList(counts=dge$counts, samples=samples)
+    dge<-edgeR::readDGE(paste0(input_path,samples$file), labels=rownames(samples), columns=c(parameters$col_genes,parameters$col_counts), header=TRUE, comment.char="#")
+    dge<-edgeR::DGEList(counts=dge$counts, samples=samples)
   }
   # Matrix file with all counts for all conditions
   else{
@@ -300,10 +305,10 @@ loadData <- function(parameters){
     print(rownames(samples))
     count_path<-paste0(input_path, parameters$fileofcount)
     if(grepl(".csv", parameters$fileofcount)==TRUE){
-      count<-read.csv(count_path, header=TRUE, sep = "\t", row.names = parameters$col_genes, comment.char="#")
+      count<-utils::read.csv(count_path, header=TRUE, sep = "\t", row.names = parameters$col_genes, comment.char="#")
     }
     else{
-      count<-read.table(count_path, header=TRUE, sep = "\t", row.names = parameters$col_genes, comment.char="#")
+      count<-utils::read.table(count_path, header=TRUE, sep = "\t", row.names = parameters$col_genes, comment.char="#")
     }
 
     # If you ask for some samples were removed for analysis
@@ -311,7 +316,7 @@ loadData <- function(parameters){
     countT<-count[,select_counts]
 
     # Creates a DGEList object from a table of counts
-    dge<-DGEList(counts=countT, samples=samples)
+    dge<-edgeR::DGEList(counts=countT, samples=samples)
   }
 
   # Experimental design
@@ -319,21 +324,21 @@ loadData <- function(parameters){
   Group<-factor(samples$condition)
   cat("\nConditions :\n")
   print(Group)
-  designExp<-model.matrix(~0+Group)
+  designExp<-stats::model.matrix(~0+Group)
   rownames(designExp) <- row.names(samples)
   colnames(designExp) <- levels(Group)
 
   # Contrast for DE analysis
   #---------------------------------------------------------
   contrast_path<-paste0(input_path, parameters$contrast_file)
-  contrastab<-read.table(contrast_path, sep="\t", header=TRUE, row.names = 1, comment.char="#", stringsAsFactors = FALSE)
+  contrastab<-utils::read.table(contrast_path, sep="\t", header=TRUE, row.names = 1, comment.char="#", stringsAsFactors = FALSE)
 
   # Verify if some colunms will be not use for analysis
   rmcol<-list()
   for(condition_name in row.names(contrastab)){
     test<-match(condition_name, colnames(designExp),nomatch = 0)
     if(test==0){
-      rm<-grep("0", contrastab[condition_name,], invert = T)
+      rm<-grep("0", contrastab[condition_name,], invert = TRUE)
       if(is.null(rmcol)){rmcol=rm}else{rmcol<-append(rmcol, rm)}
     }
   }
@@ -378,7 +383,7 @@ loadData <- function(parameters){
 
   # Annnotation file
   if(is.null(parameters$annotation)==FALSE){
-    annot<-read.csv(paste0(input_path, parameters$annotation), header = T, row.names = 1, sep = '\t', quote = "")
+    annot<-utils::read.csv(paste0(input_path, parameters$annotation), header = TRUE, row.names = 1, sep = '\t', quote = "")
     data[["annot"]]=annot
   }
   return(data)
@@ -388,12 +393,16 @@ loadData <- function(parameters){
 #'
 #' @description Create contrast/condition/context file in format readable by Askomics Software.
 #'
-#' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @param data_list, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)
 #' @param parameters, list that contains all arguments charged in Asko_start
-#' @return asko, list of data.frame contain condition, contrast and context informations
+#' @return asko, list of data.frame contain condition, contrast and context information
 #'
-#' @example
-#'    asko<-asko3c(data_list, parameters)
+#' @examples
+#' \dontrun{
+#'     parameters <- Asko_start()
+#'     data<-loadData(parameters)
+#'     asko<-asko3c(data, parameters)
+#' }
 #'
 #' @export
 asko3c <- function(data_list, parameters){
@@ -437,9 +446,9 @@ asko3c <- function(data_list, parameters){
       set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]<0]   # retrieval of 2nd set of condition's names implicated in a given contrast
       set_condition<-colnames(condition_asko)                                     # retrieval of names of experimental factor
 
-      if(length(set_cond1)==1){complex1=F}else{complex1=T}                        # to determine if we have complex contrast (multiple conditions
-      if(length(set_cond2)==1){complex2=F}else{complex2=T}                        # compared to multiple conditions) or not
-      if(complex1==F && complex2==F){                                             # Case 1: one condition against one condition
+      if(length(set_cond1)==1){complex1=FALSE}else{complex1=TRUE}                        # to determine if we have complex contrast (multiple conditions
+      if(length(set_cond2)==1){complex2=FALSE}else{complex2=TRUE}                        # compared to multiple conditions) or not
+      if(complex1==FALSE && complex2==FALSE){                                             # Case 1: one condition against one condition
         contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
         contrast_asko[i,"context2"]<-set_cond2                                    # filling contrast data frame with the name of the 2nd context
         contrast_name<-paste(set_cond1,set_cond2, sep = "vs")                     # creation of contrast name by associating the names of contexts
@@ -449,7 +458,7 @@ asko3c <- function(data_list, parameters){
         list_context<-append(list_context, set_cond2)                             # and the condition name associated
         list_condition<-append(list_condition, set_cond2)                         #
       }
-      if(complex1==F && complex2==T){                                             # Case 2: one condition against multiple condition
+      if(complex1==FALSE && complex2==TRUE){                                             # Case 2: one condition against multiple condition
         contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
         list_context<-append(list_context, set_cond1)                             # adding respectively to the lists "context" and "condition" the 1st context
         list_condition<-append(list_condition, set_cond1)                         # name and the condition name associated
@@ -460,23 +469,23 @@ asko3c <- function(data_list, parameters){
           facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
           l=l+1                                                                   #
           for(value in facteur){                                                  # for each possible values
-            verif<-unique(str_detect(set_cond2, value))                           # verification of the presence of values in each condition contained in the set
+            verif<-unique(stringr::str_detect(set_cond2, value))                           # verification of the presence of values in each condition contained in the set
             if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor
           }                                                                       # is added as common factor
         }
         if(length(common_factor)>1){                                              # if there are several common factor
           common_factor<-toString(common_factor)                                  # the list is converted to string
-          contx<-str_replace(common_factor,", ","")
-          contx<-str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
+          contx<-stringr::str_replace(common_factor,", ","")
+          contx<-stringr::str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
         contrast_asko[i,"context2"]<-contx                                        # filling contrast data frame with the name of the 2nd context
         contrast_name<-paste(set_cond1,contx, sep = "vs")                         # concatenation of context names to make the contrast name
         contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
-        for(j in seq_along(set_cond2)){                                            # for each condition contained in the complex context (2nd):
+        for(j in length(set_cond2)){                                            # for each condition contained in the complex context (2nd):
           list_context<-append(list_context, contx)                               # adding condition name with the context name associated
           list_condition<-append(list_condition, set_cond2[j])                    # to their respective list
         }
       }
-      if(complex1==T && complex2==F){                                             # Case 3: multiple conditions against one condition
+      if(complex1==TRUE && complex2==FALSE){                                             # Case 3: multiple conditions against one condition
         contrast_asko[i,"context2"]<-set_cond2                                    # filling contrast data frame with the name of the 2nd context
         list_context<-append(list_context, set_cond2)                             # adding respectively to the lists "context" and "condition" the 2nd context
         list_condition<-append(list_condition, set_cond2)                         # name and the 2nd condition name associated
@@ -487,23 +496,23 @@ asko3c <- function(data_list, parameters){
           facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
           l=l+1
           for(value in facteur){                                                  # for each possible values:
-            verif<-unique(str_detect(set_cond1, value))                           # verification of the presence of values in each condition contained in the set
+            verif<-unique(stringr::str_detect(set_cond1, value))                           # verification of the presence of values in each condition contained in the set
             if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor
           }                                                                       # is added as common factor
         }
         if(length(common_factor)>1){                                              # if there are several common factor
           common_factor<-toString(common_factor)                                  # the list is converted to string
-          contx<-str_replace(common_factor,", ","")
-          contx<-str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
+          contx<-stringr::str_replace(common_factor,", ","")
+          contx<-stringr::str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
         contrast_asko[i,"context1"]<-contx                                        # filling contrast data frame with the name of the 1st context
         contrast_name<-paste(contx,set_cond2, sep = "vs")                         # concatenation of context names to make the contrast name
         contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
-        for(j in seq_along(set_cond1)){                                            # for each condition contained in the complex context (1st):
+        for(j in length(set_cond1)){                                            # for each condition contained in the complex context (1st):
           list_context<-append(list_context, contx)                               # adding condition name with the context name associated
           list_condition<-append(list_condition, set_cond1[j])                    # to their respective list
         }
       }
-      if(complex1==T && complex2==T){                                             # Case 4: multiple conditions against multiple conditions
+      if(complex1==TRUE && complex2==TRUE){                                             # Case 4: multiple conditions against multiple conditions
         m=0                                                                       #
         n=0                                                                       #
         common_factor1=list()                                                     # list of common experimental factors shared by conditions of the 1st context
@@ -515,8 +524,8 @@ asko3c <- function(data_list, parameters){
           facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
 
           for(value in facteur){                                                  # for each possible values:
-            verif1<-unique(str_detect(set_cond1, value))                          # verification of the presence of values in each condition contained in the 1st context
-            verif2<-unique(str_detect(set_cond2, value))                          # verification of the presence of values in each condition contained in the 2nd context
+            verif1<-unique(stringr::str_detect(set_cond1, value))                          # verification of the presence of values in each condition contained in the 1st context
+            verif2<-unique(stringr::str_detect(set_cond2, value))                          # verification of the presence of values in each condition contained in the 2nd context
 
             if(length(verif1)==1 && verif1==TRUE){m=m+1;common_factor1[m]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
             if(length(verif2)==1 && verif2==TRUE){n=n+1;common_factor2[n]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
@@ -524,12 +533,12 @@ asko3c <- function(data_list, parameters){
         }
         if(length(common_factor1)>1){                                             # if there are several common factor for conditions in the 1st context
           common_factor1<-toString(common_factor1)                                # conversion list to string
-          contx1<-str_replace(common_factor1,", ","")}else{contx1<-common_factor1}# all common factor are concatenated to become the name of context
-        contx1<-str_replace_all(contx1, "NULL", "")
+          contx1<-stringr::str_replace(common_factor1,", ","")}else{contx1<-common_factor1}# all common factor are concatenated to become the name of context
+        contx1<-stringr::str_replace_all(contx1, "NULL", "")
         if(length(common_factor2)>1){                                             # if there are several common factor for conditions in the 2nd context
           common_factor2<-toString(common_factor2)                                # conversion list to string
-          contx2<-str_replace(common_factor2,", ","")}else{contx2<-common_factor2}# all common factor are concatenated to become the name of context
-        contx2<-str_replace_all(contx2, "NULL", "")
+          contx2<-stringr::str_replace(common_factor2,", ","")}else{contx2<-common_factor2}# all common factor are concatenated to become the name of context
+        contx2<-stringr::str_replace_all(contx2, "NULL", "")
         contrast_asko[i,"context1"]<-contx1                                       # filling contrast data frame with the name of the 1st context
         contrast_asko[i,"context2"]<-contx2                                       # filling contrast data frame with the name of the 2nd context
         contrast_asko[i,"Contrast"]<-paste(contx1,contx2, sep = "vs")             # filling contrast data frame with the name of the contrast
@@ -547,7 +556,7 @@ asko3c <- function(data_list, parameters){
   else{
     for (contrast in colnames(data_list$contrast)){
       i=i+1
-      contexts=strsplit2(contrast,"vs")
+      contexts=limma::strsplit2(contrast,"vs")
       contrast_asko[i,"Contrast"]<-contrast
       contrast_asko[i,"context1"]=contexts[1]
       contrast_asko[i,"context2"]=contexts[2]
@@ -580,25 +589,25 @@ asko3c <- function(data_list, parameters){
   #-------------------
   ctime<-format(Sys.time(), "%d-%m-%Y_%Hh%Mm%Ss")
   # creation of condition file for asko
-  write.table(data.frame("Condition"=row.names(condition_asko),condition_asko),
-              paste0(asko_dir,"condition.asko",ctime,".txt"),
-              sep = parameters$sep,
-              row.names = F,
-              quote=F)
+  utils::write.table(data.frame("Condition"=row.names(condition_asko),condition_asko),
+                     paste0(asko_dir,"condition.asko",ctime,".txt"),
+                     sep = parameters$sep,
+                     row.names = FALSE,
+                     quote=FALSE)
   # creation of context file for asko
-  write.table(context_asko,
-              paste0(asko_dir, "context.asko",ctime,".txt"),
-              sep=parameters$sep,
-              col.names = T,
-              row.names = F,
-              quote=F)
+  utils::write.table(context_asko,
+                     paste0(asko_dir, "context.asko",ctime,".txt"),
+                     sep=parameters$sep,
+                     col.names = TRUE,
+                     row.names = FALSE,
+                     quote=FALSE)
   # creation of contrast file for asko
-  write.table(contrast_asko,
-              paste0(asko_dir, "contrast.asko",ctime,".txt"),
-              sep=parameters$sep,
-              col.names = T,
-              row.names = F,
-              quote=F)
+  utils::write.table(contrast_asko,
+                     paste0(asko_dir, "contrast.asko",ctime,".txt"),
+                     sep=parameters$sep,
+                     col.names = TRUE,
+                     row.names = FALSE,
+                     quote=FALSE)
   return(asko)
 }
 
@@ -614,8 +623,10 @@ asko3c <- function(data_list, parameters){
 #' @param parameters, list that contains all arguments charged in Asko_start
 #' @return filtered_counts, large DGEList with filtered counts and data descriptions.
 #'
-#' @example
-#'    filtered_counts<-GEfilt(data_list, parameters)
+#' @examples
+#' \dontrun{
+#'     filtered_counts<-GEfilt(data, parameters)
+#' }
 #'
 #' @export
 GEfilt <- function(data_list, parameters){
@@ -624,14 +635,14 @@ GEfilt <- function(data_list, parameters){
 
   # plot density before filtering
   #---------------------------------
-  cpm<-cpm(data_list$dge)
-  logcpm<-cpm(data_list$dge, log=TRUE)
+  cpm<-edgeR::cpm(data_list$dge)
+  logcpm<-edgeR::cpm(data_list$dge, log=TRUE)
   colnames(logcpm)<-rownames(data_list$dge$samples)
   nsamples <- ncol(data_list$dge$counts)
 
   maxi<-c()
   for (i in seq(nsamples)){
-    m=max(density(logcpm[,i])$y)
+    m=max(stats::density(logcpm[,i])$y)
     maxi<-c(maxi,m)
   }
   ymax<-round(max(maxi),1) + 0.02
@@ -640,97 +651,97 @@ GEfilt <- function(data_list, parameters){
   if(sizeImg < 480){ sizeImg=480 }
   btm=round((nsamples/6),0)+0.5
 
-  png(paste0(image_dir, parameters$analysis_name, "_raw_data.png"), width=1024, height=1024)
-  par(oma=c(2,2,2,0), mar=c(parameters$densbotmar,5,5,5))
-  plot(density(logcpm[,1]),
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_raw_data.png"), width=1024, height=1024)
+  graphics::par(oma=c(2,2,2,0), mar=c(parameters$densbotmar,5,5,5))
+  plot(stats::density(logcpm[,1]),
        col=as.character(data_list$dge$samples$color[1]),
        lwd=1,
        las=2,
        ylim=c(0,ymax),
        main="A. Raw data",
        xlab="Log-cpm")
-  abline(v=0, lty=3)
+  graphics::abline(v=0, lty=3)
   for (i in 2:nsamples){
-    den<-density(logcpm[,i])
-    lines(den$x, col=as.character(data_list$dge$samples$color[i]), den$y, lwd=1)
+    den<-stats::density(logcpm[,i])
+    graphics::lines(den$x, col=as.character(data_list$dge$samples$color[i]), den$y, lwd=1)
   }
 
-  legend("bottom", fill=data_list$dge$samples$color, bty="n", ncol=parameters$legendcol,
-         legend=rownames(data_list$dge$samples), xpd=TRUE, inset=-parameters$densinset)
-  dev.off()
+  graphics::legend("bottom", fill=data_list$dge$samples$color, bty="n", ncol=parameters$legendcol,
+                   legend=rownames(data_list$dge$samples), xpd=TRUE, inset=-parameters$densinset)
+  grDevices::dev.off()
 
   # plot density after filtering
   #---------------------------------
   keep.exprs <- rowSums(cpm>parameters$threshold_cpm)>=parameters$replicate_cpm
-  filtered_counts <- data_list$dge[keep.exprs,,keep.lib.sizes=F]
-  filtered_cpm<-cpm(filtered_counts$counts, log=TRUE)
+  filtered_counts <- data_list$dge[keep.exprs,,keep.lib.sizes=FALSE]
+  filtered_cpm<-edgeR::cpm(filtered_counts$counts, log=TRUE)
 
   maxi<-c()
   for (i in seq(nsamples)){
-    m=max(density(filtered_cpm[,i])$y)
+    m=max(stats::density(filtered_cpm[,i])$y)
     maxi<-c(maxi,m)
   }
   ymax<-round(max(maxi),1) + 0.02
 
-  png(paste0(image_dir,parameters$analysis_name,"_filtered_data.png"), width=1024, height=1024)
-  par(oma=c(2,2,2,0), mar=c(parameters$densbotmar,5,5,5))
-  plot(density(filtered_cpm[,1]),
+  grDevices::png(paste0(image_dir,parameters$analysis_name,"_filtered_data.png"), width=1024, height=1024)
+  graphics::par(oma=c(2,2,2,0), mar=c(parameters$densbotmar,5,5,5))
+  plot(stats::density(filtered_cpm[,1]),
        col=as.character(data_list$dge$samples$color[1]),
        lwd=1,
        ylim=c(0,ymax),
        las=2,
        main="B. Filtered data",
        xlab="Log-cpm")
-  abline(v=0, lty=3)
+  graphics::abline(v=0, lty=3)
   for (i in 2:nsamples){
-    den <- density(filtered_cpm[,i])
-    lines(den$x,col=as.character(data_list$dge$samples$color[i]), den$y, lwd=1)
+    den <- stats::density(filtered_cpm[,i])
+    graphics::lines(den$x,col=as.character(data_list$dge$samples$color[i]), den$y, lwd=1)
   }
-  legend("bottom", fill=data_list$dge$samples$color, bty="n", ncol=parameters$legendcol,
-         legend=rownames(data_list$dge$samples), xpd=TRUE, inset=-parameters$densinset)
-  dev.off()
+  graphics::legend("bottom", fill=data_list$dge$samples$color, bty="n", ncol=parameters$legendcol,
+                   legend=rownames(data_list$dge$samples), xpd=TRUE, inset=-parameters$densinset)
+  grDevices::dev.off()
 
   # histogram cpm values distribution before filtering
   #------------------------------------------------------
-  png(paste0(image_dir,parameters$analysis_name,"_barplot_logcpm_before_filtering.png"), width=sizeImg, height=sizeImg)
-  hist(logcpm,
-       main= "A. Log2(cpm) distribution before filtering",
-       xlab = "log2(cpm)",
-       col = "grey")
-  dev.off()
+  grDevices::png(paste0(image_dir,parameters$analysis_name,"_barplot_logcpm_before_filtering.png"), width=sizeImg, height=sizeImg)
+  graphics::hist(logcpm,
+                 main= "A. Log2(cpm) distribution before filtering",
+                 xlab = "log2(cpm)",
+                 col = "grey")
+  grDevices::dev.off()
 
   # histogram cpm values distribution after filtering
   #------------------------------------------------------
-  png(paste0(image_dir,parameters$analysis_name,"_barplot_logcpm_after_filtering.png"), width=sizeImg, height=sizeImg)
-  hist(filtered_cpm,
-       main= "B. Log2(cpm) distribution after filtering",
-       xlab = "log2(cpm)",
-       col = "grey")
-  dev.off()
+  grDevices::png(paste0(image_dir,parameters$analysis_name,"_barplot_logcpm_after_filtering.png"), width=sizeImg, height=sizeImg)
+  graphics::hist(filtered_cpm,
+                 main= "B. Log2(cpm) distribution after filtering",
+                 xlab = "log2(cpm)",
+                 col = "grey")
+  grDevices::dev.off()
 
   # boxplot cpm values distribution before filtering
   #------------------------------------------------------
-  png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_before_filtering.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(1,1,1,1))
-  boxplot(logcpm,
-          col=data_list$dge$samples$color,
-          main="A. Log2(cpm) distribution before filtering",
-          cex.axis=0.8,
-          las=2,
-          ylab="log2(cpm)")
-  dev.off()
+  grDevices::png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_before_filtering.png"), width=sizeImg, height=sizeImg)
+  graphics::par(oma=c(1,1,1,1))
+  graphics::boxplot(logcpm,
+                    col=data_list$dge$samples$color,
+                    main="A. Log2(cpm) distribution before filtering",
+                    cex.axis=0.8,
+                    las=2,
+                    ylab="log2(cpm)")
+  grDevices::dev.off()
 
   # boxplot cpm values distribution after filtering
   #------------------------------------------------------
-  png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_filtering.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(1,1,1,1))
-  boxplot(filtered_cpm,
-          col=data_list$dge$samples$color,
-          main="B. Log2(cpm) distribution after filtering",
-          cex.axis=0.8,
-          las=2,
-          ylab="log2(cpm)")
-  dev.off()
+  grDevices::png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_filtering.png"), width=sizeImg, height=sizeImg)
+  graphics::par(oma=c(1,1,1,1))
+  graphics::boxplot(filtered_cpm,
+                    col=data_list$dge$samples$color,
+                    main="B. Log2(cpm) distribution after filtering",
+                    cex.axis=0.8,
+                    las=2,
+                    ylab="log2(cpm)")
+  grDevices::dev.off()
 
   return(filtered_counts)
 }
@@ -750,11 +761,13 @@ GEfilt <- function(data_list, parameters){
 #' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
 #' @return norm_GE, large DGEList with normalized counts and data descriptions.
 #'
-#' @example
-#'    norm_GE<-GEnorm(filtered_GE, asko_list, parameters)
+#' @examples
+#' \dontrun{
+#'     norm_GE<-GEnorm(filtered_counts, asko, parameters)
+#' }
 #'
 #' @export
-GEnorm <- function(filtered_GE, asko_list, data, parameters){
+GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   image_dir = paste0(study_dir, "images/")
 
@@ -764,25 +777,25 @@ GEnorm <- function(filtered_GE, asko_list, data, parameters){
   if(sizeImg < 480){ sizeImg=480 }
 
   # Normalization counts
-  norm_GE<-calcNormFactors(filtered_GE, method = parameters$normal_method)
+  norm_GE<-edgeR::calcNormFactors(filtered_GE, method = parameters$normal_method)
   if(parameters$norm_factor == TRUE){
-    write.table(norm_GE$samples, file=paste0(study_dir, parameters$analysis_name, "_normalization_factors.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
+    utils::write.table(norm_GE$samples, file=paste0(study_dir, parameters$analysis_name, "_normalization_factors.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
   }
 
   # boxplot log2(cpm) values after normalization
   #----------------------------------------------------
-  logcpm_norm <- cpm(norm_GE, log=TRUE)
+  logcpm_norm <- edgeR::cpm(norm_GE, log=TRUE)
   colnames(logcpm_norm)<-rownames(filtered_GE$samples)
 
-  png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_norm.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(1,1,1,1))
-  boxplot(logcpm_norm,
-          col=filtered_GE$samples$color,
-          main="B. Log2(cpm) distribution after normalization",
-          cex.axis=0.8,
-          las=2,
-          ylab="Log2(cpm)")
-  dev.off()
+  grDevices::png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_norm.png"), width=sizeImg, height=sizeImg)
+  graphics::par(oma=c(1,1,1,1))
+  graphics::boxplot(logcpm_norm,
+                    col=filtered_GE$samples$color,
+                    main="B. Log2(cpm) distribution after normalization",
+                    cex.axis=0.8,
+                    las=2,
+                    ylab="Log2(cpm)")
+  grDevices::dev.off()
 
   # heatmap visualisation
   #----------------------------------------------------
@@ -790,58 +803,59 @@ GEnorm <- function(filtered_GE, asko_list, data, parameters){
   {
     # heatmap cpm value per sample
     #----------------------------------------------------
-    cpm_norm  <- cpm(norm_GE, log=FALSE)
+    cpm_norm  <- edgeR::cpm(norm_GE, log=FALSE)
     cpmscale  <- scale(t(cpm_norm))
     tcpmscale <- t(cpmscale)
 
-    d1 <- dist(cpmscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
-    d2 <- dist(tcpmscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
-    hc <- hclust(d1, method = parameters$hclust, members = NULL)
-    hr <- hclust(d2, method = parameters$hclust, members = NULL)
-    my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
+    d1 <- stats::dist(cpmscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
+    d2 <- stats::dist(tcpmscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
+    hc <- stats::hclust(d1, method = parameters$hclust, members = NULL)
+    hr <- stats::hclust(d2, method = parameters$hclust, members = NULL)
+    my_palette <- grDevices::colorRampPalette(c("green","black","red"), interpolate = "linear")
 
-    png(paste0(image_dir,parameters$analysis_name,"_heatmap_CPMcounts_per_sample.png"), width=sizeImg*1.5, height=sizeImg*1.25)
-    par(oma=c(2,1,2,2))
-    heatmap.2(tcpmscale, Colv = as.dendrogram(hc), Rowv = as.dendrogram(hr), density.info="histogram",
-              trace = "none", dendrogram = "column", xlab = "samples", col = my_palette, labRow = FALSE,
-              cexRow = 0.1, cexCol = 1.25, ColSideColors = norm_GE$samples$color, margins = c(10,1),
-              main = paste0("CPM counts per sample\nGenes 1 to ",nrow(norm_GE)))
-    dev.off()
-    write.table(cpm_norm, file=paste0(study_dir, parameters$analysis_name, "_CPM_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
+    grDevices::png(paste0(image_dir,parameters$analysis_name,"_heatmap_CPMcounts_per_sample.png"), width=sizeImg*1.5, height=sizeImg*1.25)
+    graphics::par(oma=c(2,1,2,2))
+    gplots::heatmap.2(tcpmscale, Colv = stats::as.dendrogram(hc), Rowv = stats::as.dendrogram(hr), density.info="histogram",
+                      trace = "none", dendrogram = "column", xlab = "samples", col = my_palette, labRow = FALSE,
+                      cexRow = 0.1, cexCol = 1.25, ColSideColors = norm_GE$samples$color, margins = c(10,1),
+                      main = paste0("CPM counts per sample\nGenes 1 to ",nrow(norm_GE)))
+    grDevices::dev.off()
+    utils::write.table(cpm_norm, file=paste0(study_dir, parameters$analysis_name, "_CPM_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
 
     # Normalized mean by conditions
     #-------------------------------
     # heatmap mean counts per condition
-    n_count <- NormCountsMean(norm_GE, ASKOlist = asko_list)
+    n_count <- askoR::NormCountsMean(norm_GE, ASKOlist = asko_list)
     countscale  <- scale(t(n_count))
     tcountscale <- t(countscale)
 
-    d1 <- dist(countscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
-    d2 <- dist(tcountscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
-    hc <- hclust(d1, method = parameters$hclust, members = NULL)
-    hr <- hclust(d2, method = parameters$hclust, members = NULL)
-    my_palette <- colorRampPalette(c("green","black","red"), interpolate = "linear")
+    d1 <- stats::dist(countscale,  method = parameters$distcluts, diag = FALSE, upper = FALSE)
+    d2 <- stats::dist(tcountscale, method = parameters$distcluts, diag = FALSE, upper = TRUE)
+    hc <- stats::hclust(d1, method = parameters$hclust, members = NULL)
+    hr <- stats::hclust(d2, method = parameters$hclust, members = NULL)
+    my_palette <- grDevices::colorRampPalette(c("green","black","red"), interpolate = "linear")
 
-    png(paste0(image_dir,parameters$analysis_name,"_heatmap_meanCounts_per_condi.png"), width=sizeImg*1.5, height=sizeImg*1.25)
-    par(oma=c(2,1,2,2))
-    heatmap.2(tcountscale, Colv = as.dendrogram(hc), Rowv = as.dendrogram(hr), density.info="histogram",
-              trace = "none", dendrogram = "column", xlab = "Condition", col = my_palette, labRow = FALSE,
-              cexRow = 0.1, cexCol = 1.5, ColSideColors = unique(norm_GE$samples$color), margins = c(10,1),
-              main = paste0("Mean count per condition\nGenes 1 to ",nrow(norm_GE)))
-    dev.off()
+    grDevices::png(paste0(image_dir,parameters$analysis_name,"_heatmap_meanCounts_per_condi.png"), width=sizeImg*1.5, height=sizeImg*1.25)
+    graphics::par(oma=c(2,1,2,2))
+    gplots::heatmap.2(tcountscale, Colv = stats::as.dendrogram(hc), Rowv = stats::as.dendrogram(hr), density.info="histogram",
+                      trace = "none", dendrogram = "column", xlab = "Condition", col = my_palette, labRow = FALSE,
+                      cexRow = 0.1, cexCol = 1.5, ColSideColors = unique(norm_GE$samples$color), margins = c(10,1),
+                      main = paste0("Mean count per condition\nGenes 1 to ",nrow(norm_GE)))
+    grDevices::dev.off()
   }
 
   # File with normalized counts
   if (parameters$norm_counts == TRUE){
     dScaleFactors <- norm_GE$samples$lib.size * norm_GE$samples$norm.factors
     normCounts <- t(t(filtered_GE$counts)/dScaleFactors)*mean(dScaleFactors)
-    write.table(normCounts, file=paste0(study_dir, parameters$analysis_name, "_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
+    utils::write.table(normCounts, file=paste0(study_dir, parameters$analysis_name, "_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
   }
 
   # File with normalized mean counts in CPM, grouped by condition
-  meancpmDEGnorm<-as.data.frame(t(aggregate(t(cpm_norm),list(data$samples$condition), mean)))[-1,]
-  colnames(meancpmDEGnorm)<-unique(data$samples$condition)
-  write.table(meancpmDEGnorm,paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), sep="\t", dec=".", row.names=TRUE, col.names=NA, quote=FALSE)
+  cpm_norm  <- edgeR::cpm(norm_GE, log=FALSE)
+  meancpmDEGnorm<-as.data.frame(t(stats::aggregate(t(cpm_norm),list(data_list$samples$condition), mean)))[-1,]
+  colnames(meancpmDEGnorm)<-unique(data_list$samples$condition)
+  utils::write.table(meancpmDEGnorm,paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), sep="\t", dec=".", row.names=TRUE, col.names=NA, quote=FALSE)
 
   return(norm_GE)
 }
@@ -860,11 +874,16 @@ GEnorm <- function(filtered_GE, asko_list, data, parameters){
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return none
 #'
-#' @example
-#'    GEcorr(asko_norm,parameters)
+#' @import ggfortify
+#'
+#' @examples
+#' \dontrun{
+#'     GEcorr(asko_norm,parameters)
+#' }
 #'
 #' @export
 GEcorr <- function(asko_norm, parameters){
+  #library(ggfortify)
   options(warn = -1)
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   image_dir = paste0(study_dir, "images/")
@@ -874,82 +893,82 @@ GEcorr <- function(asko_norm, parameters){
   sizeImg=15*nsamples
   if(sizeImg < 1024){ sizeImg=1024 }
 
-  lcpm<-cpm(asko_norm, log=TRUE)
+  lcpm<-edgeR::cpm(asko_norm, log=TRUE)
   colnames(lcpm)<-rownames(asko_norm$samples)
 
   # Heatmap sample correlation
   #-----------------------------
-  cormat<-cor(lcpm)
-  color<-colorRampPalette(c("black","red","yellow","white"),space="rgb")(35)
-  png(paste0(image_dir, parameters$analysis_name, "_heatmap_of_sample_correlation.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(4,2,4,1))
-  heatmap(cormat, col=color, symm=TRUE, RowSideColors=as.character(asko_norm$samples$color),
-          ColSideColors=as.character(asko_norm$samples$color), main="")
-  title("Sample Correlation Matrix", adj=0.5, outer=TRUE)
-  dev.off()
+  cormat<-stats::cor(lcpm)
+  color<-grDevices::colorRampPalette(c("black","red","yellow","white"),space="rgb")(35)
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_heatmap_of_sample_correlation.png"), width=sizeImg, height=sizeImg)
+  graphics::par(oma=c(4,2,4,1))
+  stats::heatmap(cormat, col=color, symm=TRUE, RowSideColors=as.character(asko_norm$samples$color),
+                 ColSideColors=as.character(asko_norm$samples$color), main="")
+  graphics::title("Sample Correlation Matrix", adj=0.5, outer=TRUE)
+  grDevices::dev.off()
 
   # MDS Plot
   #-----------------------------
-  mds <- cmdscale(dist(t(lcpm)),k=3, eig=TRUE)
+  mds <- stats::cmdscale(stats::dist(t(lcpm)),k=3, eig=TRUE)
   eigs<-round((mds$eig)*100/sum(mds$eig[mds$eig>0]),2)
   dfmds<-as.data.frame(mds$points)
   # Axe 1 and 2
-  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_2.png"), width=sizeImg*1.25, height=sizeImg*1.25)
-  mds1<-ggplot(dfmds, aes(dfmds$V1, dfmds$V2, label=rownames(mds$points))) + labs(title="MDS Axes 1 and 2") +
-    theme(plot.title = element_text(hjust = 0.5)) + theme(plot.margin=margin(20,30,20,15)) +
-    geom_point(aes(color=as.character(asko_norm$samples$condition)),shape=17,size=15 ) +
-    xlab(paste('dim 1 [', eigs[1], '%]')) + ylab(paste('dim 2 [', eigs[2], "%]")) +
-    geom_label_repel(aes(label = rownames(mds$points),fill = factor(as.character(asko_norm$samples$condition))), color = 'white',size = 7) +
-    theme(
-      axis.text.y = element_text(face="bold",size=30),
-      axis.text.x = element_text(face="bold",size=30),
-      legend.text = element_text(size = 30),
-      legend.title = element_text(size=30,face="bold"),
-      strip.text.y = element_text(size=30, face="bold"),
-      axis.title = element_text(size=30,face="bold"),
-      plot.title = element_text(size=35)) +
-    guides(color=FALSE, fill = guide_legend(title = "Condition", override.aes = aes(label = ""), ncol=parameters$legendcol)) +
-    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_2.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  mds1<-ggplot2::ggplot(dfmds, ggplot2::aes(dfmds$V1, dfmds$V2, label=rownames(mds$points))) + ggplot2::labs(title="MDS Axes 1 and 2") +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::theme(plot.margin=ggplot2::margin(20,30,20,15)) +
+    ggplot2::geom_point(ggplot2::aes(color=as.character(asko_norm$samples$condition)),shape=17,size=15 ) +
+    ggplot2::xlab(paste('dim 1 [', eigs[1], '%]')) + ggplot2::ylab(paste('dim 2 [', eigs[2], "%]")) +
+    ggrepel::geom_label_repel(ggplot2::aes(label = rownames(mds$points),fill = factor(as.character(asko_norm$samples$condition))), color = 'white',size = 7) +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(face="bold",size=30),
+      axis.text.x = ggplot2::element_text(face="bold",size=30),
+      legend.text = ggplot2::element_text(size = 30),
+      legend.title = ggplot2::element_text(size=30,face="bold"),
+      strip.text.y = ggplot2::element_text(size=30, face="bold"),
+      axis.title = ggplot2::element_text(size=30,face="bold"),
+      plot.title = ggplot2::element_text(size=35)) +
+    ggplot2::guides(color=FALSE, fill = ggplot2::guide_legend(title = "Condition", override.aes = ggplot2::aes(label = ""), ncol=parameters$legendcol)) +
+    ggplot2::theme(legend.position="bottom",legend.direction="vertical",legend.margin=ggplot2::margin(5,5,5,5),legend.box.margin=ggplot2::margin(10,10,10,10))
   print(mds1)
-  dev.off()
+  grDevices::dev.off()
   # Axe 2 and 3
-  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe2_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
-  mds2<-ggplot(dfmds, aes(dfmds$V2, dfmds$V3, label = rownames(mds$points))) + labs(title="MDS Axes 2 and 3") +
-    theme(plot.title = element_text(hjust = 0.5)) + theme(plot.margin=margin(20,30,20,15)) +
-    geom_point(aes(color=as.character(asko_norm$samples$condition)),shape=17,size=15 ) +
-    xlab(paste('dim 2 [', eigs[2], '%]')) + ylab(paste('dim 3 [', eigs[3], "%]")) +
-    geom_label_repel(aes(label = rownames(mds$points),fill = factor(as.character(asko_norm$samples$condition))), color = 'white',size = 7) +
-    theme(
-      axis.text.y = element_text(face="bold",size=30),
-      axis.text.x = element_text(face="bold",size=30),
-      legend.text = element_text(size = 30),
-      legend.title = element_text(size=30,face="bold"),
-      strip.text.y = element_text(size=30, face="bold"),
-      axis.title=element_text(size=30,face="bold"),
-      plot.title = element_text(size=35)) +
-    guides(color=FALSE, fill = guide_legend(title = "Condition", override.aes = aes(label = ""), ncol=parameters$legendcol)) +
-    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe2_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  mds2<-ggplot2::ggplot(dfmds, ggplot2::aes(dfmds$V2, dfmds$V3, label = rownames(mds$points))) + ggplot2::labs(title="MDS Axes 2 and 3") +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::theme(plot.margin=ggplot2::margin(20,30,20,15)) +
+    ggplot2::geom_point(ggplot2::aes(color=as.character(asko_norm$samples$condition)),shape=17,size=15 ) +
+    ggplot2::xlab(paste('dim 2 [', eigs[2], '%]')) + ggplot2::ylab(paste('dim 3 [', eigs[3], "%]")) +
+    ggrepel::geom_label_repel(ggplot2::aes(label = rownames(mds$points),fill = factor(as.character(asko_norm$samples$condition))), color = 'white',size = 7) +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(face="bold",size=30),
+      axis.text.x = ggplot2::element_text(face="bold",size=30),
+      legend.text = ggplot2::element_text(size = 30),
+      legend.title = ggplot2::element_text(size=30,face="bold"),
+      strip.text.y = ggplot2::element_text(size=30, face="bold"),
+      axis.title=ggplot2::element_text(size=30,face="bold"),
+      plot.title = ggplot2::element_text(size=35)) +
+    ggplot2::guides(color=FALSE, fill = ggplot2::guide_legend(title = "Condition", override.aes = ggplot2::aes(label = ""), ncol=parameters$legendcol)) +
+    ggplot2::theme(legend.position="bottom",legend.direction="vertical",legend.margin=ggplot2::margin(5,5,5,5),legend.box.margin=ggplot2::margin(10,10,10,10))
   print(mds2)
-  dev.off()
+  grDevices::dev.off()
   # Axe 1 and 3
-  png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
-  mds3<-ggplot(dfmds, aes(dfmds$V1, dfmds$V3, label = rownames(mds$points))) + labs(title="MDS Axes 1 and 3") +
-    theme(plot.title = element_text(hjust = 0.5)) + theme(plot.margin=margin(20,30,20,15)) +
-    geom_point(aes(color=as.character(asko_norm$samples$condition)),shape=17,size=15 ) +
-    xlab(paste('dim 1 [', eigs[1], '%]')) + ylab(paste('dim 3 [', eigs[3], "%]")) +
-    geom_label_repel(aes(label = rownames(mds$points),fill = factor(as.character(asko_norm$samples$condition))), color = 'white',size = 7) +
-    theme(
-      axis.text.y = element_text(face="bold",size=30),
-      axis.text.x = element_text(face="bold",size=30),
-      legend.text = element_text(size = 30),
-      legend.title = element_text(size=30,face="bold"),
-      strip.text.y = element_text(size=30, face="bold"),
-      axis.title=element_text(size=30,face="bold"),
-      plot.title = element_text(size=35)) +
-    guides(color=FALSE, fill = guide_legend(title = "Condition",override.aes = aes(label = ""), ncol=parameters$legendcol)) +
-    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  mds3<-ggplot2::ggplot(dfmds, ggplot2::aes(dfmds$V1, dfmds$V3, label = rownames(mds$points))) + ggplot2::labs(title="MDS Axes 1 and 3") +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::theme(plot.margin=ggplot2::margin(20,30,20,15)) +
+    ggplot2::geom_point(ggplot2::aes(color=as.character(asko_norm$samples$condition)),shape=17,size=15 ) +
+    ggplot2::xlab(paste('dim 1 [', eigs[1], '%]')) + ggplot2::ylab(paste('dim 3 [', eigs[3], "%]")) +
+    ggrepel::geom_label_repel(ggplot2::aes(label = rownames(mds$points),fill = factor(as.character(asko_norm$samples$condition))), color = 'white',size = 7) +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(face="bold",size=30),
+      axis.text.x = ggplot2::element_text(face="bold",size=30),
+      legend.text = ggplot2::element_text(size = 30),
+      legend.title = ggplot2::element_text(size=30,face="bold"),
+      strip.text.y = ggplot2::element_text(size=30, face="bold"),
+      axis.title=ggplot2::element_text(size=30,face="bold"),
+      plot.title = ggplot2::element_text(size=35)) +
+    ggplot2::guides(color=FALSE, fill = ggplot2::guide_legend(title = "Condition",override.aes = ggplot2::aes(label = ""), ncol=parameters$legendcol)) +
+    ggplot2::theme(legend.position="bottom",legend.direction="vertical",legend.margin=ggplot2::margin(5,5,5,5),legend.box.margin=ggplot2::margin(10,10,10,10))
   print(mds3)
-  dev.off()
+  grDevices::dev.off()
 
   # PCA
   #-----------------------------
@@ -958,70 +977,70 @@ GEcorr <- function(asko_norm, parameters){
   lcpm3$cond=asko_norm$samples$condition
 
   # Axe 1 and 2
-  png(paste0(image_dir, parameters$analysis_name, "_PCA_axe1_2.png"), width=sizeImg*1.25, height=sizeImg*1.25)
-  p=autoplot(prcomp(lcpm2), data = lcpm3, size=15,colour="cond",show.legend = FALSE, x=1, y=2,shape=17)
-  test=p + geom_label_repel(aes(label = rownames(lcpm3),fill = factor(cond)), color = 'white',size = 7) +
-  labs(title="PCA Axes 1 and 2") + theme(
-    plot.margin=margin(20,30,20,15),
-    axis.text.y = element_text(face="bold",size=30),
-    axis.text.x = element_text(face="bold",size=30),
-    legend.text = element_text(size = 30),
-    legend.title = element_text(size=30,face="bold"),
-    strip.text.y = element_text(size=30, face="bold"),
-    axis.title=element_text(size=30,face="bold"),
-    plot.title = element_text(size=35, hjust=0.5)) +
-    guides(colour=FALSE, fill = guide_legend(title = "Condition",override.aes = aes(label = ""), ncol=parameters$legendcol)) +
-    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_PCA_axe1_2.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  p=ggplot2::autoplot(stats::prcomp(lcpm2), data = lcpm3, size=15,colour="cond",show.legend = FALSE, x=1, y=2,shape=17)
+  test=p + ggrepel::geom_label_repel(ggplot2::aes(label = rownames(lcpm3),fill = factor(lcpm3$cond)), color = 'white',size = 7) +
+    ggplot2::labs(title="PCA Axes 1 and 2") + ggplot2::theme(
+      plot.margin=ggplot2::margin(20,30,20,15),
+      axis.text.y = ggplot2::element_text(face="bold",size=30),
+      axis.text.x = ggplot2::element_text(face="bold",size=30),
+      legend.text = ggplot2::element_text(size = 30),
+      legend.title = ggplot2::element_text(size=30,face="bold"),
+      strip.text.y = ggplot2::element_text(size=30, face="bold"),
+      axis.title=ggplot2::element_text(size=30,face="bold"),
+      plot.title = ggplot2::element_text(size=35, hjust=0.5)) +
+    ggplot2::guides(colour=FALSE, fill = ggplot2::guide_legend(title = "Condition",override.aes = ggplot2::aes(label = ""), ncol=parameters$legendcol)) +
+    ggplot2::theme(legend.position="bottom",legend.direction="vertical",legend.margin=ggplot2::margin(5,5,5,5),legend.box.margin=ggplot2::margin(10,10,10,10))
   print(test)
-  dev.off()
+  grDevices::dev.off()
 
   # Axe 2 and 3
-  png(paste0(image_dir, parameters$analysis_name, "_PCA_axe2_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
-  p=autoplot(prcomp(lcpm2), data = lcpm3, size=15,colour="cond",show.legend = FALSE, x=2, y=3,shape=17)
-  test=p + geom_label_repel(aes(label = rownames(lcpm3),fill = factor(cond)), color = 'white',size = 7) +
-  labs(title="PCA Axes 2 and 3") + theme(
-    plot.margin=margin(20,30,20,15),
-    axis.text.y = element_text(face="bold",size=30),
-    axis.text.x = element_text(face="bold",size=30),
-    legend.text = element_text(size = 30),
-    legend.title = element_text(size=30,face="bold"),
-    strip.text.y = element_text(size=30, face="bold"),
-    axis.title=element_text(size=30,face="bold"),
-    plot.title = element_text(size=35, hjust=0.5)) +
-    guides(colour=FALSE, fill = guide_legend(title = "Condition",override.aes = aes(label = ""), ncol=parameters$legendcol)) +
-    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_PCA_axe2_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  p=ggplot2::autoplot(stats::prcomp(lcpm2), data = lcpm3, size=15,colour="cond",show.legend = FALSE, x=2, y=3,shape=17)
+  test=p + ggrepel::geom_label_repel(ggplot2::aes(label = rownames(lcpm3),fill = factor(lcpm3$cond)), color = 'white',size = 7) +
+    ggplot2::labs(title="PCA Axes 2 and 3") + ggplot2::theme(
+      plot.margin=ggplot2::margin(20,30,20,15),
+      axis.text.y = ggplot2::element_text(face="bold",size=30),
+      axis.text.x = ggplot2::element_text(face="bold",size=30),
+      legend.text = ggplot2::element_text(size = 30),
+      legend.title = ggplot2::element_text(size=30,face="bold"),
+      strip.text.y = ggplot2::element_text(size=30, face="bold"),
+      axis.title=ggplot2::element_text(size=30,face="bold"),
+      plot.title = ggplot2::element_text(size=35, hjust=0.5)) +
+    ggplot2::guides(colour=FALSE, fill = ggplot2::guide_legend(title = "Condition",override.aes = ggplot2::aes(label = ""), ncol=parameters$legendcol)) +
+    ggplot2::theme(legend.position="bottom",legend.direction="vertical",legend.margin=ggplot2::margin(5,5,5,5),legend.box.margin=ggplot2::margin(10,10,10,10))
   print(test)
-  dev.off()
+  grDevices::dev.off()
 
   # Axe 1 and 3
-  png(paste0(image_dir, parameters$analysis_name, "_PCA_axe1_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
-  p=autoplot(prcomp(lcpm2), data = lcpm3, size=15,colour="cond",show.legend = FALSE, x=1, y=3,shape=17)
-  test=p + geom_label_repel(aes(label = rownames(lcpm3),fill = factor(cond)), color = 'white',size = 7) +
-  labs(title="PCA Axes 1 and 3") + theme(
-    plot.margin=margin(20,30,20,15),
-    axis.text.y = element_text(face="bold",size=30),
-    axis.text.x = element_text(face="bold",size=30),
-    legend.text = element_text(size = 30),
-    legend.title = element_text(size=30,face="bold"),
-    strip.text.y = element_text(size=30, face="bold"),
-    axis.title=element_text(size=30,face="bold"),
-    plot.title = element_text(size=35, hjust=0.5)) +
-    guides(colour=FALSE, fill = guide_legend(title = "Condition",override.aes = aes(label = ""), ncol=parameters$legendcol)) +
-    theme(legend.position="bottom",legend.direction="vertical",legend.margin=margin(5,5,5,5),legend.box.margin=margin(10,10,10,10))
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_PCA_axe1_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
+  p=ggplot2::autoplot(stats::prcomp(lcpm2), data = lcpm3, size=15,colour="cond",show.legend = FALSE, x=1, y=3,shape=17)
+  test=p + ggrepel::geom_label_repel(ggplot2::aes(label = rownames(lcpm3),fill = factor(lcpm3$cond)), color = 'white',size = 7) +
+    ggplot2::labs(title="PCA Axes 1 and 3") + ggplot2::theme(
+      plot.margin=ggplot2::margin(20,30,20,15),
+      axis.text.y = ggplot2::element_text(face="bold",size=30),
+      axis.text.x = ggplot2::element_text(face="bold",size=30),
+      legend.text = ggplot2::element_text(size = 30),
+      legend.title = ggplot2::element_text(size=30,face="bold"),
+      strip.text.y = ggplot2::element_text(size=30, face="bold"),
+      axis.title=ggplot2::element_text(size=30,face="bold"),
+      plot.title = ggplot2::element_text(size=35, hjust=0.5)) +
+    ggplot2::guides(colour=FALSE, fill = ggplot2::guide_legend(title = "Condition",override.aes = ggplot2::aes(label = ""), ncol=parameters$legendcol)) +
+    ggplot2::theme(legend.position="bottom",legend.direction="vertical",legend.margin=ggplot2::margin(5,5,5,5),legend.box.margin=ggplot2::margin(10,10,10,10))
   print(test)
-  dev.off()
+  grDevices::dev.off()
 
   # hierarchical clustering
   #-----------------------------
-  mat.dist <- dist(t(asko_norm$counts), method = parameters$distcluts)
-  clustering <- hclust(mat.dist, method=parameters$hclust)
-  png(paste0(image_dir, parameters$analysis_name, "_hclust.png"), width=sizeImg, height=sizeImg)
-  par(oma=c(1,1,1,1))
+  mat.dist <- stats::dist(t(asko_norm$counts), method = parameters$distcluts)
+  clustering <- stats::hclust(mat.dist, method=parameters$hclust)
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_hclust.png"), width=sizeImg, height=sizeImg)
+  graphics::par(oma=c(1,1,1,1))
   plot(clustering,
        main = 'Distances Correlation\nHierarchical clustering', sub="",
        xlab=paste0("Samples\nmethod hclust: ",parameters$hclust),
        hang = -1)
-  j<-dev.off()
+  j<-grDevices::dev.off()
 }
 
 #' @title plot_glimma
@@ -1044,9 +1063,12 @@ GEcorr <- function(asko_norm, parameters){
 #' @return none.
 #'
 #' @examples
+#' \dontrun{
 #'    plot_glimma(fit, normGE, resDE, contrast, "MD", parameters)  # smear plot
 #'    plot_glimma(fit, normGE, resDE, contrast, "VO", parameters)  # volcano plot
+#' }
 #'
+#' @export
 plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   image_dir = paste0(study_dir, "images/")
@@ -1055,14 +1077,14 @@ plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
   #--------------------------
   if(tplot=="MD"){
     if (is.null(normGE$samples$color)==TRUE){
-      suppressWarnings(glMDPlot(fit, status=resDE[,contrast], counts=normGE, group=normGE$samples$condition,
-                                transform=TRUE, anno=NULL, launch=FALSE, main=contrast,
-                                folder=paste0(image_dir, "Glimma_Plots"), html=paste0("MDPlot_",contrast)))
+      suppressWarnings(Glimma::glMDPlot(fit, status=resDE[,contrast], counts=normGE, group=normGE$samples$condition,
+                                        transform=TRUE, anno=NULL, launch=FALSE, main=contrast,
+                                        folder=paste0(image_dir, "Glimma_Plots"), html=paste0("MDPlot_",contrast)))
     }
     else{
-      suppressWarnings(glMDPlot(fit, status=resDE[,contrast], counts=normGE, group=normGE$samples$condition, transform=TRUE,
-                                sample.cols=normGE$samples$color, anno=NULL, launch=FALSE, main=contrast,
-                                folder=paste0(image_dir, "Glimma_Plots"), html=paste0("MDPlot_",contrast)))
+      suppressWarnings(Glimma::glMDPlot(fit, status=resDE[,contrast], counts=normGE, group=normGE$samples$condition, transform=TRUE,
+                                        sample.cols=normGE$samples$color, anno=NULL, launch=FALSE, main=contrast,
+                                        folder=paste0(image_dir, "Glimma_Plots"), html=paste0("MDPlot_",contrast)))
     }
   }
 
@@ -1070,14 +1092,14 @@ plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
   #--------------------------
   if (tplot=="VO"){
     if (is.null(normGE$samples$color)==TRUE){
-      glXYPlot(x=fit$table$logFC, y=-log10(fit$table$PValue), status=resDE[,contrast], counts=normGE,
-               group=normGE$samples$condition, xlab="Log2FoldChange", ylab="-log10(pvalue)", main=contrast,
-               launch=FALSE, folder=paste0(image_dir, "Glimma_Plots"), html=paste0("Volcano_",contrast))
+      Glimma::glXYPlot(x=fit$table$logFC, y=-log10(fit$table$PValue), status=resDE[,contrast], counts=normGE,
+                       group=normGE$samples$condition, xlab="Log2FoldChange", ylab="-log10(pvalue)", main=contrast,
+                       launch=FALSE, folder=paste0(image_dir, "Glimma_Plots"), html=paste0("Volcano_",contrast))
     }
     else{
-      glXYPlot(x=fit$table$logFC, y=-log10(fit$table$PValue), status=resDE[,contrast], counts=normGE, main=contrast,
-               group=normGE$samples$condition, xlab="Log2FoldChange", ylab="-log10(pvalue)", launch=FALSE,
-               sample.cols=normGE$samples$color, folder=paste0(image_dir, "Glimma_Plots"), html=paste0("Volcano_",contrast))
+      Glimma::glXYPlot(x=fit$table$logFC, y=-log10(fit$table$PValue), status=resDE[,contrast], counts=normGE, main=contrast,
+                       group=normGE$samples$condition, xlab="Log2FoldChange", ylab="-log10(pvalue)", launch=FALSE,
+                       sample.cols=normGE$samples$color, folder=paste0(image_dir, "Glimma_Plots"), html=paste0("Volcano_",contrast))
     }
   }
 }
@@ -1102,9 +1124,12 @@ plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
 #' @return none.
 #'
 #' @examples
+#' \dontrun{
 #'    plot_expr(fit, normGE, resDE, contrast, "MD", parameters)  # smear plot
 #'    plot_expr(fit, normGE, resDE, contrast, "VO", parameters)  # volcano plot
+#' }
 #'
+#' @export
 plot_expr <- function(fit, normGE, resDE, contrast, tplot, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   image_dir = paste0(study_dir, "images/")
@@ -1113,51 +1138,53 @@ plot_expr <- function(fit, normGE, resDE, contrast, tplot, parameters){
 
   # Mean-Difference Plot
   if(tplot=="MD"){
-    png(paste0(image_dir, contrast, "_MeanDifference_of_ExpressionData.png"))
-    plotMD.DGELRT(fit, xlab="Average log CPM", ylab="log-fold-change", main=paste0("MD plot - ", contrast),
-                  cex=0.5, status=resDE[,contrast], values=c("-1","1"), col=c("blue","red"))
-    dev.off()
+    grDevices::png(paste0(image_dir, contrast, "_MeanDifference_of_ExpressionData.png"))
+    edgeR::plotMD.DGELRT(fit, xlab="Average log CPM", ylab="log-fold-change", main=paste0("MD plot - ", contrast),
+                         cex=0.5, status=resDE[,contrast], values=c("-1","1"), col=c("blue","red"))
+    grDevices::dev.off()
   }
 
   # Volcano plot
   if(tplot=="VO"){
     tglm<-fit$table
-    tglm$FDR<-p.adjust(tglm$PValue, method=parameters$p_adj_method)
-    png(paste0(image_dir, contrast, "_VolcanoPlot.png"))
+    tglm$FDR<-stats::p.adjust(tglm$PValue, method=parameters$p_adj_method)
+    grDevices::png(paste0(image_dir, contrast, "_VolcanoPlot.png"))
     with(tglm, plot(tglm$logFC, -log10(tglm$PValue), pch=16, cex=0.5, xlim=c(min(tglm$logFC)-0.5, max(tglm$logFC)+0.5),
                     ylim=c(min(-log10(tglm$PValue))-0.5, max(-log10(tglm$PValue))+0.5),
                     main=paste0("Volcano plot - ", contrast), xlab="Log2FoldChange", ylab="-log10(pvalue)"))
-    with(subset(tglm, tglm$FDR <= parameters$threshold_FDR & tglm$logFC >  parameters$threshold_logFC), points(logFC, -log10(PValue), pch=16, cex=0.5, col="red"))
-    with(subset(tglm, tglm$FDR <= parameters$threshold_FDR & tglm$logFC < -parameters$threshold_logFC), points(logFC, -log10(PValue), pch=16, cex=0.5, col="blue"))
-    # abline(h=-log10(parameters$threshold_FDR), v=c(-parameters$threshold_logFC,parameters$threshold_logFC), col="darkgreen")
-    dev.off()
+    with(subset(tglm, tglm$FDR <= parameters$threshold_FDR & tglm$logFC >  parameters$threshold_logFC), graphics::points(logFC, -log10(PValue), pch=16, cex=0.5, col="red"))
+    with(subset(tglm, tglm$FDR <= parameters$threshold_FDR & tglm$logFC < -parameters$threshold_logFC), graphics::points(logFC, -log10(PValue), pch=16, cex=0.5, col="blue"))
+    grDevices::dev.off()
   }
 }
 
 #' @title NormCountsMean
 #'
-#' @description Calcul mean counts for two contrast or all matrix.
+#' @description Calculation mean counts for two contrast or all matrix.
 #'
-#'  @param glmfit, fitted linear model object.
-#'  @param ASKOlist, list of data.frame contain condition, contrast and context informations made by asko3c.
-#'  @param context, coefficient/contrast tested.
-#'  @return
-#'      matrixMean, matrix with mean counts,
-#'      OR
-#'      meanValue for one context/Condition.
+#' @param glmfit, fitted linear model object.
+#' @param ASKOlist, list of data.frame contain condition, contrast and context information made by asko3c.
+#' @param context, coefficient/contrast tested.
+#' @return one of this:
+#' \itemize{
+#'    \item matrixMean, matrix with mean counts,
+#'    \item meanValue for one context/Condition.
+#' }
 #'
-#'  @examples
+#' @examples
+#' \dontrun{
 #'     # calculate mean counts in contrast contx1_vs_contx2
 #'     mean1<-NormCountsMean(glmfit, ASKOlist, contx1)   # in the 1st context
 #'     mean2<-NormCountsMean(glmfit, ASKOlist, contx2)   # in the 2nd context
 #'
 #'     # for all conditions
 #'     n_count<-NormCountsMean(glmfit, ASKOlist, context=NULL)
+#' }
 #'
-#'  @export
+#' @export
 NormCountsMean <- function(glmfit, ASKOlist, context=NULL){
   lib_size_norm<-glmfit$samples$lib.size*glmfit$samples$norm.factors                          # normalization computation of all library sizes
-  if(is.null(context)==T){
+  if(is.null(context)==TRUE){
     set_condi<-row.names(ASKOlist$condition)
   }else{
     set_condi<-ASKOlist$context$condition[ASKOlist$context$context==context]                  # retrieval of condition names associated to context
@@ -1177,7 +1204,7 @@ NormCountsMean <- function(glmfit, ASKOlist, context=NULL){
     mean_counts<-rowSums(subset_counts)/ncol(subset_counts)                                   # computation of the mean
     table_c_norm$m <- mean_counts
 
-    if(is.null(context)==T){
+    if(is.null(context)==TRUE){
       colnames(table_c_norm)[colnames(table_c_norm)=="m"]<-condition
     }else{
       colnames(table_c_norm)[colnames(table_c_norm)=="m"]<-paste(context,condition,sep = "/")
@@ -1209,10 +1236,12 @@ NormCountsMean <- function(glmfit, ASKOlist, context=NULL){
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return none
 #'
-#' @example
-#'    AskoStats(glm_test, fit, contrast, ASKOlist, dge, parameters)
+#' @examples
+#' \dontrun{
+#'     AskoStats(glm_test, fit, contrast, ASKOlist, dge, parameters)
+#' }
 #'
-#'  @export
+#' @export
 AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   asko_dir = paste0(study_dir, "Askomics/")
@@ -1226,7 +1255,7 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   ASKO_stat$Test_id<-paste(contrasko, rownames(ASKO_stat), sep = "_")             # addition of Test_id column = unique ID
   ASKO_stat$contrast<-contrasko                                                   # addition of the contrast of the test
   ASKO_stat$gene <- row.names(ASKO_stat)                                          # addition of gene column = gene ID
-  ASKO_stat$FDR<-p.adjust(ASKO_stat$PValue, method=parameters$p_adj_method)       # computation of False Discovery Rate
+  ASKO_stat$FDR<-stats::p.adjust(ASKO_stat$PValue, method=parameters$p_adj_method)       # computation of False Discovery Rate
 
   # Between context1 and context2 :
   ASKO_stat$Significance=0
@@ -1240,18 +1269,18 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   ASKO_stat$Expression[ASKO_stat$Significance==0]<-paste(contx1, contx2, sep="=")   # of expression between two contexts
 
   if(parameters$Expression==TRUE){colg="Expression"}else{colg=NULL}
-  if(parameters$logFC==T){cola="logFC"}else{cola=NULL}
+  if(parameters$logFC==TRUE){cola="logFC"}else{cola=NULL}
   # computation of Fold Change from log2FC
-  if(parameters$FC==T){colb="FC";ASKO_stat$FC <- 2^abs(ASKO_stat$logFC)}else{colb=NULL}
-  if(parameters$Sign==T){colc="Significance"}
-  if(parameters$logCPM==T){cold="logCPM"}else{cold=NULL}
-  if(parameters$LR==T){cole="LR"}else{cole=NULL}
-  if(parameters$FDR==T){colf="FDR"}else{colf=NULL}
+  if(parameters$FC==TRUE){colb="FC";ASKO_stat$FC <- 2^abs(ASKO_stat$logFC)}else{colb=NULL}
+  if(parameters$Sign==TRUE){colc="Significance"}
+  if(parameters$logCPM==TRUE){cold="logCPM"}else{cold=NULL}
+  if(parameters$LR==TRUE){cole="LR"}else{cole=NULL}
+  if(parameters$FDR==TRUE){colf="FDR"}else{colf=NULL}
 
   # adding table "stat.table" to the ASKOlist
   ASKOlist$stat.table<-ASKO_stat[,c("Test_id","contrast","gene",cola,colb,"PValue",colg,colc,cold,cole,colf)]
 
-  if(parameters$mean_counts==T){                            # computation of the mean of normalized counts for conditions
+  if(parameters$mean_counts==TRUE){                         # computation of the mean of normalized counts for conditions
     mean1<-NormCountsMean(fit, ASKOlist, contx1)            # in the 1st context
     mean2<-NormCountsMean(fit, ASKOlist, contx2)            # in the 2nd context
     ASKOlist$stat.table<-cbind(ASKOlist$stat.table, mean1)
@@ -1263,7 +1292,7 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
   o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]
 
-  write.table(ASKOlist$stat.table,paste0(asko_dir, parameters$organism, "_", contrasko, ".txt"), sep=parameters$sep, col.names = T, row.names = F, quote=FALSE)
+  utils::write.table(ASKOlist$stat.table,paste0(asko_dir, parameters$organism, "_", contrasko, ".txt"), sep=parameters$sep, col.names = TRUE, row.names = FALSE, quote=FALSE)
 
   # for image size
   nsamples<-ncol(dge$counts)
@@ -1272,20 +1301,20 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
 
   # heatmap of Most Differential Genes Expression
   if(parameters$heatmap==TRUE){
-    cpm_gstats<-cpm(dge, log=TRUE)[o,][seq(parameters$numhigh),]
-    png(paste0(image_dir, contrast, "_topDGE_heatmap.png"), width=sizeImg*1.5, height=sizeImg*1.5)
-    par(oma=c(2,2,2,2))
-    heatmap.2(cpm_gstats,
-              trace="none",
-              scale="row",
-              labCol=dge$samples$Name,
-              main = contrasko,
-              xlab = "samples",
-              ColSideColors = dge$samples$color,
-              margins = c(12,12),
-              Rowv = FALSE,
-              dendrogram="col")
-    dev.off()
+    cpm_gstats<-edgeR::cpm(dge, log=TRUE)[o,][seq(parameters$numhigh),]
+    grDevices::png(paste0(image_dir, contrast, "_topDGE_heatmap.png"), width=sizeImg*1.5, height=sizeImg*1.5)
+    graphics::par(oma=c(2,2,2,2))
+    gplots::heatmap.2(cpm_gstats,
+                      trace="none",
+                      scale="row",
+                      labCol=dge$samples$Name,
+                      main = contrasko,
+                      xlab = "samples",
+                      ColSideColors = dge$samples$color,
+                      margins = c(12,12),
+                      Rowv = FALSE,
+                      dendrogram="col")
+    grDevices::dev.off()
   }
 }
 
@@ -1299,8 +1328,13 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return SumMat, list (TestResults format class limma) contains for each contrast the significance expression (1/0/-1) for all gene.
 #'
-#' @example
-#'    sum_table<-DEanalysis(norm_GE, data_list, asko_list, parameters)
+#' @import edgeR
+#' @import limma
+#'
+#' @examples
+#' \dontrun{
+#'     sum_table<-DEanalysis(norm_GE, data_list, asko_list, parameters)
+#' }
 #'
 #' @export
 DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
@@ -1314,7 +1348,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
 
   # Checks Contrasts
   if(is.null(parameters$select_sample) & is.null(parameters$rm_sample)){
-    c1<-levels(data_list$samples$condition)
+    c1<-unique(data_list$samples$condition)
     len1<-length(c1)
     c2<-rownames(data_list$contrast)
     len2<-length(c2)
@@ -1344,20 +1378,20 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   {
     normGEdisp <- estimateDisp(norm_GE, data_list$design)
   }
-  png(paste0(image_dir, parameters$analysis_name, "_biological_coefficient_of_variation.png"), width=sizeImg, height=sizeImg)
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_biological_coefficient_of_variation.png"), width=sizeImg, height=sizeImg)
   plotBCV(normGEdisp)
-  dev.off()
+  grDevices::dev.off()
 
   # Genewise Negative Binomial Generalized Linear Models
   if(parameters$glm=="lrt"){
-    fit <- glmFit(normGEdisp, data_list$design, robust = T)
+    fit <- glmFit(normGEdisp, data_list$design, robust = TRUE)
   }
   # Genewise Negative Binomial Generalized Linear Models with Quasi-likelihood Tests
   else if(parameters$glm=="qlf"){
-    fit <- glmQLFit(normGEdisp, data_list$design, robust = T)
-    png(paste0(image_dir, parameters$analysis_name, "_quasi-likelihood_dispersion.png"), width=sizeImg, height=sizeImg)
+    fit <- glmQLFit(normGEdisp, data_list$design, robust = TRUE)
+    grDevices::png(paste0(image_dir, parameters$analysis_name, "_quasi-likelihood_dispersion.png"), width=sizeImg, height=sizeImg)
     plotQLDisp(fit)
-    dev.off()
+    grDevices::dev.off()
   }
 
   # data frame combine all status genes results for summary file
@@ -1419,11 +1453,11 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     colnames(annDE)<-colnames(data_list$annot)
     SumMat<-cbind(sum,annDE)                      # merge the two matrix
 
-    write.table(SumMat, file=sumFile, col.names=NA, row.names = T, quote=F, sep='\t')
+    utils::write.table(SumMat, file=sumFile, col.names=NA, row.names=TRUE, quote=FALSE, sep='\t')
   }
   else
   {
-    write.table(sum, file=sumFile, col.names=NA, row.names = T, quote=F, sep='\t')
+    utils::write.table(sum, file=sumFile, col.names=NA, row.names=TRUE, quote=FALSE, sep='\t')
   }
 
   # reformate summary result table
@@ -1438,12 +1472,15 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
 #'
 #' @description Generate upsetR graphs.
 #'
-#' @param sumDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
 #' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).
 #' @param parameters, list that contains all arguments charged in Asko_start.
+#' @return none
 #'
-#' @example
+#' @examples
+#' \dontrun{
 #'    UpSetGraph(sumDEG, data_list, parameters)
+#' }
 #'
 #' @export
 UpSetGraph <- function(resDEG, data_list, parameters){
@@ -1481,10 +1518,10 @@ UpSetGraph <- function(resDEG, data_list, parameters){
         sets<-colnames(resDEG)
 
         # all genes differentially expressed
-        png(paste0(global_dir, parameters$analysis_name,"_UpSetR_allDEG.png"), width=1280, height=1024)
-        print(upset(data=ordDEG, sets=rev(sets), nsets=ncol(ordDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
-        grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=26))
-        dev.off()
+        grDevices::png(paste0(global_dir, parameters$analysis_name,"_UpSetR_allDEG.png"), width=1280, height=1024)
+        print(UpSetR::upset(data=ordDEG, sets=rev(sets), nsets=ncol(ordDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+        grid::grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
+        grDevices::dev.off()
       }
     }
     else if(parameters$upset_basic == "up"){
@@ -1505,10 +1542,10 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
         # record upsetR graph for Down Expressed Genes
         if(ncol(ordDEG)<=6){tsc=2}else{tsc=1.45}
-        png(paste0(global_dir, parameters$analysis_name,"_UpSetR_upDEG.png"), width=1280, height=1024)
-        print(upset(data=ordDEG, sets=rev(sets), nsets=ncol(ordDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
-        grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
-        dev.off()
+        grDevices::png(paste0(global_dir, parameters$analysis_name,"_UpSetR_upDEG.png"), width=1280, height=1024)
+        print(UpSetR::upset(data=ordDEG, sets=rev(sets), nsets=ncol(ordDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+        grid::grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
+        grDevices::dev.off()
       }
     }
     else if(parameters$upset_basic == "down"){
@@ -1530,10 +1567,10 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
         # record upsetR graph for Up Expressed Genes
         if(ncol(ordDEG)<=6){tsc=2}else{tsc=1.45}
-        png(paste0(global_dir, parameters$analysis_name,"_UpSetR_downDEG.png"), width=1280, height=1024)
-        print(upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
-        grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
-        dev.off()
+        grDevices::png(paste0(global_dir, parameters$analysis_name,"_UpSetR_downDEG.png"), width=1280, height=1024)
+        print(UpSetR::upset(data=downDEG, sets=rev(colnames(downDEG)), nsets=ncol(downDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+        grid::grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
+        grDevices::dev.off()
       }
     }
     else if(parameters$upset_basic == "mixed"){
@@ -1565,12 +1602,12 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
         # record upsetR graph for Up and Down Expressed Genes
         if(ncol(ordDEG)<=6){tsc=2}else{tsc=1.45}
-        png(paste0(global_dir, parameters$analysis_name,"_UpSetR_mixedDEG.png"), width=1280, height=1024)
-        print(upset(data=ordDEG, sets=rev(sets), nsets=ncol(ordDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
-              text.scale = tsc, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",
-              column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
-        grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
-        dev.off()
+        grDevices::png(paste0(global_dir, parameters$analysis_name,"_UpSetR_mixedDEG.png"), width=1280, height=1024)
+        print(UpSetR::upset(data=ordDEG, sets=rev(sets), nsets=ncol(ordDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
+                            text.scale = tsc, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",
+                                                                                                     column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
+        grid::grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
+        grDevices::dev.off()
       }
     }
   }
@@ -1594,7 +1631,7 @@ UpSetGraph <- function(resDEG, data_list, parameters){
     cat("\nCreated upset charts for each element in \"upset_list\":",parameters$upset_type," expressed genes.\n")
 
     for(comparaison in parameters$upset_list){
-      compa<-as.vector(strsplit2(comparaison, "-"))
+      compa<-as.vector(limma::strsplit2(comparaison, "-"))
       cat("    -> Subset:",compa,"\n")
 
       if (parameters$upset_type == "all"){
@@ -1609,10 +1646,10 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for all Differentially Expressed Genes
           if(length(compa)<=6){tsc=2}else{tsc=1.45}
-          png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_allDEG.png"), width=1280, height=1024)
-          print(upset(data=ordDEG, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
-          grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=gpar(fontsize=26))
-          dev.off()
+          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_allDEG.png"), width=1280, height=1024)
+          print(UpSetR::upset(data=ordDEG, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+          grid::grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
+          grDevices::dev.off()
         }
       }
       else if(parameters$upset_type == "up"){
@@ -1633,10 +1670,10 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for Down Expressed Genes
           if(length(compa)<=6){tsc=2}else{tsc=1.45}
-          png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_upDEG.png"), width=1280, height=1024)
-          print(upset(data=ordDEG, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
-          grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
-          dev.off()
+          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_upDEG.png"), width=1280, height=1024)
+          print(UpSetR::upset(data=ordDEG, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+          grid::grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
+          grDevices::dev.off()
         }
       }
       else if(parameters$upset_type == "down"){
@@ -1658,10 +1695,10 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for Down Expressed Genes
           if(length(newcompa)<=6){tsc=2}else{tsc=1.45}
-          png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_downDEG.png"), width=1280, height=1024)
-          print(upset(data=ordDEG, sets=rev(newcompa), nsets=length(newcompa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
-          grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
-          dev.off()
+          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_downDEG.png"), width=1280, height=1024)
+          print(UpSetR::upset(data=ordDEG, sets=rev(newcompa), nsets=length(newcompa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
+          grid::grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
+          grDevices::dev.off()
         }
       }
       # mixed up and down expressed genes
@@ -1696,12 +1733,12 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for Up and Down Expressed Genes
           if(length(sets)<=6){tsc=2}else{tsc=1.25}
-          png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_mixedDEG.png"), width=1280, height=1024)
-          print(upset(data=ordDEG, sets=rev(sets), nsets=length(sets), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
-                      text.scale = tsc, set.metadata = list(data = metadata,
-                      plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
-          grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=gpar(fontsize=26))
-          dev.off()
+          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_mixedDEG.png"), width=1280, height=1024)
+          print(UpSetR::upset(data=ordDEG, sets=rev(sets), nsets=length(sets), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
+                              text.scale = tsc, set.metadata = list(data = metadata,
+                                                                    plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
+          grid::grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
+          grDevices::dev.off()
         }
       }
     }
@@ -1712,13 +1749,15 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 #'
 #' @description Plot Venn Diagram to compare different contrast
 #'
-#' @param sumDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
 #' @param asko_list, list of data.frame contain condition, contrast and context informations made by asko3c.
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return none.
 #'
-#' @example
-#'    VD(sumDEG, parameters, asko_list)
+#' @examples
+#' \dontrun{
+#'    VD(resDEG, parameters, asko_list)
+#' }
 #'
 #' @export
 VD <- function(resDEG, parameters, asko_list){
@@ -1744,7 +1783,7 @@ VD <- function(resDEG, parameters, asko_list){
   if(parameters$VD == "all"){
     cat("for all differentially expressed genes.\n")
     for(comparaison in parameters$compaVD){
-      compa<-strsplit2(comparaison, "-")
+      compa<-limma::strsplit2(comparaison, "-")
       nbCompa<-length(compa)
       input<-list()
 
@@ -1759,23 +1798,23 @@ VD <- function(resDEG, parameters, asko_list){
         input[[nameDEG]]<-listDEG
       }
 
-      color <- brewer.pal(nbCompa, parameters$palette)
-      venn.diagram(input,
-                   main="All differentially expressed genes (up+down)",
-                   filename=paste0(venn_dir, "/", comparaison, "_all.png"),
-                   imagetype = "png",
-                   main.cex = 1,
-                   cat.cex = 0.8,
-                   cex = 0.8,
-                   fill = color,
-                   category.names = labels(input),
-                   col=0,euler.d = FALSE,scaled=FALSE)
+      color <- RColorBrewer::brewer.pal(nbCompa, parameters$palette)
+      VennDiagram::venn.diagram(input,
+                                main="All differentially expressed genes (up+down)",
+                                filename=paste0(venn_dir, "/", comparaison, "_all.png"),
+                                imagetype = "png",
+                                main.cex = 1,
+                                cat.cex = 0.8,
+                                cex = 0.8,
+                                fill = color,
+                                category.names = labels(input),
+                                col=0,euler.d = FALSE,scaled=FALSE)
     }
   }
   else if(parameters$VD == "both"){
     cat("for genes expressed UP and DOWN.\n")
     for(comparaison in parameters$compaVD){
-      compa<-strsplit2(comparaison, "-")
+      compa<-limma::strsplit2(comparaison, "-")
       nbCompa<-length(compa)
       input<-list()
 
@@ -1792,24 +1831,24 @@ VD <- function(resDEG, parameters, asko_list){
         input[[nameUp]]<-listUp
         input[[nameDown]]<-listDown
       }
-      venn<-venn.diagram(input, main="Genes expressed \"UP\" and \"DOWN\"",
-                         filename=paste0(venn_dir, "/", comparaison, "_mixed.png"),
-                         imagetype = "png",
-                         main.cex = 1,
-                         cat.cex = 0.8,
-                         cex=0.8,
-                         cat.dist = c(-0.4,-0.4,0.1,0.1),
-                         cat.col = c( "red1","royalblue1", "red3", "royalblue4"),
-                         category.names = labels(input),
-                         col=c( "red1","royalblue1", "red3", "royalblue4"),
-                         euler.d = FALSE,
-                         scaled=FALSE)
+      venn<-VennDiagram::venn.diagram(input, main="Genes expressed \"UP\" and \"DOWN\"",
+                                      filename=paste0(venn_dir, "/", comparaison, "_mixed.png"),
+                                      imagetype = "png",
+                                      main.cex = 1,
+                                      cat.cex = 0.8,
+                                      cex=0.8,
+                                      cat.dist = c(-0.4,-0.4,0.1,0.1),
+                                      cat.col = c( "red1","royalblue1", "red3", "royalblue4"),
+                                      category.names = labels(input),
+                                      col=c( "red1","royalblue1", "red3", "royalblue4"),
+                                      euler.d = FALSE,
+                                      scaled=FALSE)
     }
   }
   else if(parameters$VD == "up"){
     cat("for genes expressed UP.\n")
     for(comparaison in parameters$compaVD){
-      compa<-strsplit2(comparaison, "-")
+      compa<-limma::strsplit2(comparaison, "-")
       nbCompa<-length(compa)
       input<-list()
 
@@ -1824,23 +1863,23 @@ VD <- function(resDEG, parameters, asko_list){
         input[[nameDEG]]<-listDEG
       }
 
-      color <- brewer.pal(nbCompa, parameters$palette)
-      venn.diagram(input,
-                   main="Genes expressed \"UP\"",
-                   filename=paste0(venn_dir, "/", comparaison, "_up.png"),
-                   imagetype = "png",
-                   main.cex = 1,
-                   cat.cex = 0.8,
-                   cex = 0.8,
-                   fill = color,
-                   category.names = labels(input),
-                   col=0,euler.d = FALSE,scaled=FALSE)
+      color <- RColorBrewer::brewer.pal(nbCompa, parameters$palette)
+      VennDiagram::venn.diagram(input,
+                                main="Genes expressed \"UP\"",
+                                filename=paste0(venn_dir, "/", comparaison, "_up.png"),
+                                imagetype = "png",
+                                main.cex = 1,
+                                cat.cex = 0.8,
+                                cex = 0.8,
+                                fill = color,
+                                category.names = labels(input),
+                                col=0,euler.d = FALSE,scaled=FALSE)
     }
   }
   else if(parameters$VD == "down"){
     cat("for genes expressed DOWN.\n")
     for(comparaison in parameters$compaVD){
-      compa<-strsplit2(comparaison, "-")
+      compa<-limma::strsplit2(comparaison, "-")
       nbCompa<-length(compa)
       input<-list()
 
@@ -1855,17 +1894,17 @@ VD <- function(resDEG, parameters, asko_list){
         input[[nameDEG]]<-listDEG
       }
 
-      color <- brewer.pal(nbCompa, parameters$palette)
-      venn.diagram(input,
-                   main="Genes expressed \"DOWN\"",
-                   filename=paste0(venn_dir, "/", comparaison, "_down.png"),
-                   imagetype = "png",
-                   main.cex = 1,
-                   cat.cex = 0.8,
-                   cex = 0.8,
-                   fill = color,
-                   category.names = labels(input),
-                   col=0,euler.d = FALSE,scaled=FALSE)
+      color <- RColorBrewer::brewer.pal(nbCompa, parameters$palette)
+      VennDiagram::venn.diagram(input,
+                                main="Genes expressed \"DOWN\"",
+                                filename=paste0(venn_dir, "/", comparaison, "_down.png"),
+                                imagetype = "png",
+                                main.cex = 1,
+                                cat.cex = 0.8,
+                                cex = 0.8,
+                                fill = color,
+                                category.names = labels(input),
+                                col=0,euler.d = FALSE,scaled=FALSE)
     }
   }
 }
@@ -1878,15 +1917,22 @@ VD <- function(resDEG, parameters, asko_list){
 #' methods for eliminating local similarities and dependencies between GO
 #' terms can be implemented and applied.
 #'
-#' @param sumDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return none.
 #'
+#' @import topGO
+#' @import goSTAG
+#' @import ggplot2
+#'
 #' @examples
-#'    GOenrichment(sumDEG, parameters)
+#' \dontrun{
+#'    GOenrichment(resDEG, data_list, parameters)
+#' }
 #'
 #' @export
-GOenrichment<-function(resDEG, data, parameters){
+GOenrichment<-function(resDEG, data_list, parameters){
   study_dir  = paste0(parameters$dir_path, "/", parameters$analysis_name, "/")
   input_path = paste0(parameters$dir_path, "/input/")
   img_go_dir = paste0(study_dir, "GO_images/")
@@ -1901,7 +1947,7 @@ GOenrichment<-function(resDEG, data, parameters){
   geneID2GO <- readMappings(file = paste0(input_path,parameters$geneID2GO_file))
   geneNames <- names(geneID2GO)
 
-  for(contrast in colnames(data$contrast)){
+  for(contrast in colnames(data_list$contrast)){
     if(parameters$GO == "both"){
       print(contrast)
       geneSelected <- rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x!=0)),])
@@ -1932,18 +1978,18 @@ GOenrichment<-function(resDEG, data, parameters){
     listOnto <- c("MF","BP","CC")
     for(ontology in listOnto){
       cat("\nContrast :",contrast," et ontologie :",ontology,"\n")
-      GOdata <- new("topGOdata",
-                    nodeSize = parameters$GO_min_num_genes,
-                    ontology = ontology,
-                    allGenes = geneList,
-                    annot = annFUN.gene2GO,
-                    gene2GO = geneID2GO)
+      GOdata <- methods::new("topGOdata",
+                             nodeSize = parameters$GO_min_num_genes,
+                             ontology = ontology,
+                             allGenes = geneList,
+                             annot = annFUN.gene2GO,
+                             gene2GO = geneID2GO)
       print(GOdata)
 
       resultTest <- runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
       print(resultTest)
 
-      resGenTab <- GenTable(GOdata, numChar = 1000000, statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(nodes(graph(GOdata))) )
+      resGenTab <- GenTable(GOdata, numChar = 1000000, statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(graph::nodes(graph(GOdata))) )
       resGenTab$Ratio = as.numeric(as.numeric(resGenTab$Significant)/as.numeric(resGenTab$Expected))
       resGenTab$GO_cat <- ontology
 
@@ -1976,14 +2022,14 @@ GOenrichment<-function(resDEG, data, parameters){
       }
     }
     TabCompl<-TabCompl[TabCompl$Significant > 0,]
-    write.table(TabCompl, file=paste0(img_go_dir, parameters$analysis_name, "_", contrast, "_Complet_GOenrichment.txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
+    utils::write.table(TabCompl, file=paste0(img_go_dir, parameters$analysis_name, "_", contrast, "_Complet_GOenrichment.txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
 
     if(exists("TabSigCompl")==TRUE){
       if(nrow(TabSigCompl)>=1){
         if (parameters$GO_max_top_terms > 10) {
-          TabSigCompl$Term = str_trunc(TabSigCompl$Term, 67)
+          TabSigCompl$Term = stringr::str_trunc(TabSigCompl$Term, 67)
         }else{
-          TabSigCompl$Term = str_trunc(TabSigCompl$Term, 137)
+          TabSigCompl$Term = stringr::str_trunc(TabSigCompl$Term, 137)
         }
         # Graph for one contrast
         comp_names <- c( `MF` = "Molecular Function", `BP` = "Biological Process", `CC` = "Cellular Component")
@@ -2000,7 +2046,7 @@ GOenrichment<-function(resDEG, data, parameters){
           scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
           facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
           scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minR)) +
-          scale_y_discrete(labels = function(x) str_wrap(x, width = 70)) + theme_linedraw() +
+          scale_y_discrete(labels = function(x) stringr::str_wrap(x, width = 70)) + theme_linedraw() +
           theme(
             panel.background = element_rect(fill = "grey90", colour = "grey90", size = 0.5, linetype = "solid"),
             panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
@@ -2019,7 +2065,7 @@ GOenrichment<-function(resDEG, data, parameters){
           scale_color_manual(values=coul,labels=comp_names,name="GO categories")+
           facet_grid(TabSigCompl$GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2))+
           scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minP)) +
-          scale_y_discrete(labels = function(x) str_wrap(x, width = 70)) + theme_linedraw() +
+          scale_y_discrete(labels = function(x) stringr::str_wrap(x, width = 70)) + theme_linedraw() +
           theme(
             panel.background = element_rect(fill = "grey90", colour = "grey90", size = 0.5, linetype = "solid"),
             panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
@@ -2061,7 +2107,6 @@ GOenrichment<-function(resDEG, data, parameters){
 #' }
 #'
 #' @export
-
 ClustAndGO <- function(asko_norm, resDEG, parameters){
   library("coseq")
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
@@ -2380,16 +2425,18 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
                     gene2GO = geneID2GO)
 
       resultTest <- runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
-      resGenTab <- GenTable(GOdata, numChar = 100,statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(nodes(graph(GOdata))) )
+      resGenTab <- GenTable(GOdata, numChar = 1000,statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(nodes(graph(GOdata))) )
       resGenTab$Ratio = as.numeric(as.numeric(resGenTab$Significant)/as.numeric(resGenTab$Expected))
       resGenTab$GO_cat <- ontology
 
-      annot<-read.csv(paste0(input_path, parameters$annotation), header = T, row.names = 1, sep = '\t', quote = "")
+      if (is.null(parameters$annotation)==FALSE){
+        annot<-read.csv(paste0(input_path, parameters$annotation), header = T, row.names = 1, sep = '\t', quote = "")
+      }
 
       myterms = as.character(resGenTab$GO.ID[resGenTab$statisticTest<=parameters$GO_threshold])
 
       if (length(myterms) != "0"){
-        cat("\nAskoR is saving one file per enriched GO-term in cluster ", clustered, " (category ", ontology, ") : PLEASE WAIT, this step should be long\n")
+        cat("\nAskoR is saving one file per enriched GO-term in cluster ", clustered, " (category ", ontology, ").\n")
         mygenes <- genesInTerm(GOdata, myterms)
         noms=names(mygenes)
         nomss=str_replace(noms,":","_")
@@ -2398,11 +2445,16 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
           GOtab <- data.frame(Gene=listes)
           GOtab$Gene_cluster = clustered
           rownames(GOtab)=GOtab$Gene
-          GOtab = merge(GOtab, annot, by="row.names")
-          GOtab = GOtab[,-1]
-          GOtab = GOtab[,1:3]
-          colnames(GOtab)[3] <- "Gene_description"
-          rownames(GOtab)=GOtab$Gene
+          if (is.null(parameters$annotation)==FALSE){
+            GOtab = merge(GOtab, annot, by="row.names")
+            GOtab = GOtab[,-1]
+            GOtab = GOtab[,1:3]
+            colnames(GOtab)[3] <- "Gene_description"
+            rownames(GOtab)=GOtab$Gene
+          }
+          else{
+            GOtab$Gene_description = "No annotation file provided"
+          }
           GOtab = merge(GOtab, resDEG, by="row.names")
           GOtab = GOtab[,-1]
           rownames(GOtab)=GOtab$Gene
@@ -2483,6 +2535,11 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
     ## Dotplot of all GO cat
     if(exists("TabSigCompl")==TRUE){
       if(nrow(TabSigCompl)>=1){
+        if (parameters$GO_max_top_terms > 10) {
+          TabSigCompl$Term = stringr::str_trunc(TabSigCompl$Term, 67)
+        }else{
+          TabSigCompl$Term = stringr::str_trunc(TabSigCompl$Term, 137)
+        }
         comp_names <- c( `MF` = "Molecular Function", `BP` = "Biological Process", `CC` = "Cellular Component")
         coul <- c(`MF` = "green4", `BP` = "red", `CC` = "blue")
         comp_names2 <- c(`MF` = "MF", `BP` = "BP", `CC` = "CC")
@@ -2498,7 +2555,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
           scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
           facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
           scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minR)) +
-          scale_y_discrete(labels = function(x) str_trunc(x, width = 70)) +
+          scale_y_discrete(labels = function(x) str_wrap(x, 70)) +
           theme_linedraw() + theme(
             panel.background = element_rect(fill = "grey93", colour = "grey93", size = 0.5, linetype = "solid"),
             panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
