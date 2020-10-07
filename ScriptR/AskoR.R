@@ -851,11 +851,12 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
   }
 
   # File with normalized counts in CPM by sample
-  cpm_norm  <- edgeR::cpm(norm_GE, log=FALSE)
+  cpm_norm <- edgeR::cpm(norm_GE, log=FALSE)
   utils::write.table(cpm_norm, file=paste0(study_dir, parameters$analysis_name, "_CPM_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
   # File with normalized mean counts in CPM, grouped by condition
-  meancpmDEGnorm<-as.data.frame(t(stats::aggregate(t(cpm_norm),list(data_list$samples$condition), mean)))[-1,]
-  colnames(meancpmDEGnorm)<-unique(data_list$samples$condition)
+  tempo<-as.data.frame(t(stats::aggregate(t(cpm_norm),list(data_list$samples$condition), mean)))
+  colnames(tempo)<-tempo["Group.1",]
+  meancpmDEGnorm<-tempo[-1,]
   utils::write.table(meancpmDEGnorm,paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), sep="\t", dec=".", row.names=TRUE, col.names=NA, quote=FALSE)
 
   return(norm_GE)
