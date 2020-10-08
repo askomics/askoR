@@ -2147,14 +2147,17 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
   ## run coseq ##
   ###############
 
+  if (parameters$coseq_ClustersNb > 25){
+    detach("package:coseq")
+    stop("TOO MANY CLUSTERS : Please set parameters$coseq_ClustersNb to default or under 25")
+  }
+
   if (length(parameters$coseq_ClustersNb)==1 & parameters$coseq_model=="kmeans"){
-    cat("BOUCLE IF")
-    coexpr=coseq(object, K=2:12, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = "none", seed = 12345)
+    coexpr=coseq(object, K=2:25, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = "none", seed = 12345)
     clust=as.data.frame(clusters(coexpr, K=parameters$coseq_ClustersNb))
     names(clust)=c("clusters(coexpr)")
   }
   else{
-    cat("BOUCLE ELSE")
     coexpr=coseq(object, K=parameters$coseq_ClustersNb, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = "none", seed = 12345)
     clust=as.data.frame(clusters(coexpr))
     cat("\nSummary of CoSeq\n")
@@ -2162,9 +2165,9 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
   }
 
 
-  if (length(unique(clust$`clusters(coexpr)`)) > 12){
+  if (length(unique(clust$`clusters(coexpr)`)) > 25){
     detach("package:coseq")
-    stop("TOO MANY CLUSTERS : Please set parameters$coseq_ClustersNb to default or under 12")
+    stop("TOO MANY CLUSTERS : Please set parameters$coseq_ClustersNb to default or under 25")
   }
 
   GeneToClusters<-merge(clust,moys,by="row.names")
@@ -2290,7 +2293,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
 
   uniqClust=unique(GeneToClusters$`clusters(coexpr)`)
 
-  GoCoul=c("palegreen", "skyblue", "lightsalmon", "thistle", "tan", "pink", "aquamarine", "violetred", "darkorange", "yellow", "mediumpurple", "wheat")
+  GoCoul=c("palegreen", "skyblue", "lightsalmon", "thistle", "tan", "pink", "aquamarine", "violetred", "darkorange", "yellow", "mediumpurple", "wheat","palegreen", "skyblue", "lightsalmon", "thistle", "tan", "pink", "aquamarine", "violetred", "darkorange", "yellow", "mediumpurple", "wheat","palegreen")
 
   # create file with matrix of DE genes and cluster for each gene
   resDEG3=resDEG2[which(rowSums(resDEG2)>=parameters$coseq_ContrastsThreshold),]
@@ -2437,7 +2440,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
         annot<-read.csv(paste0(input_path, parameters$annotation), header = T, row.names = 1, sep = '\t', quote = "")
       }
 
-      myterms = as.character(resGenTab$GO.ID[resGenTab$statisticTest<=parameters$GO_threshold])
+      myterms = as.character(resGenTab$GO.ID[as.numeric(resGenTab$statisticTest)<=parameters$GO_threshold])
 
       if (length(myterms) != "0"){
         cat("\nAskoR is saving one file per enriched GO-term in cluster ", clustered, " (category ", ontology, ").\n")
@@ -2517,7 +2520,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
             geom_text(aes(label=Significant), position=position_stack(0.5),color="white")+
             scale_fill_gradient(name="-log10pval",low=GoCoul[clustered],high=paste0(GoCoul[clustered],"4"))+
             scale_y_reverse()+
-            labs(title = paste0("GO Enrichment in cluster ",clustered, " (", goCat, " category)", "\n (",length(which(geneList==1)), " annotated genes of ",length(which(GeneToClusters[,2]==clustered))," in the cluster)"), x="GOterm", y="Ratio Significant / Expected") +
+            labs(title = paste0("GO Enrichment in cluster ",clustered, " (", goCat, " category)", "\n (",length(which(geneList==1)), " annotated genes among the ",length(which(GeneToClusters[,2]==clustered))," in the cluster)"), x="GOterm", y="Ratio Significant / Expected") +
             scale_x_discrete(position = "top")+
             theme(
               axis.text.y = element_text(face="bold",size=10),
@@ -2555,7 +2558,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters){
         # Ratio Graph
         ggplot(TabSigCompl, aes(x=Ratio, y=Term, size=Significant, color=GO_cat)) +
           geom_point(alpha=1) +
-          labs(title = paste0("GO Enrichment for Cluster ",clustered, "\n (",length(which(geneList==1)), " annotated genes on ",length(which(GeneToClusters[,2]==clustered))," in the cluster)"), x="Ratio Significant / Expected", y="GOterm") +
+          labs(title = paste0("GO Enrichment for Cluster ",clustered, "\n (",length(which(geneList==1)), " annotated genes among the ",length(which(GeneToClusters[,2]==clustered))," in the cluster)"), x="Ratio Significant / Expected", y="GOterm") +
           scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
           facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
           scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minR)) +
