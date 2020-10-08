@@ -86,9 +86,9 @@ GOenrichment<-function(resDEG, data_list, parameters){
         TabCompl<-resGenTab
         resGenTab[resGenTab=="< 1e-30"]<-"1.0e-30"
 
-        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,])!=0){
+        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,])!=0){
           maxi<-parameters$GO_max_top_terms
-          TabSigCompl<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,]
+          TabSigCompl<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,]
           if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
           TabSigCompl<-TabSigCompl[1:maxi,]
         }else{
@@ -99,9 +99,9 @@ GOenrichment<-function(resDEG, data_list, parameters){
         TabCompl=rbind(TabCompl,resGenTab)
         resGenTab[resGenTab=="< 1e-30"]<-"1.0e-30"
 
-        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,])!=0){
+        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,])!=0){
           maxi<-parameters$GO_max_top_terms
-          tempSig<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,]
+          tempSig<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,]
           if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
           TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
         }else{
