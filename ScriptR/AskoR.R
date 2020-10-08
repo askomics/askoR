@@ -101,23 +101,25 @@ Asko_start <- function(){
     optparse::make_option(c("--VD"), type="character", default=NULL, dest="VD",
                           help="Plot VennDiagram, precise type of comparison: all, down, up or both [default=%default]", metavar = "character"),
     optparse::make_option(c("--compaVD"), type="character", default=NULL, dest="compaVD",
-                          help="Contrast comparison list to display in VennDiagram", metavar="character"),
+                          help="Contrast comparison list to display in VennDiagram [default= %default]", metavar="character"),
     optparse::make_option(c("--GO"), type="character", default=NULL, dest="GO",
-                          help="GO enrichment analysis for gene expressed 'up', 'down' or 'both', NULL for no GO enrichment.", metavar="character"),
+                          help="GO enrichment analysis for gene expressed 'up', 'down' or 'both', NULL for no GO enrichment. [default= %default]", metavar="character"),
     optparse::make_option(c("--ID2GO"), type="character", default=NULL, dest="geneID2GO_file",
                           help="GO annotation file [default= %default]", metavar="character"),
     optparse::make_option(c("--GO_threshold"), type="numeric", default="0.05", dest="GO_threshold",
-                          help="the significant threshold used to filter p-values", metavar="double"),
+                          help="the significant threshold used to filter p-values [default=%default]", metavar="double"),
     optparse::make_option(c("--GO_min_num_genes"), type="integer", default="10", dest="GO_min_num_genes",
-                          help="the minimum number of genes for each GO terms", metavar="integer"),
+                          help="the minimum number of genes for each GO terms [default=%default]", metavar="integer"),
+    optparse::make_option(c("--GO_min_sig_genes"), type="integer", default="0", dest="GO_min_sig_genes",
+                          help="the minimum number of significant gene(s) behind the enriched GO-term [default=%default]", metavar="integer"),
     optparse::make_option(c("--GO_max_top_terms"), type="integer", default="10", dest="GO_max_top_terms",
-                          help="the maximum number of GO terms plot", metavar="integer"),
+                          help="the maximum number of GO terms plot [default=%default]", metavar="integer"),
     optparse::make_option(c("--GO_algo"), type="character", default="weight01", dest="GO_algo",
                           help="algorithms which are accessible via the runTest function: shown by the whichAlgorithms() function, [default=%default]", metavar="character"),
     optparse::make_option(c("--GO_stats"), type="character", default="fisher", dest="GO_stats",
                           help = "statistical tests which are accessible via the runTest function: shown by the whichTests() function, [default=%default]", metavar = "character"),
     optparse::make_option(c("--Ratio_threshold"), type="numeric", default="0", dest="Ratio_threshold",
-                          help="the minimum ratio value to display GO in graph", metavar="double"),
+                          help="the minimum ratio value to display GO in graph [default=%default]", metavar="double"),
     optparse::make_option(c("--plotMD"),type="logical", default=FALSE, dest="plotMD", metavar="logical",
                           help="Mean-Difference Plot of Expression Data (aka MA plot) [default= %default]"),
     optparse::make_option(c("--plotVO"),type="logical", default=FALSE, dest="plotVO", metavar="logical",
@@ -1999,9 +2001,9 @@ GOenrichment<-function(resDEG, data_list, parameters){
         TabCompl<-resGenTab
         resGenTab[resGenTab=="< 1e-30"]<-"1.0e-30"
 
-        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,])!=0){
+        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,])!=0){
           maxi<-parameters$GO_max_top_terms
-          TabSigCompl<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,]
+          TabSigCompl<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,]
           if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
           TabSigCompl<-TabSigCompl[1:maxi,]
         }else{
@@ -2012,9 +2014,9 @@ GOenrichment<-function(resDEG, data_list, parameters){
         TabCompl=rbind(TabCompl,resGenTab)
         resGenTab[resGenTab=="< 1e-30"]<-"1.0e-30"
 
-        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,])!=0){
+        if(nrow(resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,])!=0){
           maxi<-parameters$GO_max_top_terms
-          tempSig<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold,]
+          tempSig<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,]
           if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
           TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
         }else{
