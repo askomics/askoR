@@ -1,0 +1,139 @@
+---
+title: Pipeline askoR - Parameters Table
+author:
+- name: Fabrice Legeai
+  affiliation: &id INRAE Centre Bretagne - Normandie, UMR 1349 iGEPP
+- name: Kevin Gazengel
+  affiliation: *id
+- name: Susete Alves C.
+  affiliation: *id
+output: 
+  BiocStyle::html_document:
+    toc_float: true
+fig_caption: true
+vignette: >
+    %\VignetteIndexEntry{askoR_parameters Vignette}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+<style>
+body {
+    margin: 0px auto;
+    max-width: 1200px;
+    font-family: sans-serif;
+    font-size: 8pt;
+}
+table {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.table {
+    max-width: 700px;
+}
+code {
+    background-color: #e6e6e6;
+    color: #404040;
+    font-size: 90%;
+}
+</style>
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+# files and samples options
+
+ command line | parameters | default | descriptions |
+ ---------------|-------------------|---------|----------------------------------|
+ ```-o``` or ```--out``` | ```parameters$analysis_name``` | DE_analysis | Output directory name (do not put space!) |
+ ```-d``` or ```--dir``` | ```parameters$dir_path``` | ```"."``` | Work directory path |
+ ```-O``` or ```--org``` | ```parameters$organism``` | Asko | Output files prefix |
+ ```-f``` or ```--fileofcount``` | ```parameters$fileofcount``` | NULL | Matrix of count for all samples/conditions |
+ ```-G``` or ```--col_genes``` | ```parameters$col_genes``` | 1 | Column of genes ids in count files |
+ ```-C``` or ```--col_counts``` | ```parameters$col_counts``` | 7 | Column of counts in count files |
+ ```-t``` or ```--sep``` | ```parameters$sep``` | NULL | Field separator for count files or count matrix |
+ ```-c``` or ```--contrasts``` | ```parameters$contrast_file``` | NULL | Matrix of different contrasts desired |
+ ```-s``` or ```--sample``` | ```parameters$sample_file``` | NULL | File describing the samples |
+ ```-a``` or ```--annotation``` | ```parameters$annotation``` | NULL | File containing the genes' annotations |
+ ```--ID2GO``` | ```parameters$geneID2GO_file``` | NULL | GO annotation files |
+ ```-S``` or ```--select``` | ```parameters$select_sample``` | NULL | Selected sampls |
+ ```-r``` or ```--remove``` | ```parameters$rm_sample``` | FALSE | Removed samples |
+ ```-R``` or ```--regex``` | ```parameters$regex``` | FALSE | Use regex when selecting/removing samples |
+ ```-k``` or ```--mk_context``` | ```parameters$mk_context``` | FALSE | Generate automatically the context names |
+
+# Filter and normalization
+
+ command line | parameters | default | descriptions
+ ----------------|-----------------------|-------|-----------------------------------------------|
+ ```--th_cpm``` | ```parameters$threshold_cpm``` | 0.5 | CPM's threshold 
+ ```--rep``` | ```parameters$replicate_cpm``` | 3 | Minimum of samples pass CPM's threshold 
+ ```--norm_factor``` | ```parameters$norm_factor``` | FALSE | Generate file with normalize factor values 
+ ```--norm_counts``` | ```parameters$norm_counts``` | FALSE | Generate files with mormalized counts 
+ ```--dens_bottom_mar``` | ```parameters$densbotmar``` | 20 | Set bottom margin of density plot to help position the legend 
+ ```--dens_inset``` | ```parameters$densinset``` | 0.45 | Set position the legend in bottom density graphe 
+ ```--legend_col``` | ```parameters$legendcol``` | 6 | Set numbers of column for density plot legends 
+ ```--palette``` | ```parameters$palette``` | Set2 | color palette (ggplot)
+ ```--hm``` | ```parameters$heatmap``` | TRUE | Generation of the expression heatmap
+ ```--nh``` | ```parameters$numhigh``` | 50 | Number of genes in the heatmap 
+ ```--dclust``` | ```parameters$distcluts``` | euclidean | The distance measure to be used : euclidean, maximum, manhattan, canberra, binary or minkowski 
+ ```--hclust``` | ```parameters$hclust``` | complete | The agglomeration method to be used : ward.D, ward.D2, single, complete, average, mcquitty, median or centroid
+
+
+# Differential expression analysis
+
+ command line | parameters | default | descriptions
+ ------------------|---------------------|-----|--------------------------------------|
+ ```-n``` or ```--normalization``` | ```parameters$normal_method``` | TMN | normalization method (TMM/RLE/ upperquartile/none)
+ ```--adj``` | ```parameters$p_adj_method``` | fdr | p-value adjust method (holm/hochberg/hommel/ bonferroni/BH/BY/fdr/none) 
+ ```--th_FDR``` | ```parameters$threshold_FDR``` | 0.05 | FDR threshold
+ ```--glm``` | ```parameters$glm``` | qlf | GLM method (lrt/qlf)
+ ```--glmDisp``` | ```parameters$glm_disp``` | FALSE | Estimate Common, Trended and Tagwise Negative Binomial dispersions GLMs 
+ ```--lfc``` | ```parameters$logFC``` | TRUE | logFC in the summary table 
+ ```--th_lfc``` | ```parameters$threshold_logFC``` | 1 | logFC threshold 
+ ```--fc``` | ```parameters$FC``` | TRUE | FC in the summary table 
+ ```--lcpm``` | ```parameters$logCPM``` | FALSE | logCPm in the summary table 
+ ```--fdr``` | ```parameters$FDR``` | TRUE | FDR in the summary table 
+ ```--lr``` | ```parameters$LR``` | FALSE | LR in the summary table 
+ ```--sign``` | ```parameters$Sign``` | TRUE | Significance (1/0/-1) in the summary table
+ ```--expr``` | ```parameters$Expression``` | TRUE | Significance expression in the summary table 
+ ```--mc``` | ```parameters$mean_counts``` | TRUE | Mean counts in the summary table  
+ ```--plotMD``` | ```parameters$plotMD ```| FALSE | Mean-Difference Plot (aka MA plot) 
+ ```--plotVO``` | ```parameters$plotVO``` | FALSE | Volcano plot 
+ ```--glimMD``` | ```parameters$glimMD``` | FALSE | Glimma - Interactif Mean-Difference Plot (aka MA plot) 
+ ```--glimVO``` | ```parameters$glimVO``` | FALSE | Glimma - Interactif Volcano plot 
+
+# Venn and Upset graphs
+
+ command line | parameters | default | descriptions
+ --------|--------------|---|---------------------------------------|
+ ```--VD``` | ```parameters$VD``` | NULL | Plot VennDiagram, precise type of comparison: all, down, up or both 
+ ```--compaVD``` | ```parameters$compaVD``` | NULL | Contrast comparison list to display in VennDiagram 
+ ```--upset_basic``` | ```parameters$upset_basic``` | NULL | Display UpSetR charts for all contrasts, precise type of comparison: all, down, up, mixed.
+ ```--upset_type``` | ```parameters$upset_type``` | NULL | Display UpSetR charts for list of contrasts, precise type of comparison: all, down, up, mixed. 
+ ```--upset_list``` | ```parameters$upset_list``` | NULL | Contrast comparison list to display in UpSetR chart 
+
+# GOs enrichment analysis
+
+ command line | parameters | default | descriptions
+ --------------|---------------------|----|----------------------------------------|
+ ```--GO``` | ```parameters$GO``` | NULL | GO enrichment analysis for gene expressed 'up', 'down', 'both', or NULL 
+ ```--GO_algo``` | ```parameters$GO_algo``` | classic | algorithms which are accessible via the runTest function: "whichAlgorithms()"
+ ```--GO_stats``` | ```parameters$GO_stats``` | fisher | statistical tests which are accessible via the runTest function: "whichTests()"
+ ```--GO_cat``` | ```parameters$GO_cat``` | BP | GO category to explore: BP, CC or MF
+ ```--GO_threshold``` | ```parameters$GO_threshold``` | 0.05 | the significant threshold used to filter p-values 
+ ```--GO_max_top_terms``` | ```parameters$GO_max_top_terms``` | 10 | the maximum number of GO terms plot 
+ ```--GO_min_num_genes``` | ```parameters$GO_min_num_genes``` | 10 | the minimum number of genes for each GO terms 
+ ```--Ratio_threshold``` | ```parameters$Ratio_threshold``` | 0 | the minimum ratio for display GO in graph 
+
+# Co-expression analysis
+
+ command line | parameters | default | descriptions
+ ----------------------------|--------------------------------------|------|---------------------------------------|
+ ```--coseq_model``` | ```parameters$coseq_model``` | Normal | Coseq model : Poisson, kmeans or Normal
+ ```--coseq_normFactors``` | ```parameters$coseq_normFactors``` | none | Coseq normalization factor : TC , UQ, Med , DESeq, TMM or none (default none)
+ ```--coseq_transformation``` | ```parameters$coseq_transformation``` | arcsin | Coseq tranformation : voom, logRPKM, arcsin, logit, logMedianRef, profile, logclr, clr, alr, ilr or none
+ ```--coseq_ClustersNb``` | ```parameters$coseq_ClustersNb``` | 2:12 | Coseq : number of clusters desired (2:12 (auto), number from 2 to 12)
+ ```--coseq_ContrastsThreshold``` | ```parameters$coseq_ContrastsThreshold``` | 1 | Coseq : number of contrasts in which DE genes are found for clustering 
+ ```--coseq_normFactors``` | ```parameters$coseq_normFactors``` | none | Coseq normalization factor (TC , UQ, Med , DESeq, TMM , none)
+
+

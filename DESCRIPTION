@@ -1,0 +1,51 @@
+Package: askoR
+Title: askoR - Differential Expresion Analysis using edgeR
+Version: 1.0.0
+Author: Fabrice Legeai, Kévin Gazengel, Susete Alves Carvalho
+Maintainer: Fabrice Legeai <fabrice.legeai@inrae.fr>, Kévin Gazengel <kevin.gazengel@inrae.fr>, Susete Alves Carvalho <susete.alves-carvalho@inrae.fr>
+Description: AskoR is a pipeline for the analysis of gene expression data, using edgeR. 
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends:
+    topGO,
+    goSTAG,
+    edgeR,
+    limma
+Imports:
+    ggfortify,
+    ggrepel,
+    gplots,
+    ggplot2,
+    VennDiagram,
+    RColorBrewer,
+    UpSetR,
+    grid,
+    Rgraphviz,
+    stringr,
+    optparse,
+    Glimma,
+    ComplexHeatmap,
+    circlize,
+    coseq
+Suggests: 
+    futile.logger,
+    methods,
+    graph,
+    stats,
+    knitr,
+    rmarkdown,
+    BiocStyle
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+biocViews:
+    RNASeq,
+    Transcriptomics,
+    GeneExpression,
+    DifferentialExpression,
+    GeneSetEnrichment,
+    Normalization, 
+    MultipleComparison,
+    FunctionalGenomics,
+    Clustering

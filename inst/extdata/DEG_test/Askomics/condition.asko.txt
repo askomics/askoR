@@ -1,0 +1,7 @@
+Condition	genotype	treatment
+AC1	A	C1
+BC1	B	C1
+AC2	A	C2
+BC2	B	C2
+AC3	A	C3
+BC3	B	C3
