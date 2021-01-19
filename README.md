@@ -23,7 +23,7 @@ You'll find a test set in the **inst/extdata/input** folder. It'll be used for t
 * [Parameters Table](https://github.com/asusete/askoR/wiki/Pipeline-askoR:-Parameters-Table)
 
 ### Download
-**NOTE: Currently it is preferable to use this method which is the most up to date.**
+**NOTE: Currently it is preferable to use this method which is the most up to date.**<br/>
 If you don't want to install it: You can use the AskoR.R file in [ScriptR](https://github.com/asusete/askoR/tree/master/ScriptR) instead and "run file" in the same directory.  
 Just source it in your R script file (see _AskoR_analysis_script.R_):  
 ```
