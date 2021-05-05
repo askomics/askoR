@@ -1,6 +1,6 @@
 ## AskoR 
 
-Authors: Susete Alves Carvalho, Kevin Gazengel, Fabrice Legeai
+Authors: Susete Alves Carvalho, Kevin Gazengel, Stéphanie Robin, Sylvin Masanelli, Stéphanie Daval, Fabrice Legeai
 
 
 **AskoR** is a pipeline for the analysis of gene expression data, using edgeR.
