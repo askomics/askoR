@@ -1,7 +1,6 @@
 ## AskoR 
 
-Authors: Susete Alves Carvalho, Kevin Gazengel, Fabrice Legeai
-
+Authors: Susete Alves Carvalho, Kévin Gazengel (co-first), Stéphanie Robin, Sylvin Masanelli, Stéphanie Daval, Fabrice Legeai <br/>
 
 **AskoR** is a pipeline for the analysis of gene expression data, using edgeR.
 Several steps are performed: data filters (cpm method), normalize this filtered data, look at the correlation of our data, run differential expression analysis, compare contrast, GO enrichment and co-expression.
