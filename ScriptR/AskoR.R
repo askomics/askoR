@@ -1478,7 +1478,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     if(parameters$glm=="qlf"){
       glm_test<-glmQLFTest(fit, contrast=contrast)
     }
-    sum[,colnames(contrast)]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC)
+    sum[,colnames(contrast)]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC, p.value=parameters$threshold_FDR)
     AskoStats(glm_test, fit, colnames(contrast), asko_list, normGEdisp, parameters)
 
     # display grahes (volcano or/and MD)
@@ -1498,7 +1498,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
       if(parameters$glm=="qlf"){
         glm_test<-glmQLFTest(fit, contrast=data_list$contrast[,contrast])
       }
-      sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC)
+      sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC, p.value=parameters$threshold_FDR)
       AskoStats(glm_test, fit, contrast, asko_list, normGEdisp, parameters)
 
       # display grahes (volcano or/and MD)
