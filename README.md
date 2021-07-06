@@ -34,7 +34,7 @@ Download the latest development code of AskoR from GitHub using [devtools](https
 ```
 install.packages("devtools")
 library(devtools)
-devtools::install_github("asusete/askoR")
+devtools::install_github("askomics/askoR")
 ```
 For Windows users only: install [Rtools](https://cran.r-project.org/bin/windows/Rtools/) or check that it is already installed (needed to build the package).
  
