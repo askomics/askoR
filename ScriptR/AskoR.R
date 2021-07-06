@@ -1512,7 +1512,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   # Create summary file with annotations (if available) and contrast value for each gene
   #---------------------------------------------------------------------------------------
   cat("\nCreate Summary file\n\n")
-  sumFile<-paste0(study_dir,parameters$analysis_name,"_summary_DE.csv")
+  sumFile<-paste0(study_dir,"DEanalysis/",parameters$analysis_name,"_summary_DE.txt")
   if(is.null(data_list$annot)==FALSE)
   {
     rnames<-row.names(sum)                        # get Genes DE names
