@@ -2167,6 +2167,44 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
         }
 
       }
+
+
+      ## Bargraph in each GO cat separately (ratio, pval, and number of genes)
+      GoCoul="gray"
+
+      if (is.null(list) == FALSE){
+        GraphTitle = paste0("GO Enrichment for list\n",contrast, "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+      }
+      else{
+        GraphTitle = paste0("GO Enrichment for contrast\n",contrast, "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+      }
+
+      if(exists("TabSigCompl")==TRUE){
+        if(nrow(TabSigCompl[TabSigCompl$GO_cat==ontology,])>=1){
+          ggplot(TabSigCompl[TabSigCompl$GO_cat==ontology,], aes(x=stringr::str_wrap(Term, 55), y=Ratio,fill=-1*log10(as.numeric(statisticTest)))) +
+            coord_flip()+
+            geom_col()+
+            theme_classic()+
+            geom_text(aes(label=Significant), position=position_stack(0.5),color="white")+
+            scale_fill_gradient(name="-log10pval",low=GoCoul,high=paste0(GoCoul,"4"))+
+            scale_y_reverse()+
+            labs(title = GraphTitle, x="GOterm", y="Ratio Significant / Expected") +
+            scale_x_discrete(position = "top")+
+            theme(
+              axis.text.y = element_text(face="bold",size=10),
+              axis.text.x = element_text(face="bold",size=10),
+              axis.title.x=element_text(face="bold",size=12),
+              axis.title.y=element_blank(),
+              legend.title = element_text(size=12,face="bold"),
+              plot.title = element_text(face="bold",size=15),
+              legend.text = element_text(size=12),
+              panel.background = element_rect(colour = "black", size=0.5, fill=NA))
+          ggsave(filename=paste0(img_go_dir,contrast,"_",ontology,"_GOgraph.png"),width=10, height = 8)
+        }
+      }
+
+
+
     }
     TabCompl<-TabCompl[TabCompl$Significant > 0,]
     utils::write.table(TabCompl, file=paste0(img_go_dir, parameters$analysis_name, "_", contrast, "_Complet_GOenrichment.txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
