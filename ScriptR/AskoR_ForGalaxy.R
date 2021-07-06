@@ -865,7 +865,7 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
 
   # heatmap visualisation
   #----------------------------------------------------
-  if(nrow(filtered_GE$counts) <= 30000)
+  if(parameters$CompleteHeatmap==TRUE)
   {
     # heatmap cpm value per sample
     #----------------------------------------------------
