@@ -3419,6 +3419,9 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
     graphTitle=""
   }
 
+  col_fun = colorRamp2(c(-2, 0, 2), c("green", "white", "red"))
+  col_fun(seq(min, max))
+
   hc = rowAnnotation("DE Status in contrasts" = as.matrix(totalData[,(n+1):(n+ncol(resDEG))]),simple_anno_size = unit(0.5, "cm"),gp=gpar(pch=1,col="white",lwd = 4),col = list("DE Status in contrasts" = c("-1" = "green", "0" = "lightgrey", "1" = "red")),
                      annotation_legend_param = list(
                        at = c(-1, 0, 1),
@@ -3434,7 +3437,7 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
                         legend_height = unit(4, "cm"),
                         title_position = "topleft", direction = "horizontal"
                       ),
-                      col = colorRamp2(c(min, 0, max), c("green", "white", "red")),
+                      col = col_fun,
                       row_split = totalData$CoExpression_Cluster,
                       row_title_gp = gpar(fill = grey.colors(0.5), col="white", font = 2, fontsize=10),
                       row_title_rot = 0,
@@ -3456,7 +3459,7 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
                         legend_height = unit(4, "cm"),
                         title_position = "topleft", direction = "horizontal"
                       ),
-                      col = colorRamp2(c(min, 0, max), c("green", "white", "red")),
+                      col = col_fun,
                       show_row_dend = T,
                       show_column_names = T,
                       show_column_dend = F,
