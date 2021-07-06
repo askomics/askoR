@@ -2174,10 +2174,10 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
       GoCoul="gray"
 
       if (is.null(list) == FALSE){
-        GraphTitle = paste0("GO Enrichment for list\n",contrast, "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+        GraphTitle0 = paste0("GO Enrichment (",ontology, " category)", "\n for list ", contrast, "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
       }
       else{
-        GraphTitle = paste0("GO Enrichment for contrast\n",contrast, "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+        GraphTitle0 = paste0("GO Enrichment (",ontology, " category)", "\n for contrast ", contrast, "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
       }
 
       if(exists("TabSigCompl")==TRUE){
@@ -2189,7 +2189,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
             geom_text(aes(label=Significant), position=position_stack(0.5),color="white")+
             scale_fill_gradient(name="-log10pval",low=GoCoul,high=paste0(GoCoul,"4"))+
             scale_y_reverse()+
-            labs(title = GraphTitle, x="GOterm", y="Ratio Significant / Expected") +
+            labs(title = GraphTitle0, x="GOterm", y="Ratio Significant / Expected") +
             scale_x_discrete(position = "top")+
             theme(
               axis.text.y = element_text(face="bold",size=10),
