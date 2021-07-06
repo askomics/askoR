@@ -72,6 +72,8 @@ Asko_start <- function(){
                           help="logFC in the summary table [default= %default]", metavar="logical"),
     optparse::make_option(c("--th_lfc"), type="double", default=0, dest="threshold_logFC",
                           help="logFC threshold [default= %default]", metavar="double"),
+    optparse::make_option("--CompleteHm", type="logical", default=FALSE, dest="CompleteHeatmap",
+                          help="generation of the normalized expression heatmap on ALL genes (TRUE/FALSE) [default= %default]", metavar="logical"),
     optparse::make_option("--fc", type="logical", default=TRUE, dest="FC",
                           help="FC in the summary table [default= %default]", metavar="logical"),
     optparse::make_option(c("--lcpm"), type="logical", default=FALSE, dest="logCPM",
@@ -864,7 +866,7 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
 
   # heatmap visualisation
   #----------------------------------------------------
-  if(nrow(filtered_GE$counts) <= 30000)
+  if(parameters$CompleteHeatmap==TRUE)
   {
     # heatmap cpm value per sample
     #----------------------------------------------------
