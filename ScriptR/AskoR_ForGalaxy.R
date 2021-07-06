@@ -247,11 +247,12 @@ loadData <- function(parameters){
 
   # Management of input files
   #---------------------------------------------------------
-  input_path = paste0(parameters$dir_path, "/input/")
+  input_path = "/import/"
 
   # Sample file
   sample_path<-paste0(input_path, parameters$sample_file)
   samples<-utils::read.csv(sample_path, header=TRUE, sep="\t", row.names=1)
+
 
   # Selecting some sample (select_sample parameter)
   if(is.null(parameters$select_sample)==FALSE){
@@ -2003,9 +2004,9 @@ VD <- function(resDEG, parameters, asko_list){
 #'
 #' @export
 GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
-  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
-  input_path = paste0(parameters$dir_path, "/input/")
-  GO_dir  = paste0(study_dir, "/GOenrichment/")
+  study_dir = paste0(parameters$dir_path, parameters$analysis_name, "/")
+  input_path = "/import/"
+  GO_dir  = paste0(study_dir, "GOenrichment/")
   if(dir.exists(GO_dir)==FALSE){
     dir.create(GO_dir)
     cat("\n\nDirectory: ",GO_dir," created\n")
@@ -2203,8 +2204,6 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
         }
       }
 
-
-
     }
     TabCompl<-TabCompl[TabCompl$Significant > 0,]
     utils::write.table(TabCompl, file=paste0(img_go_dir, parameters$analysis_name, "_", contrast, "_Complet_GOenrichment.txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
@@ -2305,15 +2304,15 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
 #'
 #' @export
 ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NULL){
-  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
+  study_dir = paste0(parameters$dir_path, parameters$analysis_name, "/")
 
-  CLUST_dir  = paste0(study_dir, "/Clustering/")
+  CLUST_dir  = paste0(study_dir, "Clustering/")
   if(dir.exists(CLUST_dir)==FALSE){
     dir.create(CLUST_dir)
     cat("\n\nDirectory: ",CLUST_dir," created\n")
   }
 
-  input_path = paste0(parameters$dir_path, "/input/")
+  input_path = "/import/"
 
   if (is.null(list) == TRUE){
     img_Clustering_dir = paste0(CLUST_dir, "OnDEgenes/")
@@ -2898,8 +2897,8 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
 #'
 #' @export
 IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, clustering){
-  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
-  input_path = paste0(parameters$dir_path, "/input/")
+  study_dir = paste0(parameters$dir_path, parameters$analysis_name, "/")
+  input_path = "/import/"
   img_Clustering_dir = paste0(study_dir, "Clustering/OnDEgenes/")
   if(dir.exists(img_Clustering_dir)==FALSE){
     dir.create(img_Clustering_dir)
@@ -3322,8 +3321,8 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
 #'
 #' @export
 GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions=NULL, contrasts=NULL){
-  study_dir  = paste0(parameters$dir_path, "/", parameters$analysis_name, "/")
-  input_path = paste0(parameters$dir_path, "/input/")
+  study_dir  = paste0(parameters$dir_path, parameters$analysis_name, "/")
+  input_path = "/import/"
 
   list_dir = paste0(study_dir, "GeneListExplore/")
   if(dir.exists(list_dir)==FALSE){
@@ -3331,7 +3330,7 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
     cat("\n\nDirectory: ",list_dir," created\n")
   }
 
-  img_InfosOnGenes_dir = paste0(list_dir, "/", title, "/")
+  img_InfosOnGenes_dir = paste0(list_dir, title, "/")
   if(dir.exists(img_InfosOnGenes_dir)==FALSE){
     dir.create(img_InfosOnGenes_dir)
     cat("\n\nDirectory: ",img_InfosOnGenes_dir," created\n")
