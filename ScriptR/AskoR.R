@@ -151,9 +151,7 @@ Asko_start <- function(){
     optparse::make_option("--coseq_ClustersNb", type="double", default=2:25, dest="coseq_ClustersNb",
                           help="Coseq : number of clusters desired (2:25 (auto), number from 2 to 25) [default= %default]", metavar="double"),
     optparse::make_option("--coseq_HeatmapOrderSample", type="logical", default=FALSE, dest="coseq_HeatmapOrderSample",
-                          help="Choose TRUE if you prefer keeping your sample order than clusterizing samples in heatmap  [default= %default]", metavar="logical"),
-    optparse::make_option("--coseq_ClustersNb", type="double", default=2:25, dest="coseq_ClustersNb",
-                          help="Coseq : number of clusters desired (2:25 (auto), number from 2 to 25) [default= %default]", metavar="double")
+                          help="Choose TRUE if you prefer keeping your sample order than clusterizing samples in heatmap  [default= %default]", metavar="logical")
   )
   # Get command line options
   opt_parser = optparse::OptionParser(option_list=option_list)
@@ -901,12 +899,12 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
     hr <- stats::hclust(d2, method = parameters$hclust, members = NULL)
     my_palette <- grDevices::colorRampPalette(c("green","black","red"), interpolate = "linear")
 
-    grDevices::png(paste0(image_dir,parameters$analysis_name,"_heatmap_meanCounts_per_condi.png"), width=sizeImg*1.5, height=sizeImg*1.25)
+    grDevices::png(paste0(image_dir,parameters$analysis_name,"_heatmap_CPMmean_per_condi.png"), width=sizeImg*1.5, height=sizeImg*1.25)
     graphics::par(oma=c(2,1,2,2))
     gplots::heatmap.2(tcountscale, Colv = stats::as.dendrogram(hc), Rowv = stats::as.dendrogram(hr), density.info="histogram",
                       trace = "none", dendrogram = "column", xlab = "Condition", col = my_palette, labRow = FALSE,
                       cexRow = 0.1, cexCol = 1.5, ColSideColors = unique(norm_GE$samples$color), margins = c(10,1),
-                      main = paste0("Mean count per condition\nGenes 1 to ",nrow(norm_GE)))
+                      main = paste0("CPM counts per condition (mean)\nGenes 1 to ",nrow(norm_GE)))
     grDevices::dev.off()
   }
 
@@ -3161,7 +3159,7 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
           if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
           TabSigCompl<-TabSigCompl[1:maxi,]
         }else{
-          cat("\n\n->Cluster ",clustered," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
+          cat("\n\n->Cluster NOT DE - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
           TabSigCompl<-as.data.frame(setNames(replicate(8,numeric(0), simplify = F),c("GO.ID","Term","Annotated","Significant","Expected","statisticTest","Ratio","GO_cat") ))
         }
       }else{
@@ -3174,7 +3172,7 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
           if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
           TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
         }else{
-          cat("\n\n->Cluster ",clustered," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
+          cat("\n\n->Cluster NOT DE - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
         }
       }
 
