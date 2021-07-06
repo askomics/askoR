@@ -34,6 +34,7 @@ parameters$threshold_logFC = 0                        # logFC threshold (default
 parameters$normal_method = "TMM"                      # normalization method (TMM/RLE/upperquartile/none) (default TMN)
 parameters$p_adj_method = "BH"                        # p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none) (default fdr)
 parameters$glm = "lrt"                                # GLM method (lrt/qlf) (default qlf)
+parameters$CompleteHeatmap = FALSE                    # Generate Complete heatmap on all normalized genes (default FALSE, select "TRUE" only if your have less 30000 genes and enough RAM on your computer)
 parameters$logFC = TRUE                               # logFC in the summary table (default TRUE)
 parameters$FC = TRUE                                  # FC in the summary table (default TRUE)
 parameters$logCPM = FALSE                             # logCPm in the summary table (default FALSE)
