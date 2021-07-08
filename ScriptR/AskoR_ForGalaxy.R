@@ -3417,7 +3417,7 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
   )
   ht_opt$TITLE_PADDING = unit(c(7, 7), "points")
   if (is.null(clustering)==FALSE){
-    ht_list = Heatmap((mat_scaled), name = "Expression \nLog2(cpm+1)",
+    ht_list = Heatmap((mat_scaled), name = "Expression \n(Scaled CPM)",
                       heatmap_legend_param = list(
                         #at = c(-2, 0, 2),
                         legend_height = unit(4, "cm"),
@@ -3439,7 +3439,7 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
     )
   }
   else{
-    ht_list = Heatmap((mat_scaled), name = "Expression \nLog2(cpm+1)",
+    ht_list = Heatmap((mat_scaled), name = "Expression \n(Scaled CPM)",
                       heatmap_legend_param = list(
                         #at = c(-2, 0, 2),
                         legend_height = unit(4, "cm"),
