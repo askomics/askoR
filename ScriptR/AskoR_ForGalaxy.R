@@ -3390,27 +3390,14 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
     suff = "_Complete"
   }
 
-
   n = ncol(moys)
-  totalDataLOG = log2(totalData[, 1:n]+1)
-  mat = as.matrix(totalDataLOG[, 1:n])
-  mat_scaled = t(apply(mat, 1, scale))
+  totalDataLOG = totalData[, 1:n]
+  mat = as.matrix(totalDataLOG)
+  mat_scaled = t(apply(mat, 1, scale)) # same as : t(scale(t(mat)))
   colnames(mat_scaled)=colnames(mat)
 
-  min=0
-  max=0
-  for (i in ncol(mat_scaled)) {
-    min2 = min(mat_scaled[,i])
-    if (min2<min){
-      min =min2
-    }
-  }
-  for (i in ncol(mat_scaled)) {
-    max2 = max(mat_scaled[,i])
-    if (max2>max){
-      max =max2
-    }
-  }
+  min = min(mat_scaled)
+  max = max(mat_scaled)
 
   if (is.null(clustering)==FALSE){
     graphTitle = "Clusters"
@@ -3419,8 +3406,7 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
     graphTitle=""
   }
 
-  col_fun = colorRamp2(c(-2, 0, 2), c("green", "white", "red"))
-  col_fun(seq(min, max))
+  col_fun = colorRamp2(c(min, 0, max), c("green", "white", "red"))
 
   hc = rowAnnotation("DE Status in contrasts" = as.matrix(totalData[,(n+1):(n+ncol(resDEG))]),simple_anno_size = unit(0.5, "cm"),gp=gpar(pch=1,col="white",lwd = 4),col = list("DE Status in contrasts" = c("-1" = "green", "0" = "lightgrey", "1" = "red")),
                      annotation_legend_param = list(
@@ -3431,9 +3417,9 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
   )
   ht_opt$TITLE_PADDING = unit(c(7, 7), "points")
   if (is.null(clustering)==FALSE){
-    ht_list = Heatmap((mat_scaled), name = "Expression \nLog2(cpm+1)",
+    ht_list = Heatmap((mat_scaled), name = "Expression \n(Scaled CPM)",
                       heatmap_legend_param = list(
-                        at = c(-2, 0, 2),
+                        #at = c(-2, 0, 2),
                         legend_height = unit(4, "cm"),
                         title_position = "topleft", direction = "horizontal"
                       ),
@@ -3453,9 +3439,9 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
     )
   }
   else{
-    ht_list = Heatmap((mat_scaled), name = "Expression \nLog2(cpm+1)",
+    ht_list = Heatmap((mat_scaled), name = "Expression \n(Scaled CPM)",
                       heatmap_legend_param = list(
-                        at = c(-2, 0, 2),
+                        #at = c(-2, 0, 2),
                         legend_height = unit(4, "cm"),
                         title_position = "topleft", direction = "horizontal"
                       ),
@@ -3485,6 +3471,11 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
   }
   draw(ht_list, row_title = graphTitle, column_title_gp = gpar(font=2, fontsize=15), heatmap_legend_side = "bottom",column_title = paste0("Expression and DE status \n on genes from list '", title, "'"))
   dev.off()
+
+  if (length(list)!=nrow(totalData)){
+    cat(paste0("WARNING: ", length(list)-nrow(totalData), " genes from the list (",length(list)," genes) were eliminated at the filtering step due to a very low expression level. "))
+  }
+
 
 }
 
