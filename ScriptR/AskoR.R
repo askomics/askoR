@@ -668,7 +668,7 @@ GEfilt <- function(data_list, parameters){
   if(sizeImg < 480){ sizeImg=480 }
   btm=round((nsamples/6),0)+0.5
 
-  grDevices::png(paste0(image_dir, parameters$analysis_name, "_raw_data.png"), width=1024, height=1024)
+  grDevices::png(paste0(image_dir, parameters$analysis_name, "_densityGraph_RawData.png"), width=1024, height=1024)
   graphics::par(oma=c(2,2,2,0), mar=c(parameters$densbotmar,5,5,5))
   plot(stats::density(logcpm[,1]),
        col=as.character(data_list$dge$samples$color[1]),
@@ -700,7 +700,7 @@ GEfilt <- function(data_list, parameters){
   }
   ymax<-round(max(maxi),1) + 0.02
 
-  grDevices::png(paste0(image_dir,parameters$analysis_name,"_filtered_data.png"), width=1024, height=1024)
+  grDevices::png(paste0(image_dir,parameters$analysis_name,"_densityGraph_FilteredData.png"), width=1024, height=1024)
   graphics::par(oma=c(2,2,2,0), mar=c(parameters$densbotmar,5,5,5))
   plot(stats::density(filtered_cpm[,1]),
        col=as.character(data_list$dge$samples$color[1]),
@@ -899,7 +899,7 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
     hr <- stats::hclust(d2, method = parameters$hclust, members = NULL)
     my_palette <- grDevices::colorRampPalette(c("green","black","red"), interpolate = "linear")
 
-    grDevices::png(paste0(image_dir,parameters$analysis_name,"_heatmap_CPMmean_per_condi.png"), width=sizeImg*1.5, height=sizeImg*1.25)
+    grDevices::png(paste0(image_dir,parameters$analysis_name,"_heatmap_CPMmean_per_condition.png"), width=sizeImg*1.5, height=sizeImg*1.25)
     graphics::par(oma=c(2,1,2,2))
     gplots::heatmap.2(tcountscale, Colv = stats::as.dendrogram(hc), Rowv = stats::as.dendrogram(hr), density.info="histogram",
                       trace = "none", dendrogram = "column", xlab = "Condition", col = my_palette, labRow = FALSE,
