@@ -30,6 +30,7 @@ source("/directory/where/you/downloaded/the/file/AskoR.R")
 ```
 OR
 
+**NOTE: This method is not up to date, we will update it asap !**<br/>
 Download the latest development code of AskoR from GitHub using [devtools](https://cran.r-project.org/package=devtools) with
 ```
 install.packages("devtools")
