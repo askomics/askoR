@@ -1,7 +1,0 @@
-Condition	AC1vsAC2	AC1vsAC3	AC2vsAC3	BC1vsBC2	BC1vsBC3	BC2vsBC3	AC1vsBC1	AC2vsBC2	AC3vsBC3
-AC1	+	+	0	0	0	0	+	0	0
-AC2	-	0	+	0	0	0	0	+	0
-AC3	0	-	-	0	0	0	0	0	+
-BC1	0	0	0	+	+	0	-	0	0
-BC2	0	0	0	-	0	+	0	-	0
-BC3	0	0	0	0	-	-	0	0	-
