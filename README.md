@@ -2,7 +2,7 @@
 
 Authors: Susete Alves Carvalho, Kévin Gazengel (co-first), Stéphanie Robin, Sylvin Masanelli, Stéphanie Daval, Fabrice Legeai <br/>
 
-**AskoR** is an R pipeline for gene expression analysis from RNAseq data. It allows, through the articulation of well-known R packages (EdgeR, UpSetR, topGO, Coseq), to perform a complete and automatic transcriptomic analysis: data filtering, normalisation of filtered data, descriptive analysis of data quality, differential gene expression analysis, enrichment in terms of "Gene Ontology", clustering genes by co-expression profile.
+**AskoR** is an R pipeline for gene expression analysis from RNAseq data. It allows, through the articulation of well-known R packages (EdgeR, UpSetR, topGO, Coseq), to perform a complete and automatic transcriptomic analysis: data filtering, normalisation of filtered data, descriptive analysis of data quality, differential gene expression analysis, enrichment in terms of "Gene Ontology", clustering genes by co-expression profile, and enhanced with multiple graphic representations.
 
 ### Sample data
 You'll find a test set in the **inst/extdata/input** folder. It'll be used for the vignettes documentation.<br/>
