@@ -1,10 +1,9 @@
-# Removes all objects from the current workspace (R memory)
-rm(list=ls())
-
 ################################################
 ##   Source AskoR and set working directory   ##
 ##  (don't do if you use AskoR on Galaxy!)    ##
 ################################################
+# Removes all objects from the current workspace (R memory)
+rm(list=ls())
 # source AskoR.R file 
 source("/directory/where/you/downloaded/the/file/AskoR.R")
 # defined your workspace
