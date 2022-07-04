@@ -8,14 +8,12 @@ rm(list=ls())
 # source AskoR.R file 
 source("/directory/where/you/downloaded/the/file/AskoR.R")
 # defined your workspace
-setwd("/path/to/workspace/") # (if you are using your own R instance)
+setwd("/path/to/workspace/") 
 
 ##############################################
 ##                Parameters                ##
 ##############################################
 parameters<-Asko_start()
-
-parameters$dir_path="./" # Workspace IF YOU ARE USINF AskoR ON GALAXY
 
 # Data and input files descriptions (if you are using AskoR in your R environment)
 #--------------------------------------------------------------------------
@@ -40,6 +38,8 @@ gx_get(2)                                             # Import dataset "2" from 
 gx_get(3)                                             # Import dataset "3" from your Galaxy history
 gx_get(4)                                             # Import dataset "4" from your Galaxy history
 gx_get(5)                                             # Import dataset "5" from your Galaxy history
+
+parameters$dir_path="./"                              # Workspace IF YOU ARE USINF AskoR ON GALAXY
 
 parameters$analysis_name = "DEG_testPack"             # output directory name (default AskoRanalysis, do not put space!)
 parameters$fileofcount = "1"                          # "1" if your matrix of count for all samples/conditions is your dataset "1" (if not, put the number of the dataset in your history)
