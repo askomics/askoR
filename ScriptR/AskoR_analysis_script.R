@@ -8,12 +8,14 @@ rm(list=ls())
 # source AskoR.R file 
 source("/directory/where/you/downloaded/the/file/AskoR.R")
 # defined your workspace
-setwd("/path/to/workspace/")
+setwd("/path/to/workspace/") # (if you are using your own R instance)
 
 ##############################################
 ##                Parameters                ##
 ##############################################
 parameters<-Asko_start()
+
+parameters$dir_path="./" # Workspace IF YOU ARE USINF AskoR ON GALAXY
 
 # Data and input files descriptions (if you are using AskoR in your R environment)
 #--------------------------------------------------------------------------
