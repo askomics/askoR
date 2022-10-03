@@ -1,17 +1,20 @@
+################################################
+##   Source AskoR and set working directory   ##
+##  (don't do if you use AskoR on Galaxy!)    ##
+################################################
 # Removes all objects from the current workspace (R memory)
 rm(list=ls())
-
-# source AskoR.R file
+# source AskoR.R file 
 source("/directory/where/you/downloaded/the/file/AskoR.R")
 # defined your workspace
-setwd("/path/to/workspace/")
+setwd("/path/to/workspace/") 
 
 ##############################################
 ##                Parameters                ##
 ##############################################
 parameters<-Asko_start()
 
-# Data and input files descriptions
+# Data and input files descriptions (if you are using AskoR in your R environment)
 #--------------------------------------------------------------------------
 # WARNING: All the input files must be in the same folder
 #          called "input" (case sensitive)!
@@ -23,6 +26,27 @@ parameters$annotation = "Genes_annotations.txt"       # file containing the func
 parameters$geneID2GO_file = "GO_annotations.txt"      # GO annotation files
 parameters$contrast_file = "Contrasts.txt"            # matrix of different contrasts desired
 parameters$sample_file = "Samples_CountsMatrix.txt"   # file describing the samples
+parameters$rm_sample = c("AC3R2","BC3R3")             # bad sample(s) !
+
+# Specific Data import for use of AskoR on Galaxy
+#--------------------------------------------------------------------------
+# WARNING: All the input files must be in your Galaxy history!
+#--------------------------------------------------------------------------
+gx_get(1)                                             # Import dataset "1" from your Galaxy history
+gx_get(2)                                             # Import dataset "2" from your Galaxy history
+gx_get(3)                                             # Import dataset "3" from your Galaxy history
+gx_get(4)                                             # Import dataset "4" from your Galaxy history
+gx_get(5)                                             # Import dataset "5" from your Galaxy history
+
+parameters$dir_path="./"                              # Workspace IF YOU ARE USINF AskoR ON GALAXY
+
+parameters$analysis_name = "DEG_testPack"             # output directory name (default AskoRanalysis, do not put space!)
+parameters$fileofcount = "1"                          # "1" if your matrix of count for all samples/conditions is your dataset "1" (if not, put the number of the dataset in your history)
+parameters$sep = "\t"                                 # field separator for count files or count matrix
+parameters$annotation = "2"                           # "2" if your file containing the functional annotations of each gene is your dataset "2" (if not, put the number of the dataset in your history)
+parameters$geneID2GO_file = "3"                       # "3" if your GO annotation files is your dataset "3" (if not, put the number of the dataset in your history)
+parameters$contrast_file = "4"                        # "4" if your matrix of different contrasts desired is your dataset "4" (if not, put the number of the dataset in your history)
+parameters$sample_file = "5"                          # "5" if your file describing the samples is your dataset "5" (if not, put the number of the dataset in your history)
 parameters$rm_sample = c("AC3R2","BC3R3")             # bad sample(s) !
 
 # Options for data processing and their analyzes

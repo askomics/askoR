@@ -1,7 +1,0 @@
-Context	has@Condition
-AC1	AC1
-AC2	AC2
-AC3	AC3
-BC1	BC1
-BC2	BC2
-BC3	BC3
