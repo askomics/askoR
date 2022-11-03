@@ -3321,7 +3321,7 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
 #' }
 #'
 #' @export
-GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions=NULL, contrasts=NULL){
+GeneInfo_OnList<-function(list, resDEG, data, parameters, title, clustering=NULL, conditions=NULL, contrasts=NULL){
   study_dir  = paste0(parameters$dir_path, "/", parameters$analysis_name, "/")
   input_path = paste0(parameters$dir_path, "/input/")
 
