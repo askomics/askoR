@@ -11,15 +11,23 @@
 #'
 #' @examples
 #'    parameters <- Asko_start()
-#'    parameters$threshold_cpm <- 1  # Set parameters threshold cpm to new value
 #'
-#' @note All parameters were describe in README documentation
+#'    # set inputs files
+#'    parameters$fileofcount = "CountsMatrix.txt"
+#'    parameters$sample_file = "Samples_CountsMatrix.txt"
+#'    parameters$contrast_file = "Contrasts.txt"
 #'
+#'    # Set parameters threshold cpm
+#'    parameters$threshold_cpm <- 0.5
+#'
+#'    # And other ... askoR has many parameters.
+#'
+#' @note All parameters were describe in Wiki section: \url{https://github.com/askomics/askoR/wiki}
 #' @export
 Asko_start <- function(){
   # Loading libraries in silent mode (only error messages will be displayed)
-  pkgs<-c("limma","statmod","edgeR","VennDiagram","RColorBrewer","UpSetR","grid","topGO","ggfortify","gghalves","tidyverse",
-          "Rgraphviz","ggplot2","ggrepel","gplots","stringr","optparse","goSTAG","Glimma","ComplexHeatmap","cowplot","circlize","corrplot")
+  pkgs<-c("limma","statmod","edgeR","VennDiagram","RColorBrewer","UpSetR","grid","topGO","ggfortify","gghalves","tidyverse", "viridis",
+          "Rgraphviz","ggplot2","ggrepel","gplots","stringr","optparse","goSTAG","Glimma","ComplexHeatmap","cowplot","circlize","corrplot", "stats", "data.table", "forcats", "dplyr")
   for(p in pkgs) suppressWarnings(suppressMessages(library(p, quietly=TRUE, character.only=TRUE, warn.conflicts=FALSE)))
 
   # Specify desired options in a list
@@ -28,8 +36,8 @@ Asko_start <- function(){
                           help="output directory name [default= %default]", metavar="character"),
     optparse::make_option(c("-d", "--dir"), type="character", default=".",dest="dir_path",
                           help="data directory path [default= %default]", metavar="character"),
-    optparse::make_option(c("-O", "--org"), type="character", default="Asko", dest="organism",
-                          help="Organism name [default= %default]", metavar="character"),
+    optparse::make_option(c("-P", "--prj"), type="character", default="DEprj", dest="projectName",
+                          help="Project name (short and without space) [default= %default]", metavar="character"),
     optparse::make_option(c("-f", "--fileofcount"), type="character", default=NULL, dest="fileofcount",
                           help="file of counts [default= %default]", metavar="character"),
     optparse::make_option(c("-G", "--col_genes"), type="integer", default=1, dest="col_genes",
@@ -151,8 +159,19 @@ Asko_start <- function(){
     optparse::make_option("--coseq_ClustersNb", type="double", default=2:25, dest="coseq_ClustersNb",
                           help="Coseq : number of clusters desired (2:25 (auto), number from 2 to 25) [default= %default]", metavar="double"),
     optparse::make_option("--coseq_HeatmapOrderSample", type="logical", default=FALSE, dest="coseq_HeatmapOrderSample",
-                          help="Choose TRUE if you prefer keeping your sample order than clusterizing samples in heatmap  [default= %default]", metavar="logical")
-  )
+                          help="Choose TRUE if you prefer keeping your sample order than clusterizing samples in heatmap  [default= %default]", metavar="logical"),
+    optparse::make_option(c("--ID2KEGG"), type="character", default=NULL, dest="geneID2KEGG_file",
+                          help="KEGG annotation file [default= %default]", metavar="character"),
+    optparse::make_option(c("--KEGG_Ratio_threshold"), type="numeric", default="1", dest="KEGG_Ratio_threshold",
+                          help="the minimum enrichment ratio value to display KEGG in graph [default=%default]", metavar="double"),
+    optparse::make_option(c("--KEGG_min_num_genes"), type="integer", default="1", dest="KEGG_min_num_genes",
+                          help="the minimum number of genes for each KEGG [default=%default]", metavar="integer"),
+    optparse::make_option(c("--KEGG_min_sig_genes"), type="integer", default="1", dest="KEGG_min_sig_genes",
+                          help="the minimum number of significant gene(s) behind the enriched KEGG [default=%default]", metavar="integer"),
+    optparse::make_option(c("--KEGG_max_top_terms"), type="integer", default="15", dest="KEGG_max_top_terms",
+                          help="the maximum number of KEGG plot [default=%default]", metavar="integer")
+    )
+
   # Get command line options
   opt_parser = optparse::OptionParser(option_list=option_list)
   parameters = optparse::parse_args(opt_parser)
@@ -201,15 +220,14 @@ Asko_start <- function(){
 #'
 #' @examples
 #' \dontrun{
-#'     parameters<-Asko_start()
-#'     data<-loadData(parameters)
+#'    data<-loadData(parameters)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 loadData <- function(parameters){
 
   # Folders for output files
-  #---------------------------------------------------------
   cat("\nCreated directories:\n")
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   if(dir.exists(study_dir)==FALSE){ dir.create(study_dir) }
@@ -219,13 +237,21 @@ loadData <- function(parameters){
   if(dir.exists(explo_dir)==FALSE){ dir.create(explo_dir) }
   cat("\t",explo_dir,"\n")
 
+  norm_dir = paste0(study_dir,"NormCountsTables/")
+  if(dir.exists(norm_dir)==FALSE){ dir.create(norm_dir) }
+  cat("\t",norm_dir,"\n")
+
   de_dir = paste0(study_dir,"DEanalysis/")
   if(dir.exists(de_dir)==FALSE){ dir.create(de_dir) }
   cat("\t",de_dir,"\n")
 
-  image_dir = paste0(de_dir, "Images/")
+  image_dir = paste0(de_dir, "DEimages/")
   if(dir.exists(image_dir)==FALSE){ dir.create(image_dir) }
   cat("\t",image_dir,"\n")
+
+  table_dir = paste0(de_dir, "DEtables/")
+  if(dir.exists(table_dir)==FALSE){ dir.create(table_dir) }
+  cat("\t",table_dir,"\n")
 
   asko_dir = paste0(de_dir, "AskoTables/")
   if(dir.exists(asko_dir)==FALSE){ dir.create(asko_dir) }
@@ -243,10 +269,7 @@ loadData <- function(parameters){
     cat("\t",upset_dir,"\n")
   }
 
-
-
   # Management of input files
-  #---------------------------------------------------------
   input_path = paste0(parameters$dir_path, "/input/")
 
   # Sample file
@@ -303,7 +326,7 @@ loadData <- function(parameters){
   # Two possibilities:
   #     - 1 count file per condition
   #     - a matrix of count for all samples/conditions
-  #----------------------------------------------------
+  #
   # Multiple count files, 1 per conditions
   if(is.null(parameters$fileofcount)){
     cat("\nFiles of counts:\n")
@@ -336,7 +359,6 @@ loadData <- function(parameters){
   }
 
   # Experimental design
-  #---------------------------------------------------------
   Group<-factor(samples$condition)
   cat("\nConditions :\n")
   print(Group)
@@ -345,7 +367,6 @@ loadData <- function(parameters){
   colnames(designExp) <- levels(Group)
 
   # Contrast for DE analysis
-  #---------------------------------------------------------
   contrast_path<-paste0(input_path, parameters$contrast_file)
   contrastab<-utils::read.table(contrast_path, sep="\t", header=TRUE, row.names = 1, comment.char="#", stringsAsFactors = FALSE)
 
@@ -415,11 +436,10 @@ loadData <- function(parameters){
 #'
 #' @examples
 #' \dontrun{
-#'     parameters <- Asko_start()
-#'     data<-loadData(parameters)
-#'     asko<-asko3c(data, parameters)
+#'    asko<-asko3c(data, parameters)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 asko3c <- function(data_list, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
@@ -429,8 +449,8 @@ asko3c <- function(data_list, parameters){
   asko<-list()
 
   # Condition
-  #---------------
   condition<-unique(data_list$samples$condition)                       # retrieval of different condition's names
+
   col1<-which(colnames(data_list$samples)=="condition")                # determination of number of the column "condition"
   colcol<-which(colnames(data_list$samples)=="color")
   if(is.null(parameters$fileofcount)){
@@ -448,7 +468,6 @@ asko3c <- function(data_list, parameters){
   }
 
   # Contrast + Context
-  #--------------------------
   i=0
   contrast_asko<-data.frame(row.names = colnames(data_list$contrast))           # initialization of the contrast's data frame
   contrast_asko$Contrast<-NA                                                    # all columns are created et initialized with
@@ -560,11 +579,11 @@ asko3c <- function(data_list, parameters){
         contrast_asko[i,"context1"]<-contx1                                       # filling contrast data frame with the name of the 1st context
         contrast_asko[i,"context2"]<-contx2                                       # filling contrast data frame with the name of the 2nd context
         contrast_asko[i,"Contrast"]<-paste(contx1,contx2, sep = "vs")             # filling contrast data frame with the name of the contrast
-        for(j in seq_along(set_cond1)){                                            # for each condition contained in the complex context (1st):
+        for(j in seq_len(set_cond1)){                                            # for each condition contained in the complex context (1st):
           list_context<-append(list_context, contx1)                              # verification of the presence of values in each condition
           list_condition<-append(list_condition, set_cond1[j])                    # contained in the 1st context
         }
-        for(j in seq_along(set_cond2)){                                            # for each condition contained in the complex context (2nd):
+        for(j in seq_len(set_cond2)){                                            # for each condition contained in the complex context (2nd):
           list_context<-append(list_context, contx2)                              # verification of the presence of values in each condition
           list_condition<-append(list_condition, set_cond2[j])                    # contained in the 1st context
         }
@@ -575,7 +594,13 @@ asko3c <- function(data_list, parameters){
     for (contrast in colnames(data_list$contrast)){
       i=i+1
       contexts=limma::strsplit2(contrast,"vs")
-      contrast_asko[i,"Contrast"]<-contrast
+      if(parameters$projectName!="DEprj" && stringr::str_replace_all(parameters$projectName, " ", "")!=""){
+        contrast_asko[i,"Contrast"]<-paste0(parameters$projectName,"_",contrast)
+        contrast_asko[i,"Project"]<-parameters$projectName
+        contrast_asko[i,"Name"]<-contrast
+      }else{
+        contrast_asko[i,"Contrast"]<-contrast
+      }
       contrast_asko[i,"context1"]=contexts[1]
       contrast_asko[i,"context2"]=contexts[2]
       set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]>0]
@@ -600,11 +625,13 @@ asko3c <- function(data_list, parameters){
   asko<-list("condition"=condition_asko, "contrast"=contrast_asko, "context"=context_asko)                  # adding context data frame to asko object
   colnames(context_asko)[colnames(context_asko)=="context"]<-"Context"                                      # header formatting for askomics
   colnames(context_asko)[colnames(context_asko)=="condition"]<-"has@Condition"                              # header formatting for askomics
+  if(parameters$projectName!="DEprj" && stringr::str_replace_all(parameters$projectName, " ", "")!=""){
+    colnames(contrast_asko)[colnames(contrast_asko)=="Project"]<-paste("from", "Project", sep="@")          # header formatting for askomics
+  }
   colnames(contrast_asko)[colnames(contrast_asko)=="context1"]<-paste("context1_of", "Context", sep="@")    # header formatting for askomics
   colnames(contrast_asko)[colnames(contrast_asko)=="context2"]<-paste("context2_of", "Context", sep="@")    # header formatting for askomics
 
   # Files creation
-  #-------------------
   # creation of condition file for asko
   utils::write.table(data.frame("Condition"=row.names(condition_asko),condition_asko),
                      paste0(asko_dir,"condition.asko.txt"),
@@ -645,13 +672,13 @@ asko3c <- function(data_list, parameters){
 #'     filtered_counts<-GEfilt(data, parameters)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 GEfilt <- function(data_list, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   image_dir = paste0(study_dir, "DataExplore/")
 
   # plot density before filtering
-  #---------------------------------
   cpm<-edgeR::cpm(data_list$dge)
   logcpm<-edgeR::cpm(data_list$dge, log=TRUE)
   colnames(logcpm)<-rownames(data_list$dge$samples)
@@ -688,7 +715,6 @@ GEfilt <- function(data_list, parameters){
   grDevices::dev.off()
 
   # plot density after filtering
-  #---------------------------------
   keep.exprs <- rowSums(cpm>parameters$threshold_cpm)>=parameters$replicate_cpm
   filtered_counts <- data_list$dge[keep.exprs,,keep.lib.sizes=FALSE]
   filtered_cpm<-edgeR::cpm(filtered_counts$counts, log=TRUE)
@@ -719,7 +745,6 @@ GEfilt <- function(data_list, parameters){
   grDevices::dev.off()
 
   # histogram cpm values distribution before filtering
-  #------------------------------------------------------
   grDevices::png(paste0(image_dir,parameters$analysis_name,"_barplot_logcpm_before_filtering.png"), width=sizeImg, height=sizeImg)
   graphics::hist(logcpm,
                  main= "A. Log2(cpm) distribution before filtering",
@@ -728,7 +753,6 @@ GEfilt <- function(data_list, parameters){
   grDevices::dev.off()
 
   # histogram cpm values distribution after filtering
-  #------------------------------------------------------
   grDevices::png(paste0(image_dir,parameters$analysis_name,"_barplot_logcpm_after_filtering.png"), width=sizeImg, height=sizeImg)
   graphics::hist(filtered_cpm,
                  main= "B. Log2(cpm) distribution after filtering",
@@ -737,7 +761,6 @@ GEfilt <- function(data_list, parameters){
   grDevices::dev.off()
 
   # boxplot cpm values distribution before filtering
-  #------------------------------------------------------
   grDevices::png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_before_filtering.png"), width=sizeImg, height=sizeImg)
   graphics::par(oma=c(1,1,1,1))
   graphics::boxplot(logcpm,
@@ -749,7 +772,6 @@ GEfilt <- function(data_list, parameters){
   grDevices::dev.off()
 
   # boxplot cpm values distribution after filtering
-  #------------------------------------------------------
   grDevices::png(paste0(image_dir,parameters$analysis_name,"_boxplot_logcpm_after_filtering.png"), width=sizeImg, height=sizeImg)
   graphics::par(oma=c(1,1,1,1))
   graphics::boxplot(filtered_cpm,
@@ -760,8 +782,8 @@ GEfilt <- function(data_list, parameters){
                     ylab="log2(cpm)")
   grDevices::dev.off()
 
+
   # barplot count distribution before filtering
-  #------------------------------------------------------
   grDevices::png(paste0(image_dir,parameters$analysis_name,"_barplot_SumCounts_before_filtering.png"), width=sizeImg, height=sizeImg)
   graphics::par(oma=c(1,1,1,1),mar=c(7, 7, 4, 2), mgp=c(5,0.7,0))
   graphics::barplot(colSums(data_list$dge$counts),
@@ -774,7 +796,6 @@ GEfilt <- function(data_list, parameters){
   grDevices::dev.off()
 
   # barplot count distribution after filtering
-  #------------------------------------------------------
   grDevices::png(paste0(image_dir,parameters$analysis_name,"_barplot_SumCounts_after_filtering.png"), width=sizeImg, height=sizeImg)
   graphics::par(oma=c(1,1,1,1),mar=c(7, 7, 4, 2), mgp=c(5,0.7,0))
   graphics::barplot(colSums(filtered_counts$counts),
@@ -809,10 +830,12 @@ GEfilt <- function(data_list, parameters){
 #'     norm_GE<-GEnorm(filtered_counts, asko, parameters)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   image_dir = paste0(study_dir, "DataExplore/")
+  norm_dir  = paste0(study_dir, "NormCountsTables/")
 
   # for image size
   nsamples <- ncol(filtered_GE$counts)
@@ -822,11 +845,10 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
   # Normalization counts
   norm_GE<-edgeR::calcNormFactors(filtered_GE, method = parameters$normal_method)
   if(parameters$norm_factor == TRUE){
-    utils::write.table(norm_GE$samples, file=paste0(study_dir, parameters$analysis_name, "_normalization_factors.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
+    utils::write.table(norm_GE$samples, file=paste0(norm_dir, parameters$analysis_name, "_normalization_factors.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
   }
 
   # boxplot log2(cpm) values after normalization
-  #----------------------------------------------------
   logcpm_norm <- edgeR::cpm(norm_GE, log=TRUE)
   colnames(logcpm_norm)<-rownames(filtered_GE$samples)
 
@@ -845,12 +867,11 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
 
   # File with normalized counts
   if (parameters$norm_counts == TRUE){
-    utils::write.table(normCounts, file=paste0(study_dir, parameters$analysis_name, "_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
+    utils::write.table(normCounts, file=paste0(norm_dir, parameters$analysis_name, "_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
   }
 
 
   # barplot counts after normalization
-  #------------------------------------------------------
   grDevices::png(paste0(image_dir,parameters$analysis_name,"_barplot_SumCounts_after_norm.png"), width=sizeImg, height=sizeImg)
   graphics::par(oma=c(1,1,1,1),mar=c(7, 7, 4, 2), mgp=c(5,0.7,0))
   graphics::barplot(colSums(normCounts),
@@ -863,11 +884,9 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
   grDevices::dev.off()
 
   # heatmap visualisation
-  #----------------------------------------------------
   if(parameters$CompleteHeatmap==TRUE)
   {
     # heatmap cpm value per sample
-    #----------------------------------------------------
     cpm_norm  <- edgeR::cpm(norm_GE, log=FALSE)
     cpmscale  <- scale(t(cpm_norm))
     tcpmscale <- t(cpmscale)
@@ -887,7 +906,6 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
     grDevices::dev.off()
 
     # Normalized mean by conditions
-    #-------------------------------
     # heatmap mean counts per condition
     n_count <- NormCountsMean(norm_GE, ASKOlist = asko_list)
     countscale  <- scale(t(n_count))
@@ -910,12 +928,12 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
 
   # File with normalized counts in CPM by sample
   cpm_norm <- edgeR::cpm(norm_GE, log=FALSE)
-  utils::write.table(cpm_norm, file=paste0(study_dir, parameters$analysis_name, "_CPM_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
+  utils::write.table(cpm_norm, file=paste0(norm_dir, parameters$analysis_name, "_CPM_NormCounts.txt"), col.names=NA, row.names=TRUE, quote=FALSE, sep="\t", dec=".")
   # File with normalized mean counts in CPM, grouped by condition
   tempo<-as.data.frame(t(stats::aggregate(t(cpm_norm),list(data_list$samples$condition), mean)))
   colnames(tempo)<-tempo["Group.1",]
   meancpmDEGnorm<-tempo[-1,]
-  utils::write.table(meancpmDEGnorm,paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), sep="\t", dec=".", row.names=TRUE, col.names=NA, quote=FALSE)
+  utils::write.table(meancpmDEGnorm,paste0(norm_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), sep="\t", dec=".", row.names=TRUE, col.names=NA, quote=FALSE)
 
   return(norm_GE)
 }
@@ -941,9 +959,9 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
 #'     GEcorr(asko_norm,parameters)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 GEcorr <- function(asko_norm, parameters){
-  #library(ggfortify)
   options(warn = -1)
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   image_dir = paste0(study_dir, "DataExplore/")
@@ -957,7 +975,6 @@ GEcorr <- function(asko_norm, parameters){
   colnames(lcpm)<-rownames(asko_norm$samples)
 
   # Heatmap sample correlation
-  #-----------------------------
   cormat<-stats::cor(lcpm)
   color<-grDevices::colorRampPalette(c("black","red","yellow","white"),space="rgb")(35)
   grDevices::png(paste0(image_dir, parameters$analysis_name, "_heatmap_of_sample_correlation.png"), width=sizeImg, height=sizeImg)
@@ -967,20 +984,20 @@ GEcorr <- function(asko_norm, parameters){
   graphics::title("Sample Correlation Matrix", adj=0.5, outer=TRUE)
   grDevices::dev.off()
 
+  # Correlogram
   corr<-stats::cor(edgeR::cpm(asko_norm, log=FALSE))
   minCorr=min(corr)
   maxCorr=max(corr)
   grDevices::png(paste0(image_dir, parameters$analysis_name, "_correlogram.png"), width=sizeImg, height=sizeImg)
-  corrplot(corr, method="ellipse", type = "lower", tl.col = "black", tl.srt = 45, is.corr = FALSE, cl.lim=c(minCorr,maxCorr))
-  #corrplot.mixed(corr, lower = "number", upper = "ellipse", tl.col = "black",is.corr = FALSE, cl.lim=c(minCorr,maxCorr))
+  corrplot::corrplot(corr, method="ellipse", type = "lower", tl.col = "black", tl.srt = 45, is.corr = FALSE, cl.lim=c(minCorr,maxCorr),col=RColorBrewer::brewer.pal(n=8, name="RdBu"))
   graphics::title("Sample Correlogram", adj=0.5)
   grDevices::dev.off()
 
   # MDS Plot
-  #-----------------------------
   mds <- stats::cmdscale(stats::dist(t(lcpm)),k=3, eig=TRUE)
   eigs<-round((mds$eig)*100/sum(mds$eig[mds$eig>0]),2)
   dfmds<-as.data.frame(mds$points)
+
   # Axe 1 and 2
   grDevices::png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_2.png"), width=sizeImg*1.25, height=sizeImg*1.25)
   mds1<-ggplot2::ggplot(dfmds, ggplot2::aes(dfmds$V1, dfmds$V2, label=rownames(mds$points))) + ggplot2::labs(title="MDS Axes 1 and 2") +
@@ -1000,6 +1017,7 @@ GEcorr <- function(asko_norm, parameters){
     ggplot2::theme(legend.position="bottom",legend.direction="vertical",legend.margin=ggplot2::margin(5,5,5,5),legend.box.margin=ggplot2::margin(10,10,10,10))
   print(mds1)
   grDevices::dev.off()
+
   # Axe 2 and 3
   grDevices::png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe2_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
   mds2<-ggplot2::ggplot(dfmds, ggplot2::aes(dfmds$V2, dfmds$V3, label = rownames(mds$points))) + ggplot2::labs(title="MDS Axes 2 and 3") +
@@ -1019,6 +1037,7 @@ GEcorr <- function(asko_norm, parameters){
     ggplot2::theme(legend.position="bottom",legend.direction="vertical",legend.margin=ggplot2::margin(5,5,5,5),legend.box.margin=ggplot2::margin(10,10,10,10))
   print(mds2)
   grDevices::dev.off()
+
   # Axe 1 and 3
   grDevices::png(paste0(image_dir, parameters$analysis_name, "_MDS_corr_axe1_3.png"), width=sizeImg*1.25, height=sizeImg*1.25)
   mds3<-ggplot2::ggplot(dfmds, ggplot2::aes(dfmds$V1, dfmds$V3, label = rownames(mds$points))) + ggplot2::labs(title="MDS Axes 1 and 3") +
@@ -1040,7 +1059,6 @@ GEcorr <- function(asko_norm, parameters){
   grDevices::dev.off()
 
   # PCA
-  #-----------------------------
   lcpm2=as.data.frame(t(lcpm))
   lcpm3=lcpm2
   lcpm3$cond=asko_norm$samples$condition
@@ -1100,8 +1118,8 @@ GEcorr <- function(asko_norm, parameters){
   grDevices::dev.off()
 
   # hierarchical clustering
-  #-----------------------------
-  mat.dist <- stats::dist(t(asko_norm$counts), method = parameters$distcluts)
+  #mat.dist <- stats::dist(t(asko_norm$counts), method = parameters$distcluts) CENE SONT PAS LES COMPTAGES NORMALISES !!! => ERREUR !
+  mat.dist <- stats::dist(t(edgeR::cpm(asko_norm)), method = parameters$distcluts)
   clustering <- stats::hclust(mat.dist, method=parameters$hclust)
   grDevices::png(paste0(image_dir, parameters$analysis_name, "_hclust.png"), width=sizeImg, height=sizeImg)
   graphics::par(oma=c(1,1,1,1))
@@ -1137,13 +1155,13 @@ GEcorr <- function(asko_norm, parameters){
 #'    plot_glimma(fit, normGE, resDE, contrast, "VO", parameters)  # volcano plot
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
-  image_dir = paste0(study_dir, "DEanalysis/Images/")
+  image_dir = paste0(study_dir, "DEanalysis/DEimages/")
 
   # Mean-Difference Plot
-  #--------------------------
   if(tplot=="MD"){
     if (is.null(normGE$samples$color)==TRUE){
       suppressWarnings(Glimma::glMDPlot(fit, status=resDE[,contrast], counts=normGE, group=normGE$samples$condition,
@@ -1158,15 +1176,18 @@ plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
   }
 
   # Volcano plot
-  #--------------------------
   if (tplot=="VO"){
+    tmpfit<-fit$table
     if (is.null(normGE$samples$color)==TRUE){
-      Glimma::glXYPlot(x=fit$table$logFC, y=-log10(fit$table$PValue), status=resDE[,contrast], counts=normGE,
+      tmpfit$PValue[tmpfit$PValue==0]<-1e-300
+      Glimma::glXYPlot(x=tmpfit$logFC, y=-log10(tmpfit$PValue), status=resDE[,contrast], counts=normGE,
                        group=normGE$samples$condition, xlab="Log2FoldChange", ylab="-log10(pvalue)", main=contrast,
                        launch=FALSE, folder=paste0(image_dir, "Glimma_Plots"), html=paste0("Volcano_",contrast))
     }
     else{
-      Glimma::glXYPlot(x=fit$table$logFC, y=-log10(fit$table$PValue), status=resDE[,contrast], counts=normGE, main=contrast,
+      tmpfit<-fit$table
+      tmpfit$PValue[fit$table$PValue==0]<-1e-300
+      Glimma::glXYPlot(x=tmpfit$logFC, y=-log10(tmpfit$PValue), status=resDE[,contrast], counts=normGE, main=contrast,
                        group=normGE$samples$condition, xlab="Log2FoldChange", ylab="-log10(pvalue)", launch=FALSE,
                        sample.cols=normGE$samples$color, folder=paste0(image_dir, "Glimma_Plots"), html=paste0("Volcano_",contrast))
     }
@@ -1198,10 +1219,11 @@ plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
 #'    plot_expr(fit, normGE, resDE, contrast, "VO", parameters)  # volcano plot
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 plot_expr <- function(fit, normGE, resDE, contrast, tplot, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
-  image_dir = paste0(study_dir, "DEanalysis/Images/")
+  image_dir = paste0(study_dir, "DEanalysis/DEimages/")
 
 
 
@@ -1217,12 +1239,16 @@ plot_expr <- function(fit, normGE, resDE, contrast, tplot, parameters){
   if(tplot=="VO"){
     tglm<-fit$table
     tglm$FDR<-stats::p.adjust(tglm$PValue, method=parameters$p_adj_method)
+    tglm$PValue[tglm$PValue==0]<-1e-300
+
     grDevices::png(paste0(image_dir, contrast, "_VolcanoPlot.png"))
     with(tglm, plot(tglm$logFC, -log10(tglm$PValue), pch=16, cex=0.5, xlim=c(min(tglm$logFC)-0.5, max(tglm$logFC)+0.5),
                     ylim=c(min(-log10(tglm$PValue))-0.5, max(-log10(tglm$PValue))+0.5),
                     main=paste0("Volcano plot - ", contrast), xlab="Log2FoldChange", ylab="-log10(pvalue)"))
-    with(subset(tglm, tglm$FDR <= parameters$threshold_FDR & tglm$logFC >  parameters$threshold_logFC), graphics::points(logFC, -log10(PValue), pch=16, cex=0.5, col="red"))
-    with(subset(tglm, tglm$FDR <= parameters$threshold_FDR & tglm$logFC < -parameters$threshold_logFC), graphics::points(logFC, -log10(PValue), pch=16, cex=0.5, col="blue"))
+    subset1 <- subset(tglm, tglm$FDR <= parameters$threshold_FDR & tglm$logFC >  parameters$threshold_logFC)
+    with(subset1, graphics::points(subset1$logFC, -log10(subset1$PValue), pch=16, cex=0.5, col="red"))
+    subset2 <- subset(tglm, tglm$FDR <= parameters$threshold_FDR & tglm$logFC < -parameters$threshold_logFC)
+    with(subset2, graphics::points(subset2$logFC, -log10(subset2$PValue), pch=16, cex=0.5, col="blue"))
     grDevices::dev.off()
   }
 }
@@ -1250,6 +1276,7 @@ plot_expr <- function(fit, normGE, resDE, contrast, tplot, parameters){
 #'     n_count<-NormCountsMean(glmfit, ASKOlist, context=NULL)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 NormCountsMean <- function(glmfit, ASKOlist, context=NULL){
   lib_size_norm<-glmfit$samples$lib.size*glmfit$samples$norm.factors                          # normalization computation of all library sizes
@@ -1302,28 +1329,32 @@ NormCountsMean <- function(glmfit, ASKOlist, context=NULL){
 #' @param contrast, coefficient/contrast names tested.
 #' @param ASKOlist, list of data.frame contain condition, contrast and context informations made by asko3c.
 #' @param dge, large DGEList with normalized counts by GEnorm function.
+#' @param data_list, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations).
 #' @param parameters, list that contains all arguments charged in Asko_start.
 #' @return none
 #'
 #' @examples
 #' \dontrun{
-#'     AskoStats(glm_test, fit, contrast, ASKOlist, dge, parameters)
+#'     AskoStats(glm_test, fit, contrast, ASKOlist, dge, data_list, parameters)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
-AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
-  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
+AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, data_list, parameters){
+  study_dir = paste0(parameters$dir_path,"/",parameters$analysis_name,"/")
   asko_dir = paste0(study_dir, "DEanalysis/AskoTables/")
-  image_dir = paste0(study_dir, "DEanalysis/Images/")
+  image_dir = paste0(study_dir, "DEanalysis/DEimages/")
+  table_dir = paste0(study_dir, "DEanalysis/DEtables/")
+  norm_dir  = paste0(study_dir, "NormCountsTables/")
 
   contrasko<-ASKOlist$contrast$Contrast[row.names(ASKOlist$contrast)==contrast]   # to retrieve the name of contrast from Asko object
   contx1<-ASKOlist$contrast$context1[row.names(ASKOlist$contrast)==contrast]      # to retrieve the name of 1st context from Asko object
   contx2<-ASKOlist$contrast$context2[row.names(ASKOlist$contrast)==contrast]      # to retrieve the name of 2nd context from Asko object
+  DETable=ASKOlist
 
   ASKO_stat<-glm_test$table
-  ASKO_stat$Test_id<-paste(contrasko, rownames(ASKO_stat), sep = "_")             # addition of Test_id column = unique ID
   ASKO_stat$contrast<-contrasko                                                   # addition of the contrast of the test
-  ASKO_stat$gene <- row.names(ASKO_stat)                                          # addition of gene column = gene ID
+  ASKO_stat$gene<-row.names(ASKO_stat)                                            # addition of gene column = gene ID
   ASKO_stat$FDR<-stats::p.adjust(ASKO_stat$PValue, method=parameters$p_adj_method)       # computation of False Discovery Rate
 
   # Between context1 and context2 :
@@ -1339,29 +1370,74 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
 
   if(parameters$Expression==TRUE){colg="Expression"}else{colg=NULL}
   if(parameters$logFC==TRUE){cola="logFC"}else{cola=NULL}
-  # computation of Fold Change from log2FC
   if(parameters$FC==TRUE){colb="FC";ASKO_stat$FC <- 2^abs(ASKO_stat$logFC)}else{colb=NULL}
   if(parameters$Sign==TRUE){colc="Significance"}
   if(parameters$logCPM==TRUE){cold="logCPM"}else{cold=NULL}
   if(parameters$LR==TRUE){cole="LR"}else{cole=NULL}
   if(parameters$FDR==TRUE){colf="FDR"}else{colf=NULL}
-
-  # adding table "stat.table" to the ASKOlist
-  ASKOlist$stat.table<-ASKO_stat[,c("Test_id","contrast","gene",cola,colb,"PValue",colg,colc,cold,cole,colf)]
-
-  if(parameters$mean_counts==TRUE){                         # computation of the mean of normalized counts for conditions
-    mean1<-NormCountsMean(fit, ASKOlist, contx1)            # in the 1st context
-    mean2<-NormCountsMean(fit, ASKOlist, contx2)            # in the 2nd context
-    ASKOlist$stat.table<-cbind(ASKOlist$stat.table, mean1)
-    ASKOlist$stat.table<-cbind(ASKOlist$stat.table, mean2)
+  if(parameters$projectName!="DEprj" && stringr::str_replace_all(parameters$projectName, " ", "")!=""){
+    colp="Project"
+    ASKO_stat$Project<-parameters$projectName
+    ASKO_stat$contrast2<-paste0(contx1, "vs", contx2)
+    ASKO_stat$Test_id<-paste0(contx1, "vs", contx2, "_", rownames(ASKO_stat))
+  }else{
+    colp=NULL
+    ASKO_stat$contrast2<-contrasko
+    ASKO_stat$Test_id<-paste(contrasko, rownames(ASKO_stat), sep = "_")
   }
+
+
+  # adding table "stat.table" to the ASKOlist and DETable
+  ASKOlist$stat.table<-ASKO_stat[,c("Test_id",colp,"contrast","gene",cola,colb,"PValue",colg,colc,cold,cole,colf)]
+  DETable$stat.table<-ASKO_stat[,c("gene","contrast2",colp,colg,colc,"PValue",cola,colb,colf,cold,cole)]
+
+  # Norm Mean Counts in DEtables
+  #allElem<-rownames(which(data_list$contrast[contrast]!=0,arr.ind=TRUE)) #changé par la ligne suivante le 201220022 car allElem contenait les nom des conditions à la place des noms des contextes !!! Or il faut des noms de contexte pour que la fonction NormCountsMean fonctionne correctement
+  allContext <- c(contx1,contx2)
+  #for(contx in allElem){
+  for(contx in allContext){
+    mean<-NormCountsMean(fit, DETable, contx)
+    #colnames(mean)<-paste0(contx,"_NormMeanCount") #remplacé car on veut bien ici les noms des conditions correspondantes aux conditions dans les contextes
+    colnames(mean)<-paste0(ASKOlist$context$condition[ASKOlist$context$context==contx],"_NormMeanCount")
+    DETable$stat.table<-cbind(DETable$stat.table, mean)
+  }
+
+
+
+  # CPM Norm Mean Count in DEtables
+  moys<-utils::read.csv(paste0(norm_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
+  rnames<-row.names(DETable$stat.table)                 # get Genes DE names
+  allElem<-rownames(which(data_list$contrast[contrast]!=0,arr.ind=TRUE))
+  CpmNMC<-as.matrix(moys[rnames,allElem])               # get cpm norm mean count for each genes DE
+  rownames(CpmNMC)<-rnames
+  colnames(CpmNMC)<-paste0(colnames(CpmNMC),"_CPMnormMeanCount")
+  DETable$stat.table<-cbind(DETable$stat.table, CpmNMC) # merge the two matrix
+
+  # Annotation Genes in DEtables
+  if(is.null(parameters$annotation)==FALSE)
+  {
+    rnames<-row.names(DETable$stat.table)                # get Genes DE names
+    annDE<-as.matrix(data_list$annot[rnames,])           # get annotations for each genes DE
+    rownames(annDE)<-rnames
+    colnames(annDE)<-colnames(data_list$annot)
+    DETable$stat.table<-cbind(DETable$stat.table, annDE) # merge the two matrix
+  }
+
   print(table(ASKO_stat$Expression))
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="gene"] <- paste("is", "gene", sep="@")                  # header formatting for askomics
+  if(parameters$projectName!="DEprj" && stringr::str_replace_all(parameters$projectName, " ", "")!=""){
+    colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="Project"] <- paste("from", "Project", sep="@")        # header formatting for askomics
+  }
   colnames(ASKOlist$stat.table)[colnames(ASKOlist$stat.table)=="contrast"] <- paste("measured_in", "Contrast", sep="@") # header formatting for askomics
   o <- order(ASKOlist$stat.table$FDR)                                                                                   # ordering genes by FDR value
   ASKOlist$stat.table<-ASKOlist$stat.table[o,]
 
-  utils::write.table(ASKOlist$stat.table,paste0(asko_dir, parameters$organism, "_", contrasko, ".txt"), sep=parameters$sep, col.names = TRUE, row.names = FALSE, quote=FALSE)
+  o <- order(DETable$stat.table$FDR)                                                                                   # ordering genes by FDR value
+  DETable$stat.table<-DETable$stat.table[o,]
+  colnames(DETable$stat.table)[colnames(DETable$stat.table)=="contrast2"] <- "contrast"
+
+  utils::write.table(ASKOlist$stat.table,paste0(asko_dir, "Asko_", contrasko, ".txt"), sep=parameters$sep, col.names = TRUE, row.names = FALSE, quote=FALSE)
+  utils::write.table(DETable$stat.table,paste0(table_dir, contrasko, ".txt"), sep=parameters$sep, col.names = TRUE, row.names = FALSE, quote=FALSE)
 
   # for image size
   nsamples<-ncol(dge$counts)
@@ -1405,15 +1481,20 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, parameters){
 #'     sum_table<-DEanalysis(norm_GE, data_list, asko_list, parameters)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
-  image_dir = paste0(study_dir, "DEanalysis/Images/")
+  image_dir = paste0(study_dir, "DEanalysis/DEimages/")
+  table_dir = paste0(study_dir, "DEanalysis/DEtables/")
 
   # for image size
   nsamples <- ncol(data_list$dge$counts)
   sizeImg=15*nsamples
   if(sizeImg < 480){ sizeImg=480 }
+
+  # prevent error
+  if(parameters$glm=="qlf"){ parameters$LR = FALSE }
 
   # Checks Contrasts
   if(is.null(parameters$select_sample) & is.null(parameters$rm_sample)){
@@ -1463,6 +1544,8 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
     grDevices::dev.off()
   }
 
+
+
   # data frame combine all status genes results for summary file
   sum<-data.frame(row.names = rownames(fit))
   sum2=list()
@@ -1479,7 +1562,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
       glm_test<-glmQLFTest(fit, contrast=contrast)
     }
     sum[,colnames(contrast)]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC, p.value=parameters$threshold_FDR)
-    AskoStats(glm_test, fit, colnames(contrast), asko_list, normGEdisp, parameters)
+    AskoStats(glm_test, fit, colnames(contrast), asko_list, normGEdisp, data_list, parameters)
 
     # display grahes (volcano or/and MD)
     if(parameters$plotMD==TRUE) { plot_expr(glm_test, normGEdisp, sum, colnames(contrast), "MD", parameters) }
@@ -1499,7 +1582,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
         glm_test<-glmQLFTest(fit, contrast=data_list$contrast[,contrast])
       }
       sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC, p.value=parameters$threshold_FDR)
-      AskoStats(glm_test, fit, contrast, asko_list, normGEdisp, parameters)
+      AskoStats(glm_test, fit, contrast, asko_list, normGEdisp, data_list, parameters)
 
       # display grahes (volcano or/and MD)
       if(parameters$plotMD==TRUE) { plot_expr(glm_test, normGEdisp, sum, contrast, "MD", parameters) }
@@ -1510,9 +1593,8 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   }
 
   # Create summary file with annotations (if available) and contrast value for each gene
-  #---------------------------------------------------------------------------------------
   cat("\nCreate Summary file\n\n")
-  sumFile<-paste0(study_dir,"DEanalysis/",parameters$analysis_name,"_summary_DE.txt")
+  sumFile<-paste0(table_dir,"Summary_DEresults.txt")
   if(is.null(data_list$annot)==FALSE)
   {
     rnames<-row.names(sum)                        # get Genes DE names
@@ -1550,6 +1632,7 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
 #'    UpSetGraph(sumDEG, data_list, parameters)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 UpSetGraph <- function(resDEG, data_list, parameters){
   options(warn = -1)
@@ -1561,7 +1644,6 @@ UpSetGraph <- function(resDEG, data_list, parameters){
   }
 
   # Global UpsetR
-  #---------------------------------------------------------------------------------------
   if(is.null(parameters$upset_basic)==FALSE){
 
     # created directory
@@ -1681,7 +1763,6 @@ UpSetGraph <- function(resDEG, data_list, parameters){
   }
 
   # Multiple graphs UpSetR
-  #---------------------------------------------------------------------------------------
   if(is.null(parameters$upset_type)==TRUE && is.null(parameters$upset_list)==FALSE){
     warning("For Subset chart: upset_type must be not empty.\n", immediate.=TRUE, call.=FALSE)
   }
@@ -1714,7 +1795,7 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for all Differentially Expressed Genes
           if(length(compa)<=6){tsc=2}else{tsc=1.45}
-          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_allDEG.png"), width=1280, height=1024)
+          grDevices::png(paste0(subset_dir,comparaison,"_allDEG.png"), width=1280, height=1024)
           print(UpSetR::upset(data=ordDEG, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
           grid::grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
           grDevices::dev.off()
@@ -1738,7 +1819,7 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for Down Expressed Genes
           if(length(compa)<=6){tsc=2}else{tsc=1.45}
-          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_upDEG.png"), width=1280, height=1024)
+          grDevices::png(paste0(subset_dir,comparaison,"_upDEG.png"), width=1280, height=1024)
           print(UpSetR::upset(data=ordDEG, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
           grid::grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
           grDevices::dev.off()
@@ -1763,7 +1844,7 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for Down Expressed Genes
           if(length(newcompa)<=6){tsc=2}else{tsc=1.45}
-          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_downDEG.png"), width=1280, height=1024)
+          grDevices::png(paste0(subset_dir,comparaison,"_downDEG.png"), width=1280, height=1024)
           print(UpSetR::upset(data=ordDEG, sets=rev(newcompa), nsets=length(newcompa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
           grid::grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
           grDevices::dev.off()
@@ -1801,7 +1882,7 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for Up and Down Expressed Genes
           if(length(sets)<=6){tsc=2}else{tsc=1.25}
-          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_mixedDEG.png"), width=1280, height=1024)
+          grDevices::png(paste0(subset_dir,comparaison,"_mixedDEG.png"), width=1280, height=1024)
           print(UpSetR::upset(data=ordDEG, sets=rev(sets), nsets=length(sets), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
                               text.scale = tsc, set.metadata = list(data = metadata,
                                                                     plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
@@ -1827,6 +1908,7 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 #'    VD(resDEG, parameters, asko_list)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 VD <- function(resDEG, parameters, asko_list){
   options(warn = -1)
@@ -1847,7 +1929,7 @@ VD <- function(resDEG, parameters, asko_list){
   # don't write log file
   futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
 
-  cat("\nCreated VennDiagrams ")
+  cat("Created VennDiagrams ")
   if(parameters$VD == "all"){
     cat("for all differentially expressed genes.\n")
     for(comparaison in parameters$compaVD){
@@ -1986,10 +2068,10 @@ VD <- function(resDEG, parameters, asko_list){
 #' terms can be implemented and applied.
 #'
 #' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
-#' @param data, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations).
+#' @param data_list, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations).
 #' @param parameters, list that contains all arguments charged in Asko_start.
-#' @param list, gene list of interest if you want to apply GOenrichment function on a specific gene list
-#' @param title, name of the gene list if you want to apply GOenrichment function on a specific gene list
+#' @param list, gene list of interest if you want to apply GOenrichment function on a specific gene list.
+#' @param title, name of the gene list if you want to apply GOenrichment function on a specific gene list.
 #' @return none.
 #'
 #' @import topGO
@@ -1998,21 +2080,27 @@ VD <- function(resDEG, parameters, asko_list){
 #'
 #' @examples
 #' \dontrun{
-#'    GOenrichment(resDEG, data, parameters, list, title)
+#'    GOenrichment(resDEG, data_list, parameters)
+#'    # OR
+#'    GOenrichment(resDEG, data_list, parameters, list, title)
+#'    # OR
+#'    GOenrichment(resDEG, data_list, parameters, list=NULL, title=NULL)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   input_path = paste0(parameters$dir_path, "/input/")
-  GO_dir  = paste0(study_dir, "/GOenrichment/")
+  norm_dir = paste0(study_dir, "NormCountsTables/")
+  GO_dir = paste0(study_dir, "/GOenrichment/")
   if(dir.exists(GO_dir)==FALSE){
     dir.create(GO_dir)
     cat("\n\nDirectory: ",GO_dir," created\n")
   }
 
   # Get GO annotations
-  geneID2GO <- readMappings(file = paste0(input_path,parameters$geneID2GO_file))
+  geneID2GO <- topGO::readMappings(file = paste0(input_path,parameters$geneID2GO_file))
   geneNames <- names(geneID2GO)
 
   if (is.null(list) == FALSE){
@@ -2033,15 +2121,12 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
     GeneListName = colnames(data_list$contrast)
   }
 
-
   for(contrast in GeneListName){
-
 
     if (is.null(list) == TRUE){
       if(is.null(parameters$GO)==TRUE){ return(NULL) }
 
       if(parameters$GO == "both"){
-        #print(contrast)
         geneSelected <- rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x!=0)),])
         titlename<-"all differentially expressed genes (up+down)"
       }else if(parameters$GO == "up"){
@@ -2084,21 +2169,20 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
                              allGenes = geneList,
                              annot = annFUN.gene2GO,
                              gene2GO = geneID2GO)
-      #print(GOdata)
 
-      resultTest <- runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
+      resultTest <- topGO::runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
       #print(resultTest)
 
-      resGenTab <- GenTable(GOdata, numChar = 1000000, statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(graph::nodes(graph(GOdata))) )
+      resGenTab <- topGO::GenTable(GOdata, numChar = 1000000, statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(graph::nodes(graph(GOdata))) )
       resGenTab$Ratio = as.numeric(as.numeric(resGenTab$Significant)/as.numeric(resGenTab$Expected))
       resGenTab$GO_cat <- ontology
 
       if (is.null(parameters$annotation)==FALSE){
-        annot<-read.csv(paste0(input_path, parameters$annotation), header = T, row.names = 1, sep = '\t', quote = "")
+        annot<-utils::read.csv(paste0(input_path, parameters$annotation), header = TRUE, row.names = 1, sep = '\t', quote = "")
       }
 
       # import normalized MEAN counts in CPM
-      moys<-read.csv(paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
+      moys<-utils::read.csv(paste0(norm_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
       moys = as.matrix(moys)
 
       # Create files of genes for each enrichied GO
@@ -2108,8 +2192,8 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
         cat("\nAskoR is saving one file per enriched GO-term (category ", ontology, ").\n")
         mygenes <- genesInTerm(GOdata, myterms)
         noms=names(mygenes)
-        nomss=str_replace(noms,":","_")
-        for (z in 1:length(mygenes)){
+        nomss=stringr::str_replace(noms,":","_")
+        for (z in seq_len(length(mygenes))){
           listes=mygenes[[z]][mygenes[[z]] %in% geneSelected == TRUE]
           GOtab <- data.frame(Gene=listes)
           #GOtab$Gene_cluster = clustered
@@ -2117,7 +2201,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
           if (is.null(parameters$annotation)==FALSE){
             GOtab = merge(GOtab, annot, by="row.names")
             GOtab = GOtab[,-1]
-            GOtab = GOtab[,1:2]
+            GOtab = GOtab[,seq_len(2)]
             colnames(GOtab)[2] <- "Gene_description"
             rownames(GOtab)=GOtab$Gene
           }
@@ -2132,12 +2216,9 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
           GOtab$GO_ID = noms[z]
           GOtab$GO_term = resGenTab[which(resGenTab$GO.ID==noms[z]),2]
           GOtab$GO_cat = resGenTab[which(resGenTab$GO.ID==noms[z]),8]
-          utils::write.table(GOtab,paste0(img_GOtoGene_dir, ontology, "_", nomss[z],".txt"), sep="\t", dec=".", row.names = FALSE, col.names = TRUE, quote=FALSE)
+          utils::write.table(GOtab,paste0(img_GOtoGene_dir, ontology, "_", nomss[z],".txt"), sep="\t", dec=".", row.names=FALSE, col.names=TRUE, quote=FALSE)
         }
       }
-
-
-
 
       if(ontology == "MF"){
         TabCompl<-resGenTab
@@ -2147,10 +2228,10 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
           maxi<-parameters$GO_max_top_terms
           TabSigCompl<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,]
           if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
-          TabSigCompl<-TabSigCompl[1:maxi,]
+          TabSigCompl<-TabSigCompl[seq_len(maxi),]
         }else{
           cat("\n\n->",contrast," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
-          TabSigCompl<-as.data.frame(setNames(replicate(8,numeric(0), simplify = F),c("GO.ID","Term","Annotated","Significant","Expected","statisticTest","Ratio","GO_cat") ))
+          TabSigCompl<-as.data.frame(stats::setNames(replicate(8,numeric(0), simplify=FALSE),c("GO.ID","Term","Annotated","Significant","Expected","statisticTest","Ratio","GO_cat") ))
         }
 
       }else{
@@ -2161,13 +2242,12 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
           maxi<-parameters$GO_max_top_terms
           tempSig<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,]
           if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
-          TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
+          TabSigCompl=rbind(TabSigCompl,tempSig[seq_len(maxi),])
         }else{
           cat("\n\n->",contrast," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
         }
 
       }
-
 
       ## Bargraph in each GO cat separately (ratio, pval, and number of genes)
       GoCoul="gray"
@@ -2181,11 +2261,12 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
 
       if(exists("TabSigCompl")==TRUE){
         if(nrow(TabSigCompl[TabSigCompl$GO_cat==ontology,])>=1){
-          ggplot(TabSigCompl[TabSigCompl$GO_cat==ontology,], aes(x=stringr::str_wrap(Term, 55), y=Ratio,fill=-1*log10(as.numeric(statisticTest)))) +
+          TabOntology<-TabSigCompl[TabSigCompl$GO_cat==ontology,]
+          ggplot2::ggplot(TabOntology, aes(x=stringr::str_wrap(TabOntology$Term, 55), y=TabOntology$Ratio,fill=-1*log10(as.numeric(TabOntology$statisticTest)))) +
             coord_flip()+
             geom_col()+
             theme_classic()+
-            geom_text(aes(label=Significant), position=position_stack(0.5),color="white")+
+            geom_text(aes(label=TabOntology$Significant), position=position_stack(0.5),color="white")+
             scale_fill_gradient(name="-log10pval",low=GoCoul,high=paste0(GoCoul,"4"))+
             scale_y_reverse()+
             labs(title = GraphTitle0, x="GOterm", y="Ratio Significant / Expected") +
@@ -2199,12 +2280,9 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
               plot.title = element_text(face="bold",size=15),
               legend.text = element_text(size=12),
               panel.background = element_rect(colour = "black", size=0.5, fill=NA))
-          ggsave(filename=paste0(img_go_dir,contrast,"_",ontology,"_GOgraph.png"),width=10, height = 8)
+          ggplot2::ggsave(filename=paste0(img_go_dir,contrast,"_",ontology,"_GOgraph.png"),width=10, height = 8)
         }
       }
-
-
-
     }
     TabCompl<-TabCompl[TabCompl$Significant > 0,]
     utils::write.table(TabCompl, file=paste0(img_go_dir, parameters$analysis_name, "_", contrast, "_Complet_GOenrichment.txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
@@ -2233,11 +2311,11 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
         }
 
         # Ratio Graph
-        ggplot(TabSigCompl, aes(x=Ratio, y=Term, size=Significant, color=GO_cat)) +
+        ggplot2::ggplot(TabSigCompl, aes(x=TabSigCompl$Ratio, y=TabSigCompl$Term, size=TabSigCompl$Significant, color=TabSigCompl$GO_cat)) +
           geom_point(alpha=1) +
           labs(title = GraphTitle, x="Ratio Significant/Expected", y="GOterm")+
           scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
-          facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
+          facet_grid(TabSigCompl$GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
           scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minR)) +
           scale_y_discrete(labels = function(x) stringr::str_wrap(x, width = 70)) + theme_linedraw() +
           theme(
@@ -2250,13 +2328,13 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
             legend.title = element_text(size=rel(0.75), face="bold"),
             plot.title = element_text(face="bold", size=rel(1), hjust=1),
             legend.text = element_text(size=rel(0.5)))
-        ggsave(filename=paste0(img_go_dir,contrast,"_Ratio_BUBBLESgraph.png"), width=7, height=7)
+        ggplot2::ggsave(filename=paste0(img_go_dir,contrast,"_Ratio_BUBBLESgraph.png"), width=7, height=7)
 
         # Pvalue Graph
-        ggplot(TabSigCompl, aes(x=as.numeric(statisticTest), y=Term, size=Significant, color=GO_cat)) +
+        ggplot2::ggplot(TabSigCompl, aes(x=as.numeric(TabSigCompl$statisticTest), y=TabSigCompl$Term, size=TabSigCompl$Significant, color=TabSigCompl$GO_cat)) +
           geom_point(alpha=1) + labs(title = GraphTitle,x="Pvalue",y="GOterm")+
           scale_color_manual(values=coul,labels=comp_names,name="GO categories")+
-          facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2))+
+          facet_grid(TabSigCompl$GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2))+
           scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minP)) +
           scale_y_discrete(labels = function(x) stringr::str_wrap(x, width = 70)) + theme_linedraw() +
           theme(
@@ -2269,7 +2347,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
             legend.title = element_text(size=rel(0.75), face="bold"),
             plot.title = element_text(face="bold", size=rel(1), hjust=1),
             legend.text = element_text(size=rel(0.5)))
-        ggsave(filename=paste0(img_go_dir,contrast,"_Pvalue_BUBBLESgraph.png"), width=7, height=7)
+        ggplot2::ggsave(filename=paste0(img_go_dir,contrast,"_Pvalue_BUBBLESgraph.png"), width=7, height=7)
       }
     }else{
       cat("\n\nToo few results to display the graph.\n\n")
@@ -2298,14 +2376,25 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
 #' @param title, name of the gene list if you want to apply ClustAndGO function on a specific gene list
 #' @return clust, data frame with clusters of each gene
 #'
-#' @example
+#' @import topGO
+#' @import goSTAG
+#' @import tidyverse
+#' @import Rgraphviz
+#' @import gghalves
+#' @import ggplot2
+#'
+#' @examples
 #' \dontrun{
+#'    clust<-ClustAndGO(asko_norm, resDEG, parameters, data)
+#'    # OR
 #'    clust<-ClustAndGO(asko_norm, resDEG, parameters, data, list, title)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NULL){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
+  norm_dir = paste0(study_dir, "NormCountsTables/")
 
   CLUST_dir  = paste0(study_dir, "/Clustering/")
   if(dir.exists(CLUST_dir)==FALSE){
@@ -2336,13 +2425,11 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
   if(sizeImg < 1024){ sizeImg=1024 }
 
   # import normalized MEAN counts in CPM
-  moys<-read.csv(paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
+  moys<-utils::read.csv(paste0(norm_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
   moys = as.matrix(moys)
 
   # import normalized counts (all samples) in CPM
-  object=read.csv(paste0(study_dir, parameters$analysis_name,"_CPM_NormCounts.txt"), header=TRUE, sep="\t", row.names=1)
-
-
+  object=utils::read.csv(paste0(norm_dir, parameters$analysis_name,"_CPM_NormCounts.txt"), header=TRUE, sep="\t", row.names=1)
 
   if (is.null(list) == TRUE){
     # keep only DE genes in at least "coseq_ContrastsThreshold" contrasts
@@ -2366,34 +2453,39 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
 
   conds=asko_norm$samples$condition
 
-  ###############
   ## run coseq ##
-  ###############
-  library("coseq")
-
-  if (parameters$coseq_ClustersNb > 25){
-    detach("package:coseq")
-    stop("TOO MANY CLUSTERS : Please set parameters$coseq_ClustersNb to default or under 25")
+  if (length(parameters$coseq_ClustersNb)== 1){
+    if (parameters$coseq_ClustersNb > 25){
+      stop("TOO MANY CLUSTERS : Please set parameters$coseq_ClustersNb to default or under 26")
+  }
+  }
+  else{
+    if (length(parameters$coseq_ClustersNb) > 25) {
+      stop("TOO MANY CLUSTERS : Please set parameters$coseq_ClustersNb to default or under a vector length of 26")
+    }
   }
 
   if (parameters$coseq_data == 'LogScaledData' & parameters$coseq_transformation != 'none' ){
-    detach("package:coseq")
     stop("WRONG TRANSFORMATION CHOSEN  : You try to cluster data already transformed in log2+1. So you don't want to cluster transformed expression profiles (as recommended by coseq creators). Please set parameters$coseq_transformation to 'none' or parameters$coseq_data to 'ExpressionProfiles' ")
   }
 
-  if (length(parameters$coseq_ClustersNb)==1 & parameters$coseq_model=="kmeans"){
-    coexpr=coseq(object, K=2:25, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = "none", seed = 12345)
-    clust=as.data.frame(clusters(coexpr, K=parameters$coseq_ClustersNb))
+  if (length(parameters$coseq_ClustersNb)== 1 & parameters$coseq_model=="kmeans"){
+    coexpr=coseq::coseq(object, K=2:25, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = "none", seed = 12345)
+    clust=as.data.frame(coseq::clusters(coexpr, K=parameters$coseq_ClustersNb))
     names(clust)=c("clusters(coexpr)")
   }
   else{
-    coexpr=coseq(object, K=parameters$coseq_ClustersNb, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = "none", seed = 12345)
-    clust=as.data.frame(clusters(coexpr))
+    coexpr=coseq::coseq(object, K=parameters$coseq_ClustersNb, model = parameters$coseq_model, transformation = parameters$coseq_transformation,normFactors = "none", seed = 12345)
+    clust=as.data.frame(coseq::clusters(coexpr))
+    names(clust)=c("clusters(coexpr)")
+
     cat("\nSummary of CoSeq\n")
     print(summary(coexpr))
   }
 
   GeneToClusters<-merge(clust,moys,by="row.names")
+
+  print(head(clust))
 
   if (parameters$coseq_data == 'LogScaledData'){
     img_transfo_dir = paste0(img_Clustering_dir,parameters$coseq_model,"_OnLog2ScaledData_",length(unique(clust$`clusters(coexpr)`)),"clusters/")
@@ -2425,27 +2517,26 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
     colnames(annDE)<-colnames(data$annot)
     GeneToClustersSummary<-cbind(GeneToClustersSummary,annDE)                      # merge the two matrix
 
-    write.table(GeneToClustersSummary,paste0(img_transfo_dir, parameters$analysis_name,"_ClusteringSUMMARY_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"),sep="\t",dec=".",row.names = TRUE,col.names = NA)
+    utils::write.table(GeneToClustersSummary,paste0(img_transfo_dir, parameters$analysis_name,"_ClusteringSUMMARY_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"),sep="\t",dec=".",row.names = TRUE,col.names = NA)
   }
   else
   {
-    write.table(GeneToClustersSummary,paste0(img_transfo_dir, parameters$analysis_name,"_ClusteringSUMMARY_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"),sep="\t",dec=".",row.names = TRUE,col.names = NA)
+    utils::write.table(GeneToClustersSummary,paste0(img_transfo_dir, parameters$analysis_name,"_ClusteringSUMMARY_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"),sep="\t",dec=".",row.names = TRUE,col.names = NA)
   }
 
-  ###################
   ## Global graphs ##
-  ###################
+
   # Boxplots (scaled expression)
   GeneToClustersScaled=GeneToClusters
   GeneToClustersScaled=GeneToClustersScaled[,-2]
   rownames(GeneToClustersScaled)=GeneToClustersScaled$Row.names
   GeneToClustersScaled=GeneToClustersScaled[,-1]
   GeneToClustersScaled=t(apply(as.matrix(GeneToClustersScaled), 1, scale))
-  colnames(GeneToClustersScaled)=colnames(GeneToClusters[,-c(1:2)])
+  colnames(GeneToClustersScaled)=colnames(GeneToClusters[,-c(seq_len(2))])
 
   final=data.frame()
   n=as.numeric(ncol(GeneToClustersScaled))
-  for (i in 1:n) {
+  for (i in seq_len(n)) {
     BDD <- data.frame(gene=rownames(GeneToClustersScaled))
     BDD$cluster=GeneToClusters$`clusters(coexpr)`
     BDD$expression=GeneToClustersScaled[,i]
@@ -2457,7 +2548,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
     lab=c(lab,paste0("Cluster ",x," (",nrow(GeneToClusters[GeneToClusters$`clusters(coexpr)`==x,])," genes)"))
   }
   names(lab)<-unique(final$cluster)
-  ggplot(final,aes(x=sample, y=expression,fill=sample))+geom_boxplot()+
+  ggplot2::ggplot(final, aes(x=final$sample, y=final$expression, fill=final$sample)) + geom_boxplot() +
     stat_summary(fun=mean, geom="line", aes(group=1), colour="red")+
     stat_summary(fun=mean, geom="point", colour="red")+
     facet_wrap(~final$cluster, labeller = as_labeller(lab))+
@@ -2473,26 +2564,26 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
     scale_y_continuous(name="Scaled expression")+
     scale_fill_discrete(name="Experimental \nconditions")
   if (length(unique(final$cluster)) > 3 & length(unique(final$cluster)) <= 6){
-    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=8)
+    ggplot2::ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=8)
   }
   else if (length(unique(final$cluster)) <= 3) {
-    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=4)
+    ggplot2::ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=4)
   }
   else {
-    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=12)
+    ggplot2::ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_Boxplots_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"),width=12,height=12)
   }
 
   #Global expression profiles with probability (red genes are under proba 0.8)
   proba = 0.80
   for (thresh in proba){
-    p <- plot(coexpr, graphs="profiles", K=length(unique(clust$`clusters(coexpr)`)), threshold=thresh)
+    p <- coseq::plot(coexpr, graphs="profiles", K=length(unique(clust$`clusters(coexpr)`)), threshold=thresh)
     p2 <- p$profiles + ggtitle(paste0("Red genes are affiliated to the cluster with a probability lower than ",thresh))
 
-    b <- plot(coexpr, graphs="probapost_barplots", K=length(unique(clust$`clusters(coexpr)`)), threshold=thresh)
+    b <- coseq::plot(coexpr, graphs="probapost_barplots", K=length(unique(clust$`clusters(coexpr)`)), threshold=thresh)
     b2 <- b$probapost_barplots + ggtitle(paste0("Threshold probability = ",thresh)) +scale_fill_manual(values = c("black", "red"),name="Max\nconditional\nprobability")
 
-    plot_grid(p2, b2, ncol = 2, nrow = 1,rel_widths = c(1,1))
-    ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_ClusterProbabilities_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Threshold",thresh,".png"),width=16,height=8)
+    cowplot::plot_grid(p2, b2, ncol = 2, nrow = 1,rel_widths = c(1,1))
+    ggplot2::ggsave(filename=paste0(img_transfo_dir, parameters$analysis_name, "_ClusterProbabilities_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Threshold",thresh,".png"),width=16,height=8)
   }
 
 
@@ -2502,55 +2593,36 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
   mat_scaled = t(apply(mat, 1, scale))
   colnames(mat_scaled)=colnames(mat)
   rownames(mat_scaled)=GeneToClusters[,1]
-
   cluster=GeneToClusters[,2]
-  min=0
-  max=0
-  for (i in ncol(mat_scaled)) {
-    min2 = min(mat_scaled[,i])
-    if (min2<min){
-      min =min2
-    }
-  }
-  for (i in ncol(mat_scaled)) {
-    max2 = max(mat_scaled[,i])
-    if (max2>max){
-      max =max2
-    }
-  }
 
   if (parameters$coseq_HeatmapOrderSample==TRUE){
-    ht_opt$TITLE_PADDING = unit(c(8.5, 8.5), "points")
-    ht_list = Heatmap(t(mat_scaled),cluster_rows = FALSE,column_order=order(cluster), name = "Scaled CPM expression",column_split = cluster,
-                      heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
-                      col = colorRamp2(c(min, 0, max), c("steelblue", "white", "red")),
-                      show_column_names = F,
-                      column_title_gp = gpar(fill = grey.colors(0.5), col="white", font = 2, fontsize=15),
-                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm")
+    ComplexHeatmap::ht_opt("TITLE_PADDING" = unit(c(8.5, 8.5), "points"))
+    ht_list = ComplexHeatmap::Heatmap(t(mat_scaled), cluster_rows = FALSE, column_order=order(cluster), name = "Scaled CPM expression", column_split = cluster,
+                                      heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
+                                      col = viridis::viridis(100),
+                                      show_column_names = FALSE,
+                                      column_title_gp = grid::gpar(fill = grDevices::grey.colors(0.5), col="white", font = 2, fontsize=15),
+                                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm")
     )
-    png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,"_MySampleOrder.png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
-    draw(ht_list,column_title_gp = gpar(font=2, fontsize=20), heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
-    dev.off()
+    grDevices::png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,"_MySampleOrder.png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
+    ComplexHeatmap::draw(ht_list,column_title_gp = grid::gpar(font=2, fontsize=20), heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
+    grDevices::dev.off()
   }
   else{
-    ht_opt$TITLE_PADDING = unit(c(8.5, 8.5), "points")
-    ht_list = Heatmap(t(mat_scaled),column_order=order(cluster), name = "Scaled CPM expression",column_split = cluster,
-                      heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
-                      col = colorRamp2(c(min, 0, max), c("steelblue", "white", "red")),
-                      show_column_names = F,
-                      column_title_gp = gpar(fill = grey.colors(0.5), col="white",font=2, fontsize=15),
-                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm")
+    ComplexHeatmap::ht_opt("TITLE_PADDING" = unit(c(8.5, 8.5), "points"))
+    ht_list = ComplexHeatmap::Heatmap(t(mat_scaled),column_order=order(cluster), name = "Scaled CPM expression",column_split = cluster,
+                                      heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
+                                      col = viridis::viridis(100),
+                                      show_column_names = FALSE,
+                                      column_title_gp = grid::gpar(fill = grDevices::grey.colors(0.5), col="white",font=2, fontsize=15),
+                                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm")
     )
-    png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
-    draw(ht_list,column_title_gp = gpar(font=2, fontsize=20), heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
-    dev.off()
+    grDevices::png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
+    ComplexHeatmap::draw(ht_list,column_title_gp = grid::gpar(font=2, fontsize=20), heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
+    grDevices::dev.off()
   }
 
-  detach("package:coseq")
-
-  #############################
   ## Graphs for each cluster ##
-  #############################
 
   # import data and create vectors for color and cluster
   uniqClust=unique(GeneToClusters$`clusters(coexpr)`)
@@ -2590,15 +2662,12 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
     }
   }
 
-
   for (clustered in uniqClust){
-
     img_CLUST_dir = paste0(img_transfo_dir,"Cluster_",clustered,"/")
     if(dir.exists(img_CLUST_dir)==FALSE){
       dir.create(img_CLUST_dir)
       cat("Directory: ",img_CLUST_dir," created\n")
     }
-
 
     # Upset On each cluster
     cols=ncol(resDEG3)+1
@@ -2607,16 +2676,17 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
     ForUpset = data.frame(ForUpset)
 
     if (ncol(ForUpset)>1) {
-      png(paste0(img_CLUST_dir,parameters$analysis_name,"_UpSet_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"), width=1600, height=1024, units = "px")
-      print(upset(data=ForUpset, sets=rev(colnames(ForUpset)), nsets=ncol(ForUpset), keep.order=TRUE, att.color ="black" ,sets.bar.color=GoCoul[clustered],point.size = 5, line.size = 1.5, nintersects=NA, text.scale = 2))
-      grid.text(paste0("All differentially expressed genes (up+down) in cluster ",clustered), x=0.65, y=0.95, gp=gpar(fontsize=20))
-      dev.off()
+      grDevices::png(paste0(img_CLUST_dir,parameters$analysis_name,"_UpSet_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"), width=1600, height=1024, units = "px")
+      print(UpSetR::upset(data=ForUpset, sets=rev(colnames(ForUpset)), nsets=ncol(ForUpset), keep.order=TRUE, att.color ="black" ,sets.bar.color=GoCoul[clustered],point.size = 5, line.size = 1.5, nintersects=NA, text.scale = 2))
+      grid::grid.text(paste0("All differentially expressed genes (up+down) in cluster ",clustered), x=0.65, y=0.95, gp=grid::gpar(fontsize=20))
+      grDevices::dev.off()
     }
 
     # Scaled expression of each condition in the cluster
     if (nrow(GeneToClusters[GeneToClusters$`clusters(coexpr)`==clustered,])<=750) {alph=1} else {alph=0.2}
 
-    ggplot(final[which(final$cluster==clustered),],aes(x=sample, y=expression))+
+    TabTempo<-final[which(final$cluster==clustered),]
+    ggplot2::ggplot(TabTempo,aes(x=TabTempo$sample, y=TabTempo$expression))+
       geom_jitter(color = "gray50", alpha = alph, size = 1.5, show.legend = FALSE) +
       geom_violin(fill = GoCoul[clustered], alpha = 0.75, show.legend = FALSE) +
       stat_boxplot(geom = "errorbar", width = 0.15) +
@@ -2630,7 +2700,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
             plot.title = element_text(face="bold",size=15),
             axis.title.x=element_text(size=12),
             axis.title.y=element_text(size=12))
-    ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_ScaledExpression_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height=10)
+    ggplot2::ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_ScaledExpression_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height=10)
 
     if (is.null(list) == TRUE){
       # Genes of each contrast in cluster and significance (Chi2) of enrichment of the cluster in each contrast
@@ -2644,27 +2714,26 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
         obs1=c(b,d)
         obs2=FileForContrast$GenesOfContrastInCluster[a]/FileForContrast$TotalGenesInContrast[a]
         proba=c(proportion,pr)
-        if (chisq.test(obs1,p=proba)$p.value<0.001 & obs2>=proportion) {
+        if (stats::chisq.test(obs1,p=proba)$p.value<0.001 & obs2>=proportion) {
           FileForContrast$ChiTest[a]<-"***"
           FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
         }
-        else if (chisq.test(obs1,p=proba)$p.value>=0.001 & chisq.test(obs1,p=proba)$p.value<0.01  & obs2>=proportion){
+        else if (stats::chisq.test(obs1,p=proba)$p.value>=0.001 & stats::chisq.test(obs1,p=proba)$p.value<0.01  & obs2>=proportion){
           FileForContrast$ChiTest[a]<-"**"
           FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
         }
-        else if (chisq.test(obs1,p=proba)$p.value>=0.01 & chisq.test(obs1,p=proba)$p.value<0.05  & obs2>=proportion){
+        else if (stats::chisq.test(obs1,p=proba)$p.value>=0.01 & stats::chisq.test(obs1,p=proba)$p.value<0.05  & obs2>=proportion){
           FileForContrast$ChiTest[a]<-"*"
           FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
         }
       }
 
-
-
-      ggplot(FileForContrast[FileForContrast$cluster==clustered,], aes(x=contrast, y=GenesOfContrastInCluster)) +
+      TabTempo<-FileForContrast[FileForContrast$cluster==clustered,]
+      ggplot2::ggplot(TabTempo, aes(x=TabTempo$contrast, y=TabTempo$GenesOfContrastInCluster)) +
         coord_flip()+
         geom_col(fill=GoCoul[clustered])+
         theme_classic()+
-        geom_text(aes(label=ObservedProportion), position=position_stack(0.5),color="black")+
+        geom_text(aes(label=TabTempo$ObservedProportion), position=position_stack(0.5),color="black")+
         scale_y_reverse()+
         labs(title = paste0("DE Genes in contrasts for cluster ",clustered, "\n (",length(which(GeneToClusters[,2]==clustered))," genes in the cluster)"), x="Contrasts", y="Number of genes") +
         scale_x_discrete(position = "top")+
@@ -2677,14 +2746,12 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
           plot.title = element_text(face="bold",size=15),
           legend.text = element_text(size=12),
           panel.background = element_rect(colour = "black", size=0.5, fill=NA))
-      ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_GenesInContrasts_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height = 8)
-
+      ggplot2::ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_GenesInContrasts_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height = 8)
     }
 
 
     # GO enrichment in the cluster for MF, CC, and BP category (if annotation file is provided)
     if(is.null(parameters$geneID2GO_file)==FALSE){
-
       img_GOtoGene_dir = paste0(img_CLUST_dir,"SignificantGO_to_Genes/")
       if(dir.exists(img_GOtoGene_dir)==FALSE){
         dir.create(img_GOtoGene_dir)
@@ -2710,20 +2777,20 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
 
       listOnto <- c("MF","BP","CC")
       for(ontology in listOnto){
-        GOdata <- new("topGOdata",
-                      nodeSize = parameters$GO_min_num_genes,
-                      ontology = ontology,
-                      allGenes = geneList,
-                      annot = annFUN.gene2GO,
-                      gene2GO = geneID2GO)
+        GOdata <- methods::new("topGOdata",
+                               nodeSize = parameters$GO_min_num_genes,
+                               ontology = ontology,
+                               allGenes = geneList,
+                               annot = annFUN.gene2GO,
+                               gene2GO = geneID2GO)
 
-        resultTest <- runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
-        resGenTab <- GenTable(GOdata, numChar = 1000,statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(nodes(graph(GOdata))) )
+        resultTest <- topGO::runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
+        resGenTab <- topGO::GenTable(GOdata, numChar = 1000,statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(graph::nodes(graph(GOdata))) )
         resGenTab$Ratio = as.numeric(as.numeric(resGenTab$Significant)/as.numeric(resGenTab$Expected))
         resGenTab$GO_cat <- ontology
 
         if (is.null(parameters$annotation)==FALSE){
-          annot<-read.csv(paste0(input_path, parameters$annotation), header = T, row.names = 1, sep = '\t', quote = "")
+          annot<-utils::read.csv(paste0(input_path, parameters$annotation), header = TRUE, row.names = 1, sep = '\t', quote = "")
         }
 
         myterms = as.character(resGenTab$GO.ID[as.numeric(resGenTab$statisticTest)<=parameters$GO_threshold])
@@ -2732,8 +2799,8 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
           cat("\nAskoR is saving one file per enriched GO-term in cluster ", clustered, " (category ", ontology, ").\n")
           mygenes <- genesInTerm(GOdata, myterms)
           noms=names(mygenes)
-          nomss=str_replace(noms,":","_")
-          for (z in 1:length(mygenes)){
+          nomss=stringr::str_replace(noms,":","_")
+          for (z in seq_len(length(mygenes))){
             listes=mygenes[[z]][mygenes[[z]] %in% GeneToClusters[which(GeneToClusters$`clusters(coexpr)`==clustered),1] == TRUE]
             GOtab <- data.frame(Gene=listes)
             GOtab$Gene_cluster = clustered
@@ -2741,7 +2808,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
             if (is.null(parameters$annotation)==FALSE){
               GOtab = merge(GOtab, annot, by="row.names")
               GOtab = GOtab[,-1]
-              GOtab = GOtab[,1:3]
+              GOtab = GOtab[,seq_len(3)]
               colnames(GOtab)[3] <- "Gene_description"
               rownames(GOtab)=GOtab$Gene
             }
@@ -2756,7 +2823,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
             GOtab$GO_ID = noms[z]
             GOtab$GO_term = resGenTab[which(resGenTab$GO.ID==noms[z]),2]
             GOtab$GO_cat = resGenTab[which(resGenTab$GO.ID==noms[z]),8]
-            write.table(GOtab,paste0(img_GOtoGene_dir, ontology, "_", nomss[z],".txt"), sep="\t", dec=".", row.names = FALSE, col.names = TRUE, quote=FALSE)
+            utils::write.table(GOtab,paste0(img_GOtoGene_dir, ontology, "_", nomss[z],".txt"), sep="\t", dec=".", row.names = FALSE, col.names = TRUE, quote=FALSE)
           }
         }
 
@@ -2769,10 +2836,10 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
             maxi<-parameters$GO_max_top_terms
             TabSigCompl<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,]
             if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
-            TabSigCompl<-TabSigCompl[1:maxi,]
+            TabSigCompl<-TabSigCompl[seq_len(maxi),]
           }else{
             cat("\n\n->Cluster ",clustered," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
-            TabSigCompl<-as.data.frame(setNames(replicate(8,numeric(0), simplify = F),c("GO.ID","Term","Annotated","Significant","Expected","statisticTest","Ratio","GO_cat") ))
+            TabSigCompl<-as.data.frame(stats::setNames(replicate(8,numeric(0), simplify = FALSE),c("GO.ID","Term","Annotated","Significant","Expected","statisticTest","Ratio","GO_cat") ))
           }
         }else{
           TabCompl=rbind(TabCompl,resGenTab)
@@ -2782,7 +2849,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
             maxi<-parameters$GO_max_top_terms
             tempSig<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,]
             if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
-            TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
+            TabSigCompl=rbind(TabSigCompl,tempSig[seq_len(maxi),])
           }else{
             cat("\n\n->Cluster ",clustered," - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
           }
@@ -2801,11 +2868,12 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
         ## Bargraph in each GO cat separately (ratio, pval, and number of genes)
         if(exists("TabSigCompl")==TRUE){
           if(nrow(TabSigCompl[TabSigCompl$GO_cat==ontology,])>=1){
-            ggplot(TabSigCompl[TabSigCompl$GO_cat==ontology,], aes(x=stringr::str_wrap(Term, 55), y=Ratio,fill=-1*log10(as.numeric(statisticTest)))) +
+            TabTempo<-TabSigCompl[TabSigCompl$GO_cat==ontology,]
+            ggplot2::ggplot(TabTempo, aes(x=stringr::str_wrap(TabTempo$Term, 55), y=TabTempo$Ratio,fill=-1*log10(as.numeric(TabTempo$statisticTest)))) +
               coord_flip()+
               geom_col()+
               theme_classic()+
-              geom_text(aes(label=Significant), position=position_stack(0.5),color="white")+
+              geom_text(aes(label=TabTempo$Significant), position=position_stack(0.5),color="white")+
               scale_fill_gradient(name="-log10pval",low=GoCoul[clustered],high=paste0(GoCoul[clustered],"4"))+
               scale_y_reverse()+
               labs(title = paste0("GO Enrichment in cluster ",clustered, " (", goCat, " category)", "\n (",length(which(geneList==1)), " annotated genes among the ",length(which(GeneToClusters[,2]==clustered))," in the cluster)"), x="GOterm", y="Ratio Significant / Expected") +
@@ -2819,13 +2887,13 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
                 plot.title = element_text(face="bold",size=15),
                 legend.text = element_text(size=12),
                 panel.background = element_rect(colour = "black", size=0.5, fill=NA))
-            ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_GOEnrichment_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,"_", ontology,".png"),width=10, height = 8)
+            ggplot2::ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_GOEnrichment_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,"_", ontology,".png"),width=10, height = 8)
           }
         }
       }
 
       TabCompl<-TabCompl[TabCompl$Significant > 0,]
-      write.table(TabCompl, file=paste0(img_CLUST_dir,parameters$analysis_name,"_GOEnrichmentTable_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered, ".txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
+      utils::write.table(TabCompl, file=paste0(img_CLUST_dir,parameters$analysis_name,"_GOEnrichmentTable_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered, ".txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
 
       ## Dotplot of all GO cat
       if(exists("TabSigCompl")==TRUE){
@@ -2844,13 +2912,13 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
           minP=(min(as.numeric(TabSigCompl$statisticTest))+max(as.numeric(TabSigCompl$statisticTest)))/4
 
           # Ratio Graph
-          ggplot(TabSigCompl, aes(x=Ratio, y=Term, size=Significant, color=GO_cat)) +
+          ggplot2::ggplot(TabSigCompl, aes(x=TabSigCompl$Ratio, y=TabSigCompl$Term, size=TabSigCompl$Significant, color=TabSigCompl$GO_cat)) +
             geom_point(alpha=1) +
             labs(title = paste0("GO Enrichment for Cluster ",clustered, "\n (",length(which(geneList==1)), " annotated genes among the ",length(which(GeneToClusters[,2]==clustered))," in the cluster)"), x="Ratio Significant / Expected", y="GOterm") +
             scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
-            facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
+            facet_grid(TabSigCompl$GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
             scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minR)) +
-            scale_y_discrete(labels = function(x) str_wrap(x, 70)) +
+            scale_y_discrete(labels = function(x) stringr::str_wrap(x, 70)) +
             theme_linedraw() + theme(
               panel.background = element_rect(fill = "grey93", colour = "grey93", size = 0.5, linetype = "solid"),
               panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
@@ -2861,14 +2929,12 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
               plot.title = element_text(face="bold",size=10),
               legend.text = element_text(size=9),
               strip.text.y = element_text(size=12, face="bold"))
-          ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_Ratio_BUBBLESgraph_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered, ".png"),width=10, height=10)
+          ggplot2::ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_Ratio_BUBBLESgraph_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered, ".png"),width=10, height=10)
         }
       }else{
         cat("\n\nToo few results to display the graph.\n\n")
       }
-
     }
-
   }
   return(clust)
 }
@@ -2891,15 +2957,22 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
 #' @param clustering, data frame with clusters of each gene produced by ClustAndGO function
 #' @return none
 #'
-#' @example
+#' @import tidyverse
+#' @import Rgraphviz
+#' @import gghalves
+#' @import ggplot2
+#'
+#' @examples
 #' \dontrun{
 #'    IncludeNonDEgenes_InClustering(data, asko_norm, resDEG, parameters, clustering)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, clustering){
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   input_path = paste0(parameters$dir_path, "/input/")
+  norm_dir = paste0(study_dir, "NormCountsTables/")
   img_Clustering_dir = paste0(study_dir, "Clustering/OnDEgenes/")
   if(dir.exists(img_Clustering_dir)==FALSE){
     dir.create(img_Clustering_dir)
@@ -2935,12 +3008,12 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
   if(sizeImg < 1024){ sizeImg=1024 }
 
   # import normalized MEAN counts in CPM
-  moys<-read.csv(paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
+  moys<-utils::read.csv(paste0(norm_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
 
   # import GeneToClusters
-  GeneToClusters<-read.csv(paste0(img_transfo_dir, parameters$analysis_name,"_ClusteringSUMMARY_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"), header=TRUE, sep="\t", row.names=1)
+  GeneToClusters<-utils::read.csv(paste0(img_transfo_dir, parameters$analysis_name,"_ClusteringSUMMARY_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"), header=TRUE, sep="\t", row.names=1)
   nbCond = length(unique(asko_norm$samples$condition))
-  GeneToClusters = GeneToClusters[,1:(1+nbCond)]
+  GeneToClusters = GeneToClusters[,seq_len(1+nbCond)]
 
   `%notin%` <- Negate(`%in%`)
   moysNotDE = moys[rownames(moys) %notin% rownames(GeneToClusters),]
@@ -2971,11 +3044,11 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
     colnames(annDE)<-colnames(data$annot)
     GeneToClustersSummary<-cbind(GeneToClustersSummary,annDE)                      # merge the two matrix
 
-    write.table(GeneToClustersSummary, paste0(img_transfo_dir, parameters$analysis_name,"_ClusteringSUMMARY_WithNonDEgenes_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"),sep="\t",dec=".",row.names = TRUE,col.names = NA)
+    utils::write.table(GeneToClustersSummary, paste0(img_transfo_dir, parameters$analysis_name,"_ClusteringSUMMARY_WithNonDEgenes_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"),sep="\t",dec=".",row.names = TRUE,col.names = NA)
   }
   else
   {
-    write.table(GeneToClustersSummary, paste0(img_transfo_dir, parameters$analysis_name,"_ClusteringSUMMARY_WithNonDEgenes_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"),sep="\t",dec=".",row.names = TRUE,col.names = NA)
+    utils::write.table(GeneToClustersSummary, paste0(img_transfo_dir, parameters$analysis_name,"_ClusteringSUMMARY_WithNonDEgenes_",parameters$coseq_model,"_",parameters$coseq_transformation,".txt"),sep="\t",dec=".",row.names = TRUE,col.names = NA)
   }
 
 
@@ -2987,7 +3060,7 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
 
   final=data.frame()
   n=as.numeric(ncol(GeneToClustersScaled))
-  for (i in 1:n) {
+  for (i in seq_len(n)) {
     BDD <- data.frame(gene=rownames(GeneToClustersScaled))
     BDD$cluster=GeneToClusters$clusters.coexpr.
     BDD$expression=GeneToClustersScaled[,i]
@@ -3033,51 +3106,35 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
   mat_scaled = t(apply(mat, 1, scale))
   colnames(mat_scaled)=colnames(mat)
   rownames(mat_scaled)=rownames(GeneToClusters)
-
   cluster=GeneToClusters[,1]
-  min=0
-  max=0
-  for (i in ncol(mat_scaled)) {
-    min2 = min(mat_scaled[,i])
-    if (min2<min){
-      min =min2
-    }
-  }
-  for (i in ncol(mat_scaled)) {
-    max2 = max(mat_scaled[,i])
-    if (max2>max){
-      max =max2
-    }
-  }
-
 
   if (parameters$coseq_HeatmapOrderSample==TRUE){
-    ht_opt$TITLE_PADDING = unit(c(8.5, 8.5), "points")
-    ht_list = Heatmap(t(mat_scaled),cluster_rows = FALSE,column_order=order(cluster), name = "Scaled CPM expression",column_split = cluster,
-                      heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
-                      col = colorRamp2(c(min, 0, max), c("steelblue", "white", "red")),
-                      show_column_names = F,
-                      column_title = c(c(1:(length(lab)-1)),"NOT DE"),
-                      column_title_gp = gpar(fill = grey.colors(0.5), col="white", font = 2, fontsize=15),
-                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm")
+    ComplexHeatmap::ht_opt("TITLE_PADDING" = unit(c(8.5, 8.5), "points"))
+    ht_list = ComplexHeatmap::Heatmap(t(mat_scaled),cluster_rows = FALSE,column_order=order(cluster), name = "Scaled CPM expression",column_split = cluster,
+                                      heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
+                                      col = viridis::viridis(100),
+                                      show_column_names = FALSE,
+                                      column_title = c(c(seq_len(length(lab)-1)),"NOT DE"),
+                                      column_title_gp = grid::gpar(fill = grDevices::grey.colors(0.5), col="white", font = 2, fontsize=15),
+                                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm")
     )
-    png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_WithNonDEgenes_",parameters$coseq_model,"_",parameters$coseq_transformation,"_MySampleOrder.png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
-    draw(ht_list,column_title_gp = gpar(font=2, fontsize=20), heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
-    dev.off()
+    grDevices::png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_WithNonDEgenes_",parameters$coseq_model,"_",parameters$coseq_transformation,"_MySampleOrder.png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
+    ComplexHeatmap::draw(ht_list,column_title_gp = grid::gpar(font=2, fontsize=20), heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
+    grDevices::dev.off()
   }
   else{
-    ht_opt$TITLE_PADDING = unit(c(8.5, 8.5), "points")
-    ht_list = Heatmap(t(mat_scaled),column_order=order(cluster), name = "Scaled CPM expression",column_split = cluster,
-                      heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
-                      col = colorRamp2(c(min, 0, max), c("steelblue", "white", "red")),
-                      show_column_names = F,
-                      column_title = c(c(1:(length(lab)-1)),"NOT DE"),
-                      column_title_gp = gpar(fill = grey.colors(0.5), col="white",font=2, fontsize=15),
-                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm")
+    ComplexHeatmap::ht_opt("TITLE_PADDING" = unit(c(8.5, 8.5), "points"))
+    ht_list = ComplexHeatmap::Heatmap(t(mat_scaled),column_order=order(cluster), name = "Scaled CPM expression",column_split = cluster,
+                                      heatmap_legend_param = list(title_position = "topcenter",legend_direction = "horizontal"),
+                                      col = viridis::viridis(100),
+                                      show_column_names = FALSE,
+                                      column_title = c(c(seq_len(length(lab)-1)),"NOT DE"),
+                                      column_title_gp = grid::gpar(fill = grDevices::grey.colors(0.5), col="white",font=2, fontsize=15),
+                                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm")
     )
-    png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_WithNonDEgenes_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
-    draw(ht_list, column_title_gp = gpar(font=2, fontsize=20),heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
-    dev.off()
+    grDevices::png(paste0(img_transfo_dir, parameters$analysis_name, "_Heatmap_ScaledCPM_WithNonDEgenes_",parameters$coseq_model,"_",parameters$coseq_transformation,".png"), width=sizeImg*1.75, height=sizeImg/4*1.25)
+    ComplexHeatmap::draw(ht_list, column_title_gp = grid::gpar(font=2, fontsize=20),heatmap_legend_side = "bottom",column_title = paste0("Heatmap on Clusters (parameters : ",parameters$coseq_model," and ",parameters$coseq_transformation," transformation)"))
+    grDevices::dev.off()
   }
 
   # import data and create vectors for color and cluster
@@ -3123,32 +3180,30 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
 
     if(nrow(GeneToClusters[which(GeneToClusters$clusters.coexpr.==clustered),])==0){
       cat("\n -> No DE genes found!\n")
-      next
     }
 
     if(sum(levels(geneList)==1)==0){
       cat("\n -> No DE genes with GO annotation!\n")
-      next
     }
 
     GO=NULL
 
     listOnto <- c("MF","BP","CC")
     for(ontology in listOnto){
-      GOdata <- new("topGOdata",
-                    nodeSize = parameters$GO_min_num_genes,
-                    ontology = ontology,
-                    allGenes = geneList,
-                    annot = annFUN.gene2GO,
-                    gene2GO = geneID2GO)
+      GOdata <- methods::new("topGOdata",
+                             nodeSize = parameters$GO_min_num_genes,
+                             ontology = ontology,
+                             allGenes = geneList,
+                             annot = annFUN.gene2GO,
+                             gene2GO = geneID2GO)
 
       resultTest <- runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
-      resGenTab <- GenTable(GOdata, numChar = 1000,statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(nodes(graph(GOdata))) )
+      resGenTab <- GenTable(GOdata, numChar = 1000,statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(graph::nodes(graph(GOdata))) )
       resGenTab$Ratio = as.numeric(as.numeric(resGenTab$Significant)/as.numeric(resGenTab$Expected))
       resGenTab$GO_cat <- ontology
 
       if (is.null(parameters$annotation)==FALSE){
-        annot<-read.csv(paste0(input_path, parameters$annotation), header = T, row.names = 1, sep = '\t', quote = "")
+        annot<-utils::read.csv(paste0(input_path, parameters$annotation), header = TRUE, row.names = 1, sep = '\t', quote = "")
       }
 
       myterms = as.character(resGenTab$GO.ID[as.numeric(resGenTab$statisticTest)<=parameters$GO_threshold])
@@ -3158,8 +3213,8 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
         cat("\nAskoR is saving one file per enriched GO-term in cluster NOT DE (category ", ontology, ").\n")
         mygenes <- genesInTerm(GOdata, myterms)
         noms=names(mygenes)
-        nomss=str_replace(noms,":","_")
-        for (z in 1:length(mygenes)){
+        nomss=stringr::str_replace(noms,":","_")
+        for (z in seq_len(length(mygenes))){
           listes=mygenes[[z]][mygenes[[z]] %in% rownames(GeneToClusters[which(GeneToClusters$clusters.coexpr.==clustered),]) == TRUE]
           GOtab <- data.frame(Gene=listes)
           GOtab$Gene_cluster = "NOT DE"
@@ -3167,7 +3222,7 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
           if (is.null(parameters$annotation)==FALSE){
             GOtab = merge(GOtab, annot, by="row.names")
             GOtab = GOtab[,-1]
-            GOtab = GOtab[,1:3]
+            GOtab = GOtab[,seq_len(3)]
             colnames(GOtab)[3] <- "Gene_description"
             rownames(GOtab)=GOtab$Gene
           }
@@ -3182,7 +3237,7 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
           GOtab$GO_ID = noms[z]
           GOtab$GO_term = resGenTab[which(resGenTab$GO.ID==noms[z]),2]
           GOtab$GO_cat = resGenTab[which(resGenTab$GO.ID==noms[z]),8]
-          write.table(GOtab,paste0(img_GOtoGene_dir, ontology, "_", nomss[z],".txt"), sep="\t", dec=".", row.names = FALSE, col.names = TRUE, quote=FALSE)
+          utils::write.table(GOtab,paste0(img_GOtoGene_dir, ontology, "_", nomss[z],".txt"), sep="\t", dec=".", row.names = FALSE, col.names = TRUE, quote=FALSE)
         }
       }
 
@@ -3195,10 +3250,10 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
           maxi<-parameters$GO_max_top_terms
           TabSigCompl<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,]
           if(maxi > nrow(TabSigCompl)){ maxi<-nrow(TabSigCompl) }
-          TabSigCompl<-TabSigCompl[1:maxi,]
+          TabSigCompl<-TabSigCompl[seq_len(maxi),]
         }else{
           cat("\n\n->Cluster NOT DE - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
-          TabSigCompl<-as.data.frame(setNames(replicate(8,numeric(0), simplify = F),c("GO.ID","Term","Annotated","Significant","Expected","statisticTest","Ratio","GO_cat") ))
+          TabSigCompl<-as.data.frame(stats::setNames(replicate(8,numeric(0), simplify = FALSE),c("GO.ID","Term","Annotated","Significant","Expected","statisticTest","Ratio","GO_cat") ))
         }
       }else{
         TabCompl=rbind(TabCompl,resGenTab)
@@ -3208,7 +3263,7 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
           maxi<-parameters$GO_max_top_terms
           tempSig<-resGenTab[as.numeric(resGenTab$statisticTest) <= parameters$GO_threshold & resGenTab$Ratio >= parameters$Ratio_threshold & resGenTab$Significant >= parameters$GO_min_sig_genes,]
           if(maxi > nrow(tempSig)){ maxi<-nrow(tempSig) }
-          TabSigCompl=rbind(TabSigCompl,tempSig[1:maxi,])
+          TabSigCompl=rbind(TabSigCompl,tempSig[seq_len(maxi),])
         }else{
           cat("\n\n->Cluster NOT DE - ontology: ",ontology," - No enrichment can pe performed - there are no feasible GO terms!\n\n")
         }
@@ -3227,11 +3282,12 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
       ## Bargraph in each GO cat separately (ratio, pval, and number of genes)
       if(exists("TabSigCompl")==TRUE){
         if(nrow(TabSigCompl[TabSigCompl$GO_cat==ontology,])>=1){
-          ggplot(TabSigCompl[TabSigCompl$GO_cat==ontology,], aes(x=stringr::str_wrap(Term, 55), y=Ratio,fill=-1*log10(as.numeric(statisticTest)))) +
+          TabTempo<-TabSigCompl[TabSigCompl$GO_cat==ontology,]
+          ggplot(TabTempo, aes(x=stringr::str_wrap(TabTempo$Term, 55), y=TabTempo$Ratio,fill=-1*log10(as.numeric(TabTempo$statisticTest)))) +
             coord_flip()+
             geom_col()+
             theme_classic()+
-            geom_text(aes(label=Significant), position=position_stack(0.5),color="white")+
+            geom_text(aes(label=TabTempo$Significant), position=position_stack(0.5),color="white")+
             scale_fill_gradient(name="-log10pval",low=GoCoul,high=paste0(GoCoul,"4"))+
             scale_y_reverse()+
             labs(title = paste0("GO Enrichment in cluster NOT DE (", goCat, " category)", "\n (",length(which(geneList==1)), " annotated genes among the ",length(which(GeneToClusters[,1]==clustered))," in the cluster)"), x="GOterm", y="Ratio Significant / Expected") +
@@ -3251,7 +3307,7 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
     }
 
     TabCompl<-TabCompl[TabCompl$Significant > 0,]
-    write.table(TabCompl, file=paste0(img_CLUST_dir,parameters$analysis_name,"_GOEnrichmentTable_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_NOT_DE.txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
+    utils::write.table(TabCompl, file=paste0(img_CLUST_dir,parameters$analysis_name,"_GOEnrichmentTable_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_NOT_DE.txt"), col.names=TRUE, row.names=FALSE, quote=FALSE, sep='\t')
 
     ## Dotplot of all GO cat
     if(exists("TabSigCompl")==TRUE){
@@ -3270,13 +3326,13 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
         minP=(min(as.numeric(TabSigCompl$statisticTest))+max(as.numeric(TabSigCompl$statisticTest)))/4
 
         # Ratio Graph
-        ggplot(TabSigCompl, aes(x=Ratio, y=Term, size=Significant, color=GO_cat)) +
+        ggplot(TabSigCompl, aes(x=TabSigCompl$Ratio, y=TabSigCompl$Term, size=TabSigCompl$Significant, color=TabSigCompl$GO_cat)) +
           geom_point(alpha=1) +
           labs(title = paste0("GO Enrichment for Cluster NOT DE \n(",length(which(geneList==1)), " annotated genes among the ",length(which(GeneToClusters[,1]==clustered))," in the cluster)"), x="Ratio Significant / Expected", y="GOterm") +
           scale_color_manual(values=coul,labels=comp_names,name="GO categories") +
-          facet_grid(GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
+          facet_grid(TabSigCompl$GO_cat~., scales="free", space = "free",labeller = as_labeller(comp_names2)) +
           scale_size_continuous(name="Number of genes") + scale_x_continuous(expand = expansion(add = minR)) +
-          scale_y_discrete(labels = function(x) str_wrap(x, 70)) +
+          scale_y_discrete(labels = function(x) stringr::str_wrap(x, 70)) +
           theme_linedraw() + theme(
             panel.background = element_rect(fill = "grey93", colour = "grey93", size = 0.5, linetype = "solid"),
             panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
@@ -3292,8 +3348,6 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
     }else{
       cat("\n\nToo few results to display the graph.\n\n")
     }
-
-
   }
 }
 
@@ -3309,21 +3363,35 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
 #' @param list, list contain all the genes you want to get information on
 #' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
 #' @param data, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @param parameters, list that contains all arguments charged in Asko_start.
 #' @param title, name of the gene list
 #' @param clustering, data frame with clusters of each gene produced by ClustAndGO function
 #' @param conditions, list of the conditions you want to see in graph and table
 #' @param contrasts, list of the conditions you want to see in graph and table
 #' @return none
 #'
-#' @example
+#' @import tidyverse
+#' @import Rgraphviz
+#' @import gghalves
+#' @import ggplot2
+#'
+#' @examples
 #' \dontrun{
-#'    GeneInfo_OnList(list, resDEG, data, title, clustering=NULL, conditions=NULL, contrasts=NULL)
+#'    GeneInfo_OnList(list, resDEG, data, parameters, title)
+#'    # OR
+#'    GeneInfo_OnList(list, resDEG, data, parameters, title, clustering)
+#'    # OR
+#'    GeneInfo_OnList(list, resDEG, data, parameters, title, clustering, conditions)
+#'    # OR
+#'    GeneInfo_OnList(list, resDEG, data, parameters, title, clustering, conditions, contrasts)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
-GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions=NULL, contrasts=NULL){
+GeneInfo_OnList<-function(list, resDEG, data, parameters, title, clustering=NULL, conditions=NULL, contrasts=NULL){
   study_dir  = paste0(parameters$dir_path, "/", parameters$analysis_name, "/")
   input_path = paste0(parameters$dir_path, "/input/")
+  norm_dir = paste0(study_dir, "NormCountsTables/")
 
   list_dir = paste0(study_dir, "GeneListExplore/")
   if(dir.exists(list_dir)==FALSE){
@@ -3338,7 +3406,7 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
   }
 
   # import normalized MEAN counts in CPM
-  moys<-read.csv(paste0(study_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
+  moys<-utils::read.csv(paste0(norm_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
   if(is.null(conditions) == FALSE) {
     moys = moys[,colnames(moys) %in% conditions]
   }
@@ -3346,6 +3414,8 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
   if(is.null(contrasts) == FALSE) {
     resDEG = resDEG[,colnames(resDEG) %in% contrasts]
   }
+
+  moys = moys[rowSums(moys[])>0,]
 
   # for image size
   nsamples <- ncol(moys)
@@ -3382,7 +3452,7 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
   }
 
   totalData=totalData[rownames(totalData) %in% list,]
-  write.table(totalData,paste0(img_InfosOnGenes_dir, title, "_SummaryGeneList.txt"), sep="\t", dec=".", row.names = TRUE, col.names = NA)
+  utils::write.table(totalData,paste0(img_InfosOnGenes_dir, title, "_SummaryGeneList.txt"), sep="\t", dec=".", row.names = TRUE, col.names = NA)
 
   if(is.null(conditions) == FALSE | is.null(contrasts) == FALSE) {
     suff = "_Subset"
@@ -3392,7 +3462,7 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
   }
 
   n = ncol(moys)
-  totalDataLOG = totalData[, 1:n]
+  totalDataLOG = totalData[, seq_len(n)]
   mat = as.matrix(totalDataLOG)
   mat_scaled = t(apply(mat, 1, scale)) # same as : t(scale(t(mat)))
   colnames(mat_scaled)=colnames(mat)
@@ -3407,76 +3477,578 @@ GeneInfo_OnList<-function(list, resDEG, data, title, clustering=NULL, conditions
     graphTitle=""
   }
 
-  col_fun = colorRamp2(c(min, 0, max), c("green", "white", "red"))
+  col_fun = circlize::colorRamp2(c(min, 0, max), c("green", "white", "red"))
 
-  hc = rowAnnotation("DE Status in contrasts" = as.matrix(totalData[,(n+1):(n+ncol(resDEG))]),simple_anno_size = unit(0.5, "cm"),gp=gpar(pch=1,col="white",lwd = 4),col = list("DE Status in contrasts" = c("-1" = "green", "0" = "lightgrey", "1" = "red")),
-                     annotation_legend_param = list(
-                       at = c(-1, 0, 1),
-                       legend_height = unit(4, "cm"),
-                       title_position = "topleft",
-                       legend_side = "bottom", direction ="horizontal")
+  hc = ComplexHeatmap::rowAnnotation("DE Status in contrasts" = as.matrix(totalData[,(n+1):(n+ncol(resDEG))]),simple_anno_size = unit(0.5, "cm"),gp=grid::gpar(pch=1,col="white",lwd = 4),col = list("DE Status in contrasts" = c("-1" = "green", "0" = "lightgrey", "1" = "red")),
+                                     annotation_legend_param = list(
+                                       at = c(-1, 0, 1),
+                                       legend_height = unit(4, "cm"),
+                                       title_position = "topleft",
+                                       legend_side = "bottom", direction ="horizontal")
   )
-  ht_opt$TITLE_PADDING = unit(c(7, 7), "points")
+  ComplexHeatmap::ht_opt("TITLE_PADDING" = unit(c(7, 7), "points"))
   if (is.null(clustering)==FALSE){
-    ht_list = Heatmap((mat_scaled), name = "Expression \n(Scaled CPM)",
-                      heatmap_legend_param = list(
-                        #at = c(-2, 0, 2),
-                        legend_height = unit(4, "cm"),
-                        title_position = "topleft", direction = "horizontal"
-                      ),
-                      col = col_fun,
-                      row_split = totalData$CoExpression_Cluster,
-                      row_title_gp = gpar(fill = grey.colors(0.5), col="white", font = 2, fontsize=10),
-                      row_title_rot = 0,
-                      show_row_dend = F,
-                      show_column_names = T,
-                      show_column_dend = F,
-                      row_names_side = "left",
-                      column_order = sort(colnames(mat)),
-                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm"),
-                      right_annotation = hc,
-                      width=ncol(mat_scaled)*unit(20,"mm"),
-                      height=nrow(mat_scaled)*unit(5,"mm")
+    ht_list = ComplexHeatmap::Heatmap((mat_scaled), name = "Expression \n(Scaled CPM)",
+                                      heatmap_legend_param = list(
+                                        #at = c(-2, 0, 2),
+                                        legend_height = unit(4, "cm"),
+                                        title_position = "topleft", direction = "horizontal"
+                                      ),
+                                      col = col_fun,
+                                      row_split = totalData$CoExpression_Cluster,
+                                      row_title_gp = grid::gpar(fill = grDevices::grey.colors(0.5), col="white", font = 2, fontsize=10),
+                                      row_title_rot = 0,
+                                      show_row_dend = FALSE,
+                                      show_column_names = TRUE,
+                                      show_column_dend = FALSE,
+                                      row_names_side = "left",
+                                      column_order = sort(colnames(mat)),
+                                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm"),
+                                      right_annotation = hc,
+                                      width=ncol(mat_scaled)*unit(20,"mm"),
+                                      height=nrow(mat_scaled)*unit(5,"mm")
     )
   }
   else{
-    ht_list = Heatmap((mat_scaled), name = "Expression \n(Scaled CPM)",
-                      heatmap_legend_param = list(
-                        #at = c(min, 0, max),
-                        legend_height = unit(4, "cm"),
-                        title_position = "topleft", direction = "horizontal"
-                      ),
-                      col = col_fun,
-                      show_row_dend = T,
-                      show_column_names = T,
-                      show_column_dend = F,
-                      row_names_side = "left",
-                      column_order = sort(colnames(mat)),
-                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm"),
-                      right_annotation = hc,
-                      width=ncol(mat_scaled)*unit(20,"mm"),
-                      height=nrow(mat_scaled)*unit(5,"mm")
+    ht_list = ComplexHeatmap::Heatmap((mat_scaled), name = "Expression \n(Scaled CPM)",
+                                      heatmap_legend_param = list(
+                                        #at = c(min, 0, max),
+                                        legend_height = unit(4, "cm"),
+                                        title_position = "topleft", direction = "horizontal"
+                                      ),
+                                      col = col_fun,
+                                      show_row_dend = TRUE,
+                                      show_column_names = TRUE,
+                                      show_column_dend = FALSE,
+                                      row_names_side = "left",
+                                      column_order = sort(colnames(mat)),
+                                      row_gap = unit(2, "mm"), column_gap = unit(2, "mm"),
+                                      right_annotation = hc,
+                                      width=ncol(mat_scaled)*unit(20,"mm"),
+                                      height=nrow(mat_scaled)*unit(5,"mm")
     )
   }
   if (nrow(mat_scaled)<15){
-    png(paste0(img_InfosOnGenes_dir, title, suff, "_heatmap.png"), width=sizeImg*0.8, height=nrow(mat_scaled)*40)
+    grDevices::png(paste0(img_InfosOnGenes_dir, title, suff, "_heatmap.png"), width=sizeImg*0.8, height=nrow(mat_scaled)*40)
   }
   else if (nrow(mat_scaled)>14 & nrow(mat_scaled)<30){
-    png(paste0(img_InfosOnGenes_dir, title, suff, "_heatmap.png"), width=sizeImg*0.8, height=nrow(mat_scaled)*25)
+    grDevices::png(paste0(img_InfosOnGenes_dir, title, suff, "_heatmap.png"), width=sizeImg*0.8, height=nrow(mat_scaled)*25)
   }
   else if (nrow(mat_scaled)>29 & nrow(mat_scaled)<100){
-    png(paste0(img_InfosOnGenes_dir, title, suff, "_heatmap.png"), width=sizeImg*0.8, height=nrow(mat_scaled)*20)
+    grDevices::png(paste0(img_InfosOnGenes_dir, title, suff, "_heatmap.png"), width=sizeImg*0.8, height=nrow(mat_scaled)*20)
   }
   else{
-    png(paste0(img_InfosOnGenes_dir, title, suff, "_heatmap.png"), width=sizeImg*0.8, height=nrow(mat_scaled)*17)
+    grDevices::png(paste0(img_InfosOnGenes_dir, title, suff, "_heatmap.png"), width=sizeImg*0.8, height=nrow(mat_scaled)*17)
   }
-  draw(ht_list, row_title = graphTitle, column_title_gp = gpar(font=2, fontsize=15), heatmap_legend_side = "bottom",column_title = paste0("Expression and DE status \n on genes from list '", title, "'"))
-  dev.off()
+  ComplexHeatmap::draw(ht_list, row_title = graphTitle, column_title_gp = grid::gpar(font=2, fontsize=15), heatmap_legend_side = "bottom",column_title = paste0("Expression and DE status \n on genes from list ", title, ""))
+  grDevices::dev.off()
 
   if (length(list)!=nrow(totalData)){
-    cat(paste0("WARNING: ", length(list)-nrow(totalData), " genes from the list (",length(list)," genes) were eliminated at the filtering step due to a very low expression level. "))
+    cat(paste0("WARNING: ", length(list)-nrow(totalData), " genes from the list (",length(list)," genes) were eliminated at the filtering step due to a very low expression level or because gene name is not valid. "))
   }
 
 }
 
+
+#' @title KEGGenrichment
+#'
+#' @description
+#' Peform KEGG enrichment analysis for each contrast
+#' \itemize{
+#'    \item Table enriched KEGG for genes UP-regulated and DOWN-regulated
+#'    \item P-value and ratio Graphs
+#' }
+#'
+#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
+#' @param data, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @param list, gene list of interest if you want to apply KEGGenrichment function on a specific gene list.
+#' @param title, name of the gene list if you want to apply KEGGenrichment function on a specific gene list.
+#' @return none
+#'
+#' @import topGO
+#' @import stats
+#' @import data.table
+#' @import forcats
+#' @import ggplot2
+#' @import dplyr
+#'
+#' @examples
+#' \dontrun{
+#'    KEGGenrichment(resDEG, data, parameters)
+#'    # OR
+#'    KEGGenrichment(resDEG, data, parameters, list, title)
+#'    # OR
+#'    KEGGenrichment(resDEG, data, parameters, list=NULL, title=NULL)
+#' }
+#'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
+#' @export
+KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
+
+  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
+  norm_dir = paste0(study_dir, "NormCountsTables/")
+  KEGG_dir  = paste0(study_dir, "/KEGGenrichment/")
+  if(dir.exists(KEGG_dir)==FALSE){
+    dir.create(KEGG_dir)
+    cat("\n\nDirectory: ",KEGG_dir," created\n")
+  }
+  input_path = paste0(parameters$dir_path, "/input/")
+
+  Gene2kegg = topGO::readMappings(file = paste0(input_path,parameters$geneID2KEGG_file))
+
+  # import annotation if provided
+  if (is.null(parameters$annotation)==FALSE){
+    annot<-utils::read.csv(paste0(input_path, parameters$annotation), header = TRUE, row.names = 1, sep = '\t', quote = "")
+  }
+
+  # import normalized MEAN counts in CPM
+  moys <- utils::read.csv(paste0(norm_dir, parameters$analysis_name,"_CPM_NormMeanCounts.txt"), header=TRUE, sep="\t", row.names=1)
+  moys = as.matrix(moys)
+
+  # INVERSER CLES / VALEURS
+  Kegg2gene = c()
+  for (i in seq_len(length(Gene2kegg))){
+    for (x in seq_len(length(Gene2kegg[[i]]))){
+      if (Gene2kegg[[i]][x] %in% names(Kegg2gene)){
+        Kegg2gene[[Gene2kegg[[i]][x]]] = c(Kegg2gene[[Gene2kegg[[i]][x]]],names(Gene2kegg[i]))
+      }
+      else{
+        Kegg2gene[[Gene2kegg[[i]][x]]] = names(Gene2kegg[i])
+      }
+    }
+  }
+
+  if (is.null(list) == FALSE){
+    img_KEGG_dir = paste0(KEGG_dir, "OnSpecificList_",title,"/")
+    if(dir.exists(img_KEGG_dir)==FALSE){
+      dir.create(img_KEGG_dir)
+      cat("Directory: ",img_KEGG_dir," created\n")
+    }
+    GeneListName = title
+  }
+  else {
+    img_KEGG_dir = paste0(KEGG_dir, "OnContrasts/")
+    if(dir.exists(img_KEGG_dir)==FALSE){
+      dir.create(img_KEGG_dir)
+      cat("\n\nDirectory: ",img_KEGG_dir," created\n")
+    }
+    GeneListName = colnames(resDEG)
+  }
+
+  for (contrast in GeneListName){
+
+    if (is.null(list) == FALSE){
+    all = list
+    }
+    else{
+    colonne = match(contrast,names(resDEG))
+
+    up = rownames(resDEG[which(resDEG[,colonne] == 1),])
+    down = rownames(resDEG[which(resDEG[,colonne] == -1),])
+    }
+
+    table = data.frame()
+    for (p in names(Kegg2gene)){
+      # trouver index p
+      index = match(p, names(Kegg2gene))
+      BDD=data.frame(nb_genes_totalDsKEGG=length(Kegg2gene[[as.numeric(index)]]))
+
+      upCount=c()
+      downCount=c()
+      AllCount=c()
+
+      if (is.null(list) == FALSE){
+        for (gene in Kegg2gene[[as.numeric(index)]]){
+          if (gene %in% all) {
+            AllCount = c(AllCount, gene)
+          }
+        }
+        # a = (K,InLIst)
+        aAll = length(AllCount)
+        # b = (K,not InList)
+        bAll = length(Kegg2gene[[as.numeric(index)]]) - aAll
+        # c = (InLIst, not K)
+        cAll = length(all) - aAll
+        # d = (not K, not InList)
+        dAll = (length(Gene2kegg) - length(all)) - bAll
+        # print(length(Gene2kegg))
+        # print(length(all))
+        # print(bAll)
+        # Fisher-test All
+        dfAll <- data.frame("InList" = c(aAll, cAll), "NotInLIst" = c(bAll, dAll), row.names = c("K", "notK"))
+        #print(dfAll)
+
+        BDD$nb_genes_All = aAll
+        expectedAll = (aAll + bAll) / (aAll + bAll + cAll + dAll) * length(all)
+        BDD$ExpectedAll = expectedAll
+        BDD$RatioEnrichAll = (aAll) / expectedAll
+        if(BDD$nb_genes_All < BDD$ExpectedAll) {
+          BDD$OddRatio_All = 0
+          BDD$pValue_All = 1
+        }
+        else{
+          BDD$OddRatio_All = fisher.test(dfAll)[3]
+          BDD$pValue_All = fisher.test(dfAll)[1]
+        }
+
+        table = rbind(table,BDD)
+
+      }
+      else{
+      for (gene in Kegg2gene[[as.numeric(index)]]){
+        if (gene %in% up) {
+          upCount = c(upCount, gene)
+        }
+        if (gene %in% down) {
+          downCount=c(downCount, gene)
+          }
+      }
+        # a = (K,up)
+        aUp = length(upCount)
+        # b = (K,not up)
+        bUp = length(Kegg2gene[[as.numeric(index)]]) - aUp
+        # c = (up, not K)
+        cUp = length(up) - aUp
+        # d = (not K, not up)
+        dUp = (length(Gene2kegg) - length(up)) - bUp
+
+        # Fisher-test Up
+        dfUp <- data.frame("UpDiff" = c(aUp, cUp), "UpNotDiff" = c(bUp, dUp), row.names = c("K", "notK"))
+        #print(dfUp)
+
+        BDD$nb_genes_up = aUp
+        expectedUp = (aUp + bUp) / (aUp + bUp + cUp + dUp) * length(up)
+        BDD$ExpectedUp = expectedUp
+        BDD$RatioEnrichUp = (aUp) / expectedUp
+        if(BDD$nb_genes_up < BDD$ExpectedUp) {
+          BDD$OddRatio_Up = 0
+          BDD$pValue_Up = 1
+        }
+        else{
+          BDD$OddRatio_Up = fisher.test(dfUp)[3]
+          BDD$pValue_Up = fisher.test(dfUp)[1]
+        }
+
+        # a = (K,down)
+        aDown = length(downCount)
+        # b = (K,not down)
+        bDown = length(Kegg2gene[[as.numeric(index)]]) - aDown
+        # c = (down, not K)
+        cDown = length(down) - aDown
+        # d = (not K, not down)
+        dDown = (length(Gene2kegg) - length(down)) - bDown
+        # Fisher-test Down
+        dfDown <- data.frame("DownDiff" = c(aDown, cDown), "DownNotDiff" = c(bDown, dDown), row.names = c("K", "notK"))
+        BDD$nb_genes_down = aDown
+        expectedDown = (aDown + bDown) / (aDown + bDown + cDown + dDown) * length(down)
+        BDD$ExpectedDown = expectedDown
+        BDD$RatioEnrichDown = (aDown) / expectedDown
+        if(BDD$nb_genes_down < BDD$ExpectedDown) {
+          BDD$OddRatio_Down = 0
+          BDD$pValue_Down = 1
+        }
+        else{
+          BDD$OddRatio_Down = fisher.test(dfDown)[3]
+          BDD$pValue_Down = fisher.test(dfDown)[1]
+        }
+
+        table = rbind(table,BDD)
+      }
+
+    }
+
+    rownames(table) = names(Kegg2gene)
+    #fwrite(table, file =paste0(img_KEGG_dir, contrast, "_TABLE.txt"), sep="\t",row.names = TRUE)
+    #table = table[-grep("-", rownames(table), ignore.case = TRUE),]
+    table2 = as.data.frame(table)
+    SansMap <- grep("map", rownames(table2), ignore.case = TRUE)
+    table2 <- table2[-SansMap, ]
+    # selectionner seulement les kegg o? nb_genes > expected
+    data.table::fwrite(table2, file =paste0(img_KEGG_dir, contrast, "_SortieEnrichKEGG.txt"), sep="\t",row.names = TRUE)
+
+    if (is.null(list) == FALSE){
+
+    ALLtable = as.data.frame(table2[,1:6])
+    ALLtable$Sens = "ALL"
+    ALLtable = plyr::rename(ALLtable, c("nb_genes_totalDsKEGG"="nb_genes_total", "nb_genes_All"="nb_genes", "ExpectedAll"= "Expected", "RatioEnrichAll"="RatioEnrich", "OddRatio_All"="OddRatio", "pValue_All"="Pval"))
+    ALLtable = ALLtable[(ALLtable$nb_genes != 0) & (ALLtable$nb_genes >= ALLtable$Expected),]
+    ALLtable$kegg=rownames(ALLtable)
+    rownames(ALLtable)=c()
+
+    KEGGdata = ALLtable
+    #fwrite(KEGGdata, file =paste0(img_KEGG_dir, contrast, "_KEGGdata.txt"), sep="\t",row.names = TRUE)
+
+    }
+
+    else{
+    UPtable = as.data.frame(table2[,1:6])
+    UPtable$Sens = "UP"
+    UPtable = plyr::rename(UPtable, c("nb_genes_totalDsKEGG"="nb_genes_total", "nb_genes_up"="nb_genes", "ExpectedUp"= "Expected", "RatioEnrichUp"="RatioEnrich", "OddRatio_Up"="OddRatio", "pValue_Up"="Pval"))
+    UPtable = UPtable[(UPtable$nb_genes != 0) & (UPtable$nb_genes >= UPtable$Expected),]
+    UPtable$kegg=rownames(UPtable)
+    rownames(UPtable)=c()
+    DOWNtable = as.data.frame(table2[,c(1,7:11)])
+    DOWNtable$Sens = "DOWN"
+    DOWNtable = plyr::rename(DOWNtable, c( "nb_genes_totalDsKEGG" = "nb_genes_total","nb_genes_down"= "nb_genes",  "ExpectedDown"= "Expected", "RatioEnrichDown"="RatioEnrich", "OddRatio_Down"="OddRatio","pValue_Down" = "Pval"))
+    DOWNtable = DOWNtable[(DOWNtable$nb_genes != 0) & (DOWNtable$nb_genes >= DOWNtable$Expected),]
+    DOWNtable$kegg=rownames(DOWNtable)
+    rownames(DOWNtable)=c()
+
+    KEGGdata = rbind(UPtable,DOWNtable)
+}
+
+    if (is.null(list) == FALSE){
+    SENS = "ALL"
+      }
+    else{
+    SENS = c("UP","DOWN")
+    }
+
+    for(x in SENS){
+
+      if(x=="UP"){
+        geneSelected <- rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x==1)),])
+      }
+
+      if(x=="DOWN"){
+        geneSelected <- rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x==-1)),])
+      }
+      if(x=="ALL"){
+        geneSelected <- list
+      }
+
+      # # Create files of genes for each enriched KEGG
+      geneNames <- names(Gene2kegg)
+      geneList <- factor(as.integer(geneNames %in% geneSelected))
+      names(geneList) <- geneNames
+
+      if(length(geneSelected)==0){
+        cat("\nContrast:",contrast,"-> No DE genes found!\n")
+        next
+      }
+      #
+      if(sum(levels(geneList)==1)==0){
+        cat("\nContrast:",contrast,"-> No DE genes with KEGG annotation!\n")
+        next
+      }
+
+      myterms = as.character(KEGGdata[as.numeric(KEGGdata$Pval)<=0.05 & KEGGdata$Sens == x,8])
+
+    if (length(myterms) != "0"){
+
+
+      if(x=="UP"){
+        img_KEGGtoGene_dir = paste0(img_KEGG_dir,"SignificantKEGG_to_Genes_UP_",contrast,"/")
+        if(dir.exists(img_KEGGtoGene_dir)==FALSE){
+          dir.create(img_KEGGtoGene_dir)
+          cat("Directory: ",img_KEGGtoGene_dir," created\n")
+        }
+      }
+      if(x=="DOWN"){
+        img_KEGGtoGene_dir = paste0(img_KEGG_dir,"SignificantKEGG_to_Genes_DOWN_",contrast,"/")
+        if(dir.exists(img_KEGGtoGene_dir)==FALSE){
+          dir.create(img_KEGGtoGene_dir)
+          cat("Directory: ",img_KEGGtoGene_dir," created\n")
+        }
+      }
+      if(x=="ALL"){
+        img_KEGGtoGene_dir = paste0(img_KEGG_dir,"SignificantKEGG_to_Genes_",contrast,"/")
+        if(dir.exists(img_KEGGtoGene_dir)==FALSE){
+          dir.create(img_KEGGtoGene_dir)
+          cat("Directory: ",img_KEGGtoGene_dir," created\n")
+        }
+      }
+
+      cat("\nAskoR is saving one file per enriched KEGG (contrast ", contrast, "_", x, ").\n")
+      mygenes <- Kegg2gene[names(Kegg2gene) %in% myterms]
+      noms=names(mygenes)
+      for (z in seq_len(length(mygenes))){
+        listes=mygenes[[z]][mygenes[[z]] %in% geneSelected == TRUE]
+        KEGGtab <- data.frame(Gene=listes)
+        rownames(KEGGtab)=KEGGtab$Gene
+        if (is.null(parameters$annotation)==FALSE){
+          KEGGtab = merge(KEGGtab, annot, by="row.names")
+          KEGGtab = KEGGtab[,-1]
+          KEGGtab = KEGGtab[,seq_len(2)]
+          colnames(KEGGtab)[2] <- "Gene_description"
+          rownames(KEGGtab)=KEGGtab$Gene
+        }
+        else{
+          KEGGtab$Gene_description = "No annotation file provided"
+        }
+        KEGGtab = merge(KEGGtab, resDEG, by="row.names")
+        KEGGtab = KEGGtab[,-1]
+        rownames(KEGGtab)=KEGGtab$Gene
+        KEGGtab = merge(KEGGtab, moys, by="row.names")
+        KEGGtab = KEGGtab[,-1]
+        KEGGtab$KEGG_ID = noms[z]
+        utils::write.table(KEGGtab,paste0(img_KEGGtoGene_dir, noms[z],".txt"), sep="\t", dec=".", row.names=FALSE, col.names=TRUE, quote=FALSE)
+      }
+     }
+    }
+
+    # tables pr graphe Pval
+    if (is.null(list) == FALSE){
+      ALLtablePval = ALLtable[ALLtable$Pval <= 0.05 & ALLtable$nb_genes_total >= parameters$KEGG_min_num_genes & ALLtable$nb_genes >= parameters$KEGG_min_sig_genes & ALLtable$RatioEnrich >= parameters$KEGG_Ratio_threshold,]
+      ALLtablePval = ALLtablePval %>%
+        dplyr::arrange(as.numeric(Pval))
+      maxi = parameters$KEGG_max_top_terms
+      if(nrow(ALLtablePval) <= maxi){maxi = nrow(ALLtablePval) }
+      if(nrow(ALLtablePval) != 0) {ALLtablePval = ALLtablePval[1:maxi,]}
+      tablePval = ALLtablePval
+    }
+    else{
+    UPtablePval = UPtable[UPtable$Pval <= 0.05 & UPtable$nb_genes_total >= parameters$KEGG_min_num_genes & UPtable$nb_genes >= parameters$KEGG_min_sig_genes & UPtable$RatioEnrich >= parameters$KEGG_Ratio_threshold,]
+    UPtablePval = UPtablePval %>%
+      dplyr::arrange(as.numeric(Pval))
+    maxi = parameters$KEGG_max_top_terms
+    if(nrow(UPtablePval) <= maxi){maxi = nrow(UPtablePval) }
+    if(nrow(UPtablePval) != 0) {UPtablePval = UPtablePval[1:maxi,]}
+
+    DOWNtablePval = DOWNtable[DOWNtable$Pval <= 0.05 & DOWNtable$nb_genes_total >= parameters$KEGG_min_num_genes & DOWNtable$nb_genes >= parameters$KEGG_min_sig_genes & DOWNtable$RatioEnrich >= parameters$KEGG_Ratio_threshold,]
+    DOWNtablePval = DOWNtablePval %>%
+      dplyr::arrange(as.numeric(Pval))
+    maxi = parameters$KEGG_max_top_terms
+    if(nrow(DOWNtablePval) <= maxi){maxi = nrow(DOWNtablePval) }
+    if(nrow(DOWNtablePval) != 0) {DOWNtablePval = DOWNtablePval[1:maxi,]}
+
+    tablePval = rbind(UPtablePval,DOWNtablePval)
+    }
+
+    # tables pr graphe Ratio enrich
+    if (is.null(list) == FALSE){
+      ALLtableRatio = ALLtable[ALLtable$Pval <= 0.05 & ALLtable$nb_genes_total >= parameters$KEGG_min_num_genes & ALLtable$nb_genes >= parameters$KEGG_min_sig_genes & ALLtable$RatioEnrich >= parameters$KEGG_Ratio_threshold,]
+      ALLtableRatio = ALLtableRatio %>%
+        dplyr::arrange(as.numeric(-RatioEnrich))
+      maxi = parameters$KEGG_max_top_terms
+      if(nrow(ALLtableRatio) <= maxi){maxi = nrow(ALLtableRatio) }
+      if(nrow(ALLtableRatio) != 0) {ALLtableRatio = ALLtableRatio[1:maxi,]}
+      tableRatio = ALLtableRatio
+    }
+    else{
+    UPtableRatio = UPtable[UPtable$Pval <= 0.05 & UPtable$nb_genes_total >= parameters$KEGG_min_num_genes & UPtable$nb_genes >= parameters$KEGG_min_sig_genes & UPtable$RatioEnrich >= parameters$KEGG_Ratio_threshold,]
+    UPtableRatio = UPtableRatio %>%
+      dplyr::arrange(as.numeric(-RatioEnrich))
+    maxi = parameters$KEGG_max_top_terms
+    if(nrow(UPtableRatio) <= maxi){maxi = nrow(UPtableRatio) }
+    if(nrow(UPtableRatio) != 0) {UPtableRatio = UPtableRatio[1:maxi,]}
+
+    DOWNtableRatio = DOWNtable[DOWNtable$Pval <= 0.05 & DOWNtable$nb_genes_total >= parameters$KEGG_min_num_genes & DOWNtable$nb_genes >= parameters$KEGG_min_sig_genes & DOWNtable$RatioEnrich >= parameters$KEGG_Ratio_threshold,]
+    DOWNtableRatio = DOWNtableRatio %>%
+      dplyr::arrange(as.numeric(-RatioEnrich))
+    maxi = parameters$KEGG_max_top_terms
+    if(nrow(DOWNtableRatio) <= maxi){maxi = nrow(DOWNtableRatio) }
+    if(nrow(DOWNtableRatio) != 0) {DOWNtableRatio = DOWNtableRatio[1:maxi,]}
+
+    tableRatio = rbind(UPtableRatio,DOWNtableRatio)
+    }
+
+    if (is.null(list) == FALSE){
+      GraphTitlePval = paste0("Most significant KEGG for list\n", contrast)
+      GraphTitleRatio = paste0("Most enriched KEGG for list\n", contrast)
+      }
+    else{
+      GraphTitlePval = paste0("Most significant KEGG for contrast\n", contrast)
+      GraphTitleRatio = paste0("Most enriched KEGG for contrast\n", contrast)
+      }
+
+    if(nrow(tablePval) != 0){
+
+    # graphe Pval
+    KeggForGraph=as.data.frame(tablePval)
+
+    # d?finition des UP et DOWN dans le graphique (pr facet_grid)
+    if (is.null(list) == TRUE){
+      comp_names2 <- c(`UP` = "UP in first condition", `DOWN` = "DOWN in first condition")
+
+      ggplot2::ggplot(as.data.frame(KeggForGraph), aes(x=-log10(as.numeric(Pval)), label=nb_genes, y=kegg, size=nb_genes, color=RatioEnrich)) +
+      geom_point(aes(x = -log10(as.numeric(Pval)), y = reorder(kegg, -as.numeric(Pval))), shape = 19,alpha=1) +
+      scale_color_gradient(low="blue", high="red")+
+      scale_x_continuous(trans='log10') +
+      facet_grid(factor(Sens, levels=c('UP','DOWN'))~., scales="free", space = "free",labeller = as_labeller(comp_names2))+
+      geom_vline(xintercept = 1.3) +
+      theme(
+        panel.background = element_rect(fill = "grey96", colour = "grey90", size = 0.5, linetype = "solid"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
+        panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
+        axis.text.y = element_text(face="bold", size=rel(1.25)),
+        axis.text.x = element_text(face="bold", size=rel(1.25)),
+        axis.title = element_text(face="bold", size=rel(1.25)),
+        legend.title = element_text(size=rel(1), face="bold"),
+        plot.title = element_text(face="bold", size=rel(0.75), hjust=1),
+        legend.text = element_text(size=rel(0.75)))+
+      labs(title=GraphTitlePval, x ="-log10 p-value", y = "KEGG", size ="Nb genes", color = "Ratio enrichment") +
+      theme(plot.title = element_text(size = 13, face = "bold"))
+    ggplot2::ggsave(filename=paste0(img_KEGG_dir, contrast, "_Pval_KEGGgraph.png"), width=7, height=7)
+    }
+    else{
+      ggplot2::ggplot(as.data.frame(KeggForGraph), aes(x=-log10(as.numeric(Pval)), label=nb_genes, y=kegg, size=nb_genes, color=RatioEnrich)) +
+        geom_point(aes(x = -log10(as.numeric(Pval)), y = reorder(kegg, -as.numeric(Pval))), shape = 19,alpha=1) +
+        scale_color_gradient(low="blue", high="red")+
+        scale_x_continuous(trans='log10') +
+        geom_vline(xintercept = 1.3) +
+        theme(
+          panel.background = element_rect(fill = "grey96", colour = "grey90", size = 0.5, linetype = "solid"),
+          panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
+          panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
+          axis.text.y = element_text(face="bold", size=rel(1.25)),
+          axis.text.x = element_text(face="bold", size=rel(1.25)),
+          axis.title = element_text(face="bold", size=rel(1.25)),
+          legend.title = element_text(size=rel(1), face="bold"),
+          plot.title = element_text(face="bold", size=rel(0.75), hjust=1),
+          legend.text = element_text(size=rel(0.75)))+
+        labs(title=GraphTitlePval, x ="-log10 p-value", y = "KEGG", size ="Nb genes", color = "Ratio enrichment") +
+        theme(plot.title = element_text(size = 13, face = "bold"))
+      ggplot2::ggsave(filename=paste0(img_KEGG_dir, contrast, "_Pval_KEGGgraph.png"), width=7, height=7)
+    }
+
+    # graphe Ratios
+    KeggForGraph=as.data.frame(tableRatio)
+
+    if (is.null(list) == TRUE){
+      ggplot2::ggplot(as.data.frame(KeggForGraph), aes(x=RatioEnrich, y=kegg, size=nb_genes, color=as.numeric(Pval))) +
+      geom_point(aes(x = RatioEnrich, y = reorder(kegg, as.numeric(RatioEnrich))), shape = 19,alpha=1) +
+      facet_grid(factor(Sens, levels=c('UP','DOWN'))~., scales="free", space = "free",labeller = as_labeller(comp_names2))+
+      geom_vline(xintercept = parameters$KEGG_Ratio_threshold) +
+      scale_color_gradient(low="red", high="blue")+
+      theme(
+        panel.background = element_rect(fill = "grey96", colour = "grey90", size = 0.5, linetype = "solid"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
+        panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
+        axis.text.y = element_text(face="bold", size=rel(1.25)),
+        axis.text.x = element_text(face="bold", size=rel(1.25)),
+        axis.title = element_text(face="bold", size=rel(1.25)),
+        legend.title = element_text(size=rel(1), face="bold"),
+        plot.title = element_text(face="bold", size=rel(0.75), hjust=1),
+        legend.text = element_text(size=rel(0.75)))+
+      labs(title=GraphTitleRatio, x ="Ratio enrichment", y = "KEGG", size ="Nb genes", color = "P-value") +
+      theme(plot.title = element_text(size = 13, face = "bold"))
+    ggplot2::ggsave(filename=paste0(img_KEGG_dir, contrast, "_Ratio_KEGGgraph.png"), width=7, height=7)
+    }
+    else{
+      ggplot2::ggplot(as.data.frame(KeggForGraph), aes(x=RatioEnrich, y=kegg, size=nb_genes, color=as.numeric(Pval))) +
+        geom_point(aes(x = RatioEnrich, y = reorder(kegg, as.numeric(RatioEnrich))), shape = 19,alpha=1) +
+        geom_vline(xintercept = parameters$KEGG_Ratio_threshold) +
+        scale_color_gradient(low="red", high="blue")+
+        theme(
+          panel.background = element_rect(fill = "grey96", colour = "grey90", size = 0.5, linetype = "solid"),
+          panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
+          panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "white"),
+          axis.text.y = element_text(face="bold", size=rel(1.25)),
+          axis.text.x = element_text(face="bold", size=rel(1.25)),
+          axis.title = element_text(face="bold", size=rel(1.25)),
+          legend.title = element_text(size=rel(1), face="bold"),
+          plot.title = element_text(face="bold", size=rel(0.75), hjust=1),
+          legend.text = element_text(size=rel(0.75)))+
+        labs(title=GraphTitleRatio, x ="Ratio enrichment", y = "KEGG", size ="Nb genes", color = "P-value") +
+        theme(plot.title = element_text(size = 13, face = "bold"))
+      ggplot2::ggsave(filename=paste0(img_KEGG_dir, contrast, "_Ratio_KEGGgraph.png"), width=7, height=7)
+    }
+
+  }
+    else{print(paste0("There are no KEGG significantly enriched in ",contrast))}
+
+  }
+}
 
