@@ -240,17 +240,17 @@ list=rownames(resDEG[1:50,])
 
 # Without clustering information
 #----------------------------------------------------------------------
-GeneInfo_OnList(list, resDEG, data, "TitleOfTheList")
+GeneInfo_OnList(list, resDEG, data, parameters, "TitleOfTheList")
 
 # With clustering information (clust object produced by ClustAndGO function)
 #----------------------------------------------------------------------
-GeneInfo_OnList(list, resDEG, data, "TitleOfTheList",  clust)
+GeneInfo_OnList(list, resDEG, data, parameters, "TitleOfTheList",  clust)
 
 # With selection of conditions and/or contrasts to be represented in the heatmap (clust object is not mandatory)
 #----------------------------------------------------------------------
 conditionsToDraw = c("AC1", "AC2", "AC3")                 # select conditions
 contrastToDraw = c("AC1vsAC2","AC1vsAC3","AC2vsAC3")      # select contrasts
-GeneInfo_OnList(list, resDEG, data, "TitleOfTheList", clust, contrasts=contrastToDraw)  # graph with selected contrasts and all conditions
-GeneInfo_OnList(list, resDEG, data, "TitleOfTheList", clust, conditions=conditionsToDraw)  # graph with selected conditions and all contrasts
-GeneInfo_OnList(list, resDEG, data, "TitleOfTheList", clust, conditions=conditionsToDraw, contrasts=contrastToDraw) ## graph with selected contrasts and selected conditions
+GeneInfo_OnList(list, resDEG, data, parameters, "TitleOfTheList", clust, contrasts=contrastToDraw)  # graph with selected contrasts and all conditions
+GeneInfo_OnList(list, resDEG, data, parameters, "TitleOfTheList", clust, conditions=conditionsToDraw)  # graph with selected conditions and all contrasts
+GeneInfo_OnList(list, resDEG, data, parameters, "TitleOfTheList", clust, conditions=conditionsToDraw, contrasts=contrastToDraw) ## graph with selected contrasts and selected conditions
 
