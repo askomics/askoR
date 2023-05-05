@@ -2171,7 +2171,6 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
                              gene2GO = geneID2GO)
 
       resultTest <- topGO::runTest(GOdata, algorithm = parameters$GO_algo, statistic = parameters$GO_stats)
-      #print(resultTest)
 
       resGenTab <- topGO::GenTable(GOdata, numChar = 1000000, statisticTest = resultTest, orderBy = "statisticTest", topNodes=length(graph::nodes(graph(GOdata))) )
       resGenTab$Ratio = as.numeric(as.numeric(resGenTab$Significant)/as.numeric(resGenTab$Expected))
