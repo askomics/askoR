@@ -1118,6 +1118,7 @@ GEcorr <- function(asko_norm, parameters){
   grDevices::dev.off()
 
   # hierarchical clustering
+  #mat.dist <- stats::dist(t(asko_norm$counts), method = parameters$distcluts) CENE SONT PAS LES COMPTAGES NORMALISES !!! => ERREUR !
   mat.dist <- stats::dist(t(edgeR::cpm(asko_norm)), method = parameters$distcluts)
   clustering <- stats::hclust(mat.dist, method=parameters$hclust)
   grDevices::png(paste0(image_dir, parameters$analysis_name, "_hclust.png"), width=sizeImg, height=sizeImg)
@@ -2103,7 +2104,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
   geneNames <- names(geneID2GO)
 
   if (is.null(list) == FALSE){
-    img_go_dir = paste0(GO_dir, "OnSpecificList_",title,"/")
+    img_go_dir = paste0(GO_dir,"OnSpecificList_",title,"/")
     if(dir.exists(img_go_dir)==FALSE){
       dir.create(img_go_dir)
       cat("Directory: ",img_go_dir," created\n")
@@ -2112,7 +2113,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
     geneSelected = list
   }
   else {
-    img_go_dir = paste0(GO_dir, "OnContrasts/")
+    img_go_dir = paste0(GO_dir,"OnContrasts/")
     if(dir.exists(img_go_dir)==FALSE){
       dir.create(img_go_dir)
       cat("\n\nDirectory: ",img_go_dir," created\n")
@@ -2122,8 +2123,17 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
 
   for(contrast in GeneListName){
 
+    # transfo resDEG vector to dataframe si on a un seul contraste
+    if (ncol(resDEG)==1) {
+      row = rownames(resDEG)
+      resDEG = data.frame(x=row, contrast=resDEG[,1])
+      colnames(resDEG) = c("NA",contrast)
+      rownames(resDEG) = row
+    }
+
     if (is.null(list) == TRUE){
       if(is.null(parameters$GO)==TRUE){ return(NULL) }
+
 
       if(parameters$GO == "both"){
         geneSelected <- rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x!=0)),])
@@ -2138,6 +2148,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
         cat("\nBad value for GO parameters : autorized values are both, up, down or NULL.\n")
         return(NULL)
       }
+
     }
 
     geneList <- factor(as.integer(geneNames %in% geneSelected))
@@ -2153,6 +2164,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
       cat("\nContrast:",contrast,"-> No DE genes found!\n")
       next
     }
+
 
     if(sum(levels(geneList)==1)==0){
       cat("\nContrast:",contrast,"-> No DE genes with GO annotation!\n")
@@ -2482,8 +2494,6 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
   }
 
   GeneToClusters<-merge(clust,moys,by="row.names")
-
-  print(head(clust))
 
   if (parameters$coseq_data == 'LogScaledData'){
     img_transfo_dir = paste0(img_Clustering_dir,parameters$coseq_model,"_OnLog2ScaledData_",length(unique(clust$`clusters(coexpr)`)),"clusters/")
