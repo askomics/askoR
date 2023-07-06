@@ -1102,7 +1102,7 @@ GEcorr <- function(asko_norm, parameters){
 
   # hierarchical clustering
   #-----------------------------
-  mat.dist <- stats::dist(t(asko_norm$counts), method = parameters$distcluts)
+  mat.dist <- stats::dist(t(edgeR::cpm(asko_norm)), method = parameters$distcluts)
   clustering <- stats::hclust(mat.dist, method=parameters$hclust)
   grDevices::png(paste0(image_dir, parameters$analysis_name, "_hclust.png"), width=sizeImg, height=sizeImg)
   graphics::par(oma=c(1,1,1,1))
