@@ -52,8 +52,8 @@ Asko_start <- function(){
                           help="Samples file [default= %default]", metavar="character"),
     optparse::make_option(c("-c", "--contrasts"), type="character", default="Contrasts.txt",dest="contrast_file",
                           help="Contrasts file [default= %default]", metavar="character"),
-    optparse::make_option(c("-k", "--mk_context"), type="logical", default=FALSE,dest="mk_context",
-                          help="generate automatically the context names [default= %default]", metavar="logical"),
+    # optparse::make_option(c("-k", "--mk_context"), type="logical", default=FALSE,dest="mk_context",
+    #                       help="generate automatically the context names [default= %default]", metavar="logical"),
     optparse::make_option(c("--palette"), type="character", default="Set2", dest="palette",
                           help="Color palette (ggplot)[default= %default]", metavar="character"),
     optparse::make_option(c("-R", "--regex"), type="logical", default=FALSE, dest="regex",
@@ -476,124 +476,153 @@ asko3c <- function(data_list, parameters){
 
   list_context<-list()                                                          # initialization of context and condition lists
   list_condition<-list()                                                        # will be used to create the context data frame
-  if(parameters$mk_context==TRUE){
-    for (contrast in colnames(data_list$contrast)){                             # for each contrast :
-      i=i+1                                                                       # contrast data frame will be filled line by line
-      set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]>0]   # retrieval of 1st set of condition's names implicated in a given contrast
-      set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]<0]   # retrieval of 2nd set of condition's names implicated in a given contrast
-      set_condition<-colnames(condition_asko)                                     # retrieval of names of experimental factor
-
-      if(length(set_cond1)==1){complex1=FALSE}else{complex1=TRUE}                        # to determine if we have complex contrast (multiple conditions
-      if(length(set_cond2)==1){complex2=FALSE}else{complex2=TRUE}                        # compared to multiple conditions) or not
-      if(complex1==FALSE && complex2==FALSE){                                             # Case 1: one condition against one condition
-        contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
-        contrast_asko[i,"context2"]<-set_cond2                                    # filling contrast data frame with the name of the 2nd context
-        contrast_name<-paste(set_cond1,set_cond2, sep = "vs")                     # creation of contrast name by associating the names of contexts
-        contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with contrast name
-        list_context<-append(list_context, set_cond1)                             #
-        list_condition<-append(list_condition, set_cond1)                         # adding respectively to the lists "context" and "condition" the context name
-        list_context<-append(list_context, set_cond2)                             # and the condition name associated
-        list_condition<-append(list_condition, set_cond2)                         #
-      }
-      if(complex1==FALSE && complex2==TRUE){                                             # Case 2: one condition against multiple condition
-        contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
-        list_context<-append(list_context, set_cond1)                             # adding respectively to the lists "context" and "condition" the 1st context
-        list_condition<-append(list_condition, set_cond1)                         # name and the condition name associated
-        l=0
-        # "common_factor" will contain the common experimental factors shared by
-        common_factor=list()                                                      # conditions belonging to the complex context
-        for (param_names in set_condition){                                       # for each experimental factor
-          facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
-          l=l+1                                                                   #
-          for(value in facteur){                                                  # for each possible values
-            verif<-unique(stringr::str_detect(set_cond2, value))                           # verification of the presence of values in each condition contained in the set
-            if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor
-          }                                                                       # is added as common factor
-        }
-        if(length(common_factor)>1){                                              # if there are several common factor
-          common_factor<-toString(common_factor)                                  # the list is converted to string
-          contx<-stringr::str_replace(common_factor,", ","")
-          contx<-stringr::str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
-        contrast_asko[i,"context2"]<-contx                                        # filling contrast data frame with the name of the 2nd context
-        contrast_name<-paste(set_cond1,contx, sep = "vs")                         # concatenation of context names to make the contrast name
-        contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
-        for(j in length(set_cond2)){                                            # for each condition contained in the complex context (2nd):
-          list_context<-append(list_context, contx)                               # adding condition name with the context name associated
-          list_condition<-append(list_condition, set_cond2[j])                    # to their respective list
-        }
-      }
-      if(complex1==TRUE && complex2==FALSE){                                             # Case 3: multiple conditions against one condition
-        contrast_asko[i,"context2"]<-set_cond2                                    # filling contrast data frame with the name of the 2nd context
-        list_context<-append(list_context, set_cond2)                             # adding respectively to the lists "context" and "condition" the 2nd context
-        list_condition<-append(list_condition, set_cond2)                         # name and the 2nd condition name associated
-        l=0
-        # "common_factor" will contain the common experimental factors shared by
-        common_factor=list()                                                      # conditions belonging to the complex context
-        for (param_names in set_condition){                                       # for each experimental factor:
-          facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
-          l=l+1
-          for(value in facteur){                                                  # for each possible values:
-            verif<-unique(stringr::str_detect(set_cond1, value))                           # verification of the presence of values in each condition contained in the set
-            if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor
-          }                                                                       # is added as common factor
-        }
-        if(length(common_factor)>1){                                              # if there are several common factor
-          common_factor<-toString(common_factor)                                  # the list is converted to string
-          contx<-stringr::str_replace(common_factor,", ","")
-          contx<-stringr::str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
-        contrast_asko[i,"context1"]<-contx                                        # filling contrast data frame with the name of the 1st context
-        contrast_name<-paste(contx,set_cond2, sep = "vs")                         # concatenation of context names to make the contrast name
-        contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
-        for(j in length(set_cond1)){                                            # for each condition contained in the complex context (1st):
-          list_context<-append(list_context, contx)                               # adding condition name with the context name associated
-          list_condition<-append(list_condition, set_cond1[j])                    # to their respective list
-        }
-      }
-      if(complex1==TRUE && complex2==TRUE){                                             # Case 4: multiple conditions against multiple conditions
-        m=0                                                                       #
-        n=0                                                                       #
-        common_factor1=list()                                                     # list of common experimental factors shared by conditions of the 1st context
-        common_factor2=list()                                                     # list of common experimental factors shared by conditions of the 2nd context
-        w=1
-        for (param_names in set_condition){                                       # for each experimental factor:
-          print(w)
-          w=w+1
-          facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
-
-          for(value in facteur){                                                  # for each possible values:
-            verif1<-unique(stringr::str_detect(set_cond1, value))                          # verification of the presence of values in each condition contained in the 1st context
-            verif2<-unique(stringr::str_detect(set_cond2, value))                          # verification of the presence of values in each condition contained in the 2nd context
-
-            if(length(verif1)==1 && verif1==TRUE){m=m+1;common_factor1[m]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
-            if(length(verif2)==1 && verif2==TRUE){n=n+1;common_factor2[n]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
-          }
-        }
-        if(length(common_factor1)>1){                                             # if there are several common factor for conditions in the 1st context
-          common_factor1<-toString(common_factor1)                                # conversion list to string
-          contx1<-stringr::str_replace(common_factor1,", ","")}else{contx1<-common_factor1}# all common factor are concatenated to become the name of context
-        contx1<-stringr::str_replace_all(contx1, "NULL", "")
-        if(length(common_factor2)>1){                                             # if there are several common factor for conditions in the 2nd context
-          common_factor2<-toString(common_factor2)                                # conversion list to string
-          contx2<-stringr::str_replace(common_factor2,", ","")}else{contx2<-common_factor2}# all common factor are concatenated to become the name of context
-        contx2<-stringr::str_replace_all(contx2, "NULL", "")
-        contrast_asko[i,"context1"]<-contx1                                       # filling contrast data frame with the name of the 1st context
-        contrast_asko[i,"context2"]<-contx2                                       # filling contrast data frame with the name of the 2nd context
-        contrast_asko[i,"Contrast"]<-paste(contx1,contx2, sep = "vs")             # filling contrast data frame with the name of the contrast
-        for(j in seq_len(set_cond1)){                                            # for each condition contained in the complex context (1st):
-          list_context<-append(list_context, contx1)                              # verification of the presence of values in each condition
-          list_condition<-append(list_condition, set_cond1[j])                    # contained in the 1st context
-        }
-        for(j in seq_len(set_cond2)){                                            # for each condition contained in the complex context (2nd):
-          list_context<-append(list_context, contx2)                              # verification of the presence of values in each condition
-          list_condition<-append(list_condition, set_cond2[j])                    # contained in the 1st context
-        }
-      }
-    }
-  }
-  else{
+  # if(parameters$mk_context==TRUE){
+  #   for (contrast in colnames(data_list$contrast)){                             # for each contrast :
+  #     i=i+1                                                                       # contrast data frame will be filled line by line
+  #     set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]>0]   # retrieval of 1st set of condition's names implicated in a given contrast
+  #     set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]<0]   # retrieval of 2nd set of condition's names implicated in a given contrast
+  #     set_condition<-colnames(condition_asko)                                     # retrieval of names of experimental factor
+  #
+  #
+  #     if(length(set_cond1)==1){complex1=FALSE}else{complex1=TRUE}                        # to determine if we have complex contrast (multiple conditions
+  #     if(length(set_cond2)==1){complex2=FALSE}else{complex2=TRUE}                        # compared to multiple conditions) or not
+  #     if(complex1==FALSE && complex2==FALSE){                                             # Case 1: one condition against one condition
+  #       contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
+  #       contrast_asko[i,"context2"]<-set_cond2                                    # filling contrast data frame with the name of the 2nd context
+  #       contrast_name<-paste(set_cond1,set_cond2, sep = "vs")                     # creation of contrast name by associating the names of contexts
+  #       #contrast_name <- paste0(contrast_asko[i,"context1"],"vs",contrast_asko[i,"context2"])
+  #       contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with contrast name
+  #       list_context<-append(list_context, set_cond1)                             #
+  #       list_condition<-append(list_condition, set_cond1)                         # adding respectively to the lists "context" and "condition" the context name
+  #       list_context<-append(list_context, set_cond2)                             # and the condition name associated
+  #       list_condition<-append(list_condition, set_cond2)                         #
+  #     }
+  #
+  #     if(complex1==FALSE && complex2==TRUE){                                             # Case 2: one condition against multiple condition
+  #       contrast_asko[i,"context1"]<-set_cond1                                    # filling contrast data frame with the name of the 1st context
+  #       list_context<-append(list_context, set_cond1)                             # adding respectively to the lists "context" and "condition" the 1st context
+  #       list_condition<-append(list_condition, set_cond1)                         # name and the condition name associated
+  #       l=0
+  #       # "common_factor" will contain the common experimental factors shared by
+  #       common_factor=list()                                                      # conditions belonging to the complex context
+  #       for (param_names in set_condition){                                       # for each experimental factor
+  #         facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
+  #         l=l+1                                                                   #
+  #         for(value in facteur){                                                  # for each possible values
+  #           verif<-unique(stringr::str_detect(set_cond2, value))                           # verification of the presence of values in each condition contained in the set
+  #           if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor
+  #         }                                                                       # is added as common factor
+  #       }
+  #       if(length(common_factor)>1){                                              # if there are several common factor
+  #         common_factor<-toString(common_factor)                                  # the list is converted to string
+  #         contx<-stringr::str_replace(common_factor,", ","")
+  #         contx<-stringr::str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
+  #       contrast_asko[i,"context2"]<-contx                                        # filling contrast data frame with the name of the 2nd context
+  #       contrast_name<-paste(set_cond1,contx, sep = "vs")                         # concatenation of context names to make the contrast name
+  #       contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
+  #       for(j in length(set_cond2)){                                            # for each condition contained in the complex context (2nd):
+  #         list_context<-append(list_context, contx)                               # adding condition name with the context name associated
+  #         list_condition<-append(list_condition, set_cond2[j])                    # to their respective list
+  #       }
+  #     }
+  #     if(complex1==TRUE && complex2==FALSE){                                             # Case 3: multiple conditions against one condition
+  #       contrast_asko[i,"context2"]<-set_cond2                                    # filling contrast data frame with the name of the 2nd context
+  #       list_context<-append(list_context, set_cond2)                             # adding respectively to the lists "context" and "condition" the 2nd context
+  #       list_condition<-append(list_condition, set_cond2)                         # name and the 2nd condition name associated
+  #       l=0
+  #       # "common_factor" will contain the common experimental factors shared by
+  #       common_factor=list()                                                      # conditions belonging to the complex context
+  #       for (param_names in set_condition){                                       # for each experimental factor:
+  #         facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
+  #         l=l+1
+  #         for(value in facteur){                                                  # for each possible values:
+  #           verif<-unique(stringr::str_detect(set_cond1, value))                           # verification of the presence of values in each condition contained in the set
+  #           if(length(verif)==1 && verif==TRUE){common_factor[l]<-value}          # if verif contains only TRUE, value of experimental factor
+  #         }                                                                       # is added as common factor
+  #       }
+  #       if(length(common_factor)>1){                                              # if there are several common factor
+  #         common_factor<-toString(common_factor)                                  # the list is converted to string
+  #         contx<-stringr::str_replace(common_factor,", ","")
+  #         contx<-stringr::str_replace_all(contx, "NULL", "")}else{contx<-common_factor}    # and all common factor are concatenated to become the name of context
+  #       contrast_asko[i,"context1"]<-contx                                        # filling contrast data frame with the name of the 1st context
+  #       contrast_name<-paste(contx,set_cond2, sep = "vs")                         # concatenation of context names to make the contrast name
+  #       contrast_asko[i,"Contrast"]<-contrast_name                                # filling contrast data frame with the contrast name
+  #       for(j in length(set_cond1)){                                            # for each condition contained in the complex context (1st):
+  #         list_context<-append(list_context, contx)                               # adding condition name with the context name associated
+  #         list_condition<-append(list_condition, set_cond1[j])                    # to their respective list
+  #       }
+  #     }
+  #     if(complex1==TRUE && complex2==TRUE){                                             # Case 4: multiple conditions against multiple conditions
+  #       m=0                                                                       #
+  #       n=0                                                                       #
+  #       common_factor1=list()                                                     # list of common experimental factors shared by conditions of the 1st context
+  #       common_factor2=list()                                                     # list of common experimental factors shared by conditions of the 2nd context
+  #       w=1
+  #       for (param_names in set_condition){                                       # for each experimental factor:
+  #         print(w)
+  #         w=w+1
+  #         facteur<-unique(c(condition_asko[,param_names]))                        # retrieval of possible values for the experimental factor
+  #
+  #         for(value in facteur){                                                  # for each possible values:
+  #           verif1<-unique(stringr::str_detect(set_cond1, value))                          # verification of the presence of values in each condition contained in the 1st context
+  #           verif2<-unique(stringr::str_detect(set_cond2, value))                          # verification of the presence of values in each condition contained in the 2nd context
+  #
+  #           if(length(verif1)==1 && verif1==TRUE){m=m+1;common_factor1[m]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
+  #           if(length(verif2)==1 && verif2==TRUE){n=n+1;common_factor2[n]<-value} # if verif=only TRUE, value of experimental factor is added as common factor
+  #         }
+  #       }
+  #       if(length(common_factor1)>1){                                             # if there are several common factor for conditions in the 1st context
+  #         common_factor1<-toString(common_factor1)                                # conversion list to string
+  #         contx1<-stringr::str_replace(common_factor1,", ","")}else{contx1<-common_factor1}# all common factor are concatenated to become the name of context
+  #       contx1<-stringr::str_replace_all(contx1, "NULL", "")
+  #       if(length(common_factor2)>1){                                             # if there are several common factor for conditions in the 2nd context
+  #         common_factor2<-toString(common_factor2)                                # conversion list to string
+  #         contx2<-stringr::str_replace(common_factor2,", ","")}else{contx2<-common_factor2}# all common factor are concatenated to become the name of context
+  #       contx2<-stringr::str_replace_all(contx2, "NULL", "")
+  #       contrast_asko[i,"context1"]<-contx1                                       # filling contrast data frame with the name of the 1st context
+  #       contrast_asko[i,"context2"]<-contx2                                       # filling contrast data frame with the name of the 2nd context
+  #       contrast_asko[i,"Contrast"]<-paste(contx1,contx2, sep = "vs")             # filling contrast data frame with the name of the contrast
+  #       for(j in seq_len(set_cond1)){                                            # for each condition contained in the complex context (1st):
+  #         list_context<-append(list_context, contx1)                              # verification of the presence of values in each condition
+  #         list_condition<-append(list_condition, set_cond1[j])                    # contained in the 1st context
+  #       }
+  #       for(j in seq_len(set_cond2)){                                            # for each condition contained in the complex context (2nd):
+  #         list_context<-append(list_context, contx2)                              # verification of the presence of values in each condition
+  #         list_condition<-append(list_condition, set_cond2[j])                    # contained in the 1st context
+  #       }
+  #     }
+  #   }
+  # }
+  #else{
     for (contrast in colnames(data_list$contrast)){
-      i=i+1
-      contexts=limma::strsplit2(contrast,"vs")
+          i=i+1                                                                       # contrast data frame will be filled line by line
+          set_cond1<-row.names(data_list$contrast)[data_list$contrast[,contrast]>0]   # retrieval of 1st set of condition's names implicated in a given contrast
+          set_cond2<-row.names(data_list$contrast)[data_list$contrast[,contrast]<0]   # retrieval of 2nd set of condition's names implicated in a given contrast
+          set_condition<-colnames(condition_asko)                                     # retrieval of names of experimental factor
+
+          if(length(set_cond1)==1){complex1=FALSE}else{complex1=TRUE}                        # to determine if we have complex contrast (multiple conditions
+          if(length(set_cond2)==1){complex2=FALSE}else{complex2=TRUE}                        # compared to multiple conditions) or not
+
+
+      if(complex1==FALSE && complex2==FALSE){
+        contexts = c(set_cond1,set_cond2)
+        }
+
+      if(complex1==FALSE && complex2==TRUE){
+        pre_contexts=limma::strsplit2(contrast,"vs")
+        contexts = c(set_cond1,pre_contexts[2])
+          }
+
+      if(complex1==TRUE && complex2==FALSE){
+        pre_contexts=limma::strsplit2(contrast,"vs")
+        contexts = c(pre_contexts[1],set_cond2)
+          }
+
+      if(complex1==TRUE && complex2==TRUE){
+        contexts=limma::strsplit2(contrast,"vs")
+          }
+
+
       if(parameters$projectName!="DEprj" && stringr::str_replace_all(parameters$projectName, " ", "")!=""){
         contrast_asko[i,"Contrast"]<-paste0(parameters$projectName,"_",contrast)
         contrast_asko[i,"Project"]<-parameters$projectName
@@ -614,7 +643,7 @@ asko3c <- function(data_list, parameters){
         list_condition<-append(list_condition, cond2)
       }
     }
-  }
+ # }
 
   list_context<-unlist(list_context)
   list_condition<-unlist(list_condition)                                                                    # conversion list to vector
@@ -654,6 +683,14 @@ asko3c <- function(data_list, parameters){
                      quote=FALSE)
   return(asko)
 }
+
+
+
+
+
+
+
+
 
 #' @title GEfilt
 #'
@@ -1118,6 +1155,7 @@ GEcorr <- function(asko_norm, parameters){
   grDevices::dev.off()
 
   # hierarchical clustering
+  #mat.dist <- stats::dist(t(asko_norm$counts), method = parameters$distcluts) CENE SONT PAS LES COMPTAGES NORMALISES !!! => ERREUR !
   mat.dist <- stats::dist(t(edgeR::cpm(asko_norm)), method = parameters$distcluts)
   clustering <- stats::hclust(mat.dist, method=parameters$hclust)
   grDevices::png(paste0(image_dir, parameters$analysis_name, "_hclust.png"), width=sizeImg, height=sizeImg)
@@ -2103,7 +2141,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
   geneNames <- names(geneID2GO)
 
   if (is.null(list) == FALSE){
-    img_go_dir = paste0(GO_dir, "OnSpecificList_",title,"/")
+    img_go_dir = paste0(GO_dir,"OnSpecificList_",title,"/")
     if(dir.exists(img_go_dir)==FALSE){
       dir.create(img_go_dir)
       cat("Directory: ",img_go_dir," created\n")
@@ -2112,7 +2150,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
     geneSelected = list
   }
   else {
-    img_go_dir = paste0(GO_dir, "OnContrasts/")
+    img_go_dir = paste0(GO_dir,"OnContrasts/")
     if(dir.exists(img_go_dir)==FALSE){
       dir.create(img_go_dir)
       cat("\n\nDirectory: ",img_go_dir," created\n")
@@ -2122,8 +2160,17 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
 
   for(contrast in GeneListName){
 
+    # transfo resDEG vector to dataframe si on a un seul contraste
+    if (ncol(resDEG)==1) {
+      row = rownames(resDEG)
+      resDEG = data.frame(x=row, contrast=resDEG[,1])
+      colnames(resDEG) = c("NA",contrast)
+      rownames(resDEG) = row
+    }
+
     if (is.null(list) == TRUE){
       if(is.null(parameters$GO)==TRUE){ return(NULL) }
+
 
       if(parameters$GO == "both"){
         geneSelected <- rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x!=0)),])
@@ -2138,6 +2185,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
         cat("\nBad value for GO parameters : autorized values are both, up, down or NULL.\n")
         return(NULL)
       }
+
     }
 
     geneList <- factor(as.integer(geneNames %in% geneSelected))
@@ -2153,6 +2201,7 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
       cat("\nContrast:",contrast,"-> No DE genes found!\n")
       next
     }
+
 
     if(sum(levels(geneList)==1)==0){
       cat("\nContrast:",contrast,"-> No DE genes with GO annotation!\n")
@@ -2483,8 +2532,6 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
 
   GeneToClusters<-merge(clust,moys,by="row.names")
 
-  print(head(clust))
-
   if (parameters$coseq_data == 'LogScaledData'){
     img_transfo_dir = paste0(img_Clustering_dir,parameters$coseq_model,"_OnLog2ScaledData_",length(unique(clust$`clusters(coexpr)`)),"clusters/")
     if(dir.exists(img_transfo_dir)==FALSE){
@@ -2631,8 +2678,12 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
     # create file with matrix of DE genes and cluster for each gene
     resDEG3=resDEG2[which(rowSums(resDEG2)>=1),]
     # delete contrasts with no DE genes
-    resDEG3=resDEG3[,(apply(resDEG3,2,sum)!=0)]  }
+    if (ncol(resDEG2)==1){resDEG3 = as.matrix(resDEG3, ncol=2)}
+    resDEG3=resDEG3[,(apply(resDEG3,2,sum)!=0)]
+    if (ncol(resDEG2)==1){resDEG3 = as.matrix(resDEG3, ncol=2)}
+    }
   else {
+    if (ncol(resDEG2)==1){resDEG3 = as.matrix(resDEG3, ncol=2)}
     resDEG3=resDEG2[,(apply(resDEG2,2,sum)!=0)]
   }
 
@@ -2670,6 +2721,7 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
     # Upset On each cluster
     cols=ncol(resDEG3)+1
     ForUpset = ForContrast[which(ForContrast$`clusters(coexpr)`==clustered),2:cols]
+    if (ncol(resDEG2)==1){ForUpset = as.matrix(ForUpset, ncol=2)}
     ForUpset = ForUpset[,(apply(ForUpset,2,sum)!=0)]
     ForUpset = data.frame(ForUpset)
 
@@ -2700,52 +2752,52 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
             axis.title.y=element_text(size=12))
     ggplot2::ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_ScaledExpression_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height=10)
 
-    if (is.null(list) == TRUE){
-      # Genes of each contrast in cluster and significance (Chi2) of enrichment of the cluster in each contrast
-      FileForContrast$ExpectedProportion[FileForContrast$cluster==clustered] = length(which(GeneToClusters[,2]==clustered)) / nrow(resDEG3)
-      proportion = length(which(GeneToClusters[,2]==clustered)) / nrow(resDEG3)
-      pr=1-proportion
-
-      for (a in which(FileForContrast$cluster==clustered)){
-        b=FileForContrast$GenesOfContrastInCluster[a]
-        d=FileForContrast$TotalGenesInContrast[a] - FileForContrast$GenesOfContrastInCluster[a]
-        obs1=c(b,d)
-        obs2=FileForContrast$GenesOfContrastInCluster[a]/FileForContrast$TotalGenesInContrast[a]
-        proba=c(proportion,pr)
-        if (stats::chisq.test(obs1,p=proba)$p.value<0.001 & obs2>=proportion) {
-          FileForContrast$ChiTest[a]<-"***"
-          FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
-        }
-        else if (stats::chisq.test(obs1,p=proba)$p.value>=0.001 & stats::chisq.test(obs1,p=proba)$p.value<0.01  & obs2>=proportion){
-          FileForContrast$ChiTest[a]<-"**"
-          FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
-        }
-        else if (stats::chisq.test(obs1,p=proba)$p.value>=0.01 & stats::chisq.test(obs1,p=proba)$p.value<0.05  & obs2>=proportion){
-          FileForContrast$ChiTest[a]<-"*"
-          FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
-        }
-      }
-
-      TabTempo<-FileForContrast[FileForContrast$cluster==clustered,]
-      ggplot2::ggplot(TabTempo, aes(x=TabTempo$contrast, y=TabTempo$GenesOfContrastInCluster)) +
-        coord_flip()+
-        geom_col(fill=GoCoul[clustered])+
-        theme_classic()+
-        geom_text(aes(label=TabTempo$ObservedProportion), position=position_stack(0.5),color="black")+
-        scale_y_reverse()+
-        labs(title = paste0("DE Genes in contrasts for cluster ",clustered, "\n (",length(which(GeneToClusters[,2]==clustered))," genes in the cluster)"), x="Contrasts", y="Number of genes") +
-        scale_x_discrete(position = "top")+
-        theme(
-          axis.text.y = element_text(face="bold",size=10),
-          axis.text.x = element_text(face="bold",size=10),
-          axis.title.x=element_text(face="bold",size=12),
-          axis.title.y=element_blank(),
-          legend.title = element_text(size=12,face="bold"),
-          plot.title = element_text(face="bold",size=15),
-          legend.text = element_text(size=12),
-          panel.background = element_rect(colour = "black", size=0.5, fill=NA))
-      ggplot2::ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_GenesInContrasts_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height = 8)
-    }
+    # if (is.null(list) == TRUE){
+    #   # Genes of each contrast in cluster and significance (Chi2) of enrichment of the cluster in each contrast
+    #   FileForContrast$ExpectedProportion[FileForContrast$cluster==clustered] = length(which(GeneToClusters[,2]==clustered)) / nrow(resDEG3)
+    #   proportion = length(which(GeneToClusters[,2]==clustered)) / nrow(resDEG3)
+    #   pr=1-proportion
+    #
+    #   for (a in which(FileForContrast$cluster==clustered)){
+    #     b=FileForContrast$GenesOfContrastInCluster[a]
+    #     d=FileForContrast$TotalGenesInContrast[a] - FileForContrast$GenesOfContrastInCluster[a]
+    #     obs1=c(b,d)
+    #     obs2=FileForContrast$GenesOfContrastInCluster[a]/FileForContrast$TotalGenesInContrast[a]
+    #     proba=c(proportion,pr)
+    #     if (stats::chisq.test(obs1,p=proba)$p.value<0.001 & obs2>=proportion) {
+    #       FileForContrast$ChiTest[a]<-"***"
+    #       FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
+    #     }
+    #     else if (stats::chisq.test(obs1,p=proba)$p.value>=0.001 & stats::chisq.test(obs1,p=proba)$p.value<0.01  & obs2>=proportion){
+    #       FileForContrast$ChiTest[a]<-"**"
+    #       FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
+    #     }
+    #     else if (stats::chisq.test(obs1,p=proba)$p.value>=0.01 & stats::chisq.test(obs1,p=proba)$p.value<0.05  & obs2>=proportion){
+    #       FileForContrast$ChiTest[a]<-"*"
+    #       FileForContrast$ObservedProportion[a]<-paste0(FileForContrast$ObservedProportion[a],FileForContrast$ChiTest[a])
+    #     }
+    #   }
+    #
+    #   TabTempo<-FileForContrast[FileForContrast$cluster==clustered,]
+    #   ggplot2::ggplot(TabTempo, aes(x=TabTempo$contrast, y=TabTempo$GenesOfContrastInCluster)) +
+    #     coord_flip()+
+    #     geom_col(fill=GoCoul[clustered])+
+    #     theme_classic()+
+    #     geom_text(aes(label=TabTempo$ObservedProportion), position=position_stack(0.5),color="black")+
+    #     scale_y_reverse()+
+    #     labs(title = paste0("DE Genes in contrasts for cluster ",clustered, "\n (",length(which(GeneToClusters[,2]==clustered))," genes in the cluster)"), x="Contrasts", y="Number of genes") +
+    #     scale_x_discrete(position = "top")+
+    #     theme(
+    #       axis.text.y = element_text(face="bold",size=10),
+    #       axis.text.x = element_text(face="bold",size=10),
+    #       axis.title.x=element_text(face="bold",size=12),
+    #       axis.title.y=element_blank(),
+    #       legend.title = element_text(size=12,face="bold"),
+    #       plot.title = element_text(face="bold",size=15),
+    #       legend.text = element_text(size=12),
+    #       panel.background = element_rect(colour = "black", size=0.5, fill=NA))
+    #   ggplot2::ggsave(filename=paste0(img_CLUST_dir,parameters$analysis_name,"_GenesInContrasts_",parameters$coseq_model,"_",parameters$coseq_transformation,"_Cluster_",clustered,".png"),width=10, height = 8)
+    # }
 
 
     # GO enrichment in the cluster for MF, CC, and BP category (if annotation file is provided)
@@ -3794,6 +3846,8 @@ KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
     rownames(DOWNtable)=c()
 
     KEGGdata = rbind(UPtable,DOWNtable)
+    #fwrite(KEGGdata, file =paste0(img_KEGG_dir, contrast, "_KEGGdata.txt"), sep="\t",row.names = TRUE)
+
 }
 
     if (is.null(list) == FALSE){
@@ -3942,14 +3996,21 @@ KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
     tableRatio = rbind(UPtableRatio,DOWNtableRatio)
     }
 
+    TEST = c( rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x==1)),]), rownames(resDEG[apply(as.matrix(resDEG[,contrast]), 1, function(x) all(x==-1)),]))
+
     if (is.null(list) == FALSE){
-      GraphTitlePval = paste0("Most significant KEGG for list\n", contrast)
-      GraphTitleRatio = paste0("Most enriched KEGG for list\n", contrast)
+      GraphTitlePval = paste0("KEGG enrichment for list\n", contrast)
+      GraphTitleRatio = paste0("KEGG enrichment for list\n", contrast)
       }
     else{
-      GraphTitlePval = paste0("Most significant KEGG for contrast\n", contrast)
-      GraphTitleRatio = paste0("Most enriched KEGG for contrast\n", contrast)
+      GraphTitlePval = paste0("KEGG enrichment for contrast\n", contrast)
+      GraphTitleRatio = paste0("KEGG enrichment for contrast\n", contrast)
+      #GraphTitleRatio = paste0("GO Enrichment for contrast\n",contrast, "\n (",NbAnnotatedGenes, " annotated genes among ",length(TEST)," genes)")
       }
+
+
+
+
 
     if(nrow(tablePval) != 0){
 
@@ -3961,8 +4022,9 @@ KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
       comp_names2 <- c(`UP` = "UP in first condition", `DOWN` = "DOWN in first condition")
 
       ggplot2::ggplot(as.data.frame(KeggForGraph), aes(x=-log10(as.numeric(Pval)), label=nb_genes, y=kegg, size=nb_genes, color=RatioEnrich)) +
-      geom_point(aes(x = -log10(as.numeric(Pval)), y = reorder(kegg, -as.numeric(Pval))), shape = 19,alpha=1) +
-      scale_color_gradient(low="blue", high="red")+
+      geom_point(aes(x = -log10(as.numeric(Pval)), y = reorder(kegg, -as.numeric(Pval))), shape = 18,alpha=1) +
+      #scale_color_gradient(low="blue", high="red")+
+      scale_color_viridis(option = "D",direction = -1)+
       scale_x_continuous(trans='log10') +
       facet_grid(factor(Sens, levels=c('UP','DOWN'))~., scales="free", space = "free",labeller = as_labeller(comp_names2))+
       geom_vline(xintercept = 1.3) +
@@ -3976,14 +4038,15 @@ KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
         legend.title = element_text(size=rel(1), face="bold"),
         plot.title = element_text(face="bold", size=rel(0.75), hjust=1),
         legend.text = element_text(size=rel(0.75)))+
-      labs(title=GraphTitlePval, x ="-log10 p-value", y = "KEGG", size ="Nb genes", color = "Ratio enrichment") +
+      labs(title=GraphTitlePval, x ="-log10 p-value", y = "KEGG", size ="Number of genes", color = "Ratio enrichment") +
       theme(plot.title = element_text(size = 13, face = "bold"))
     ggplot2::ggsave(filename=paste0(img_KEGG_dir, contrast, "_Pval_KEGGgraph.png"), width=7, height=7)
     }
     else{
       ggplot2::ggplot(as.data.frame(KeggForGraph), aes(x=-log10(as.numeric(Pval)), label=nb_genes, y=kegg, size=nb_genes, color=RatioEnrich)) +
-        geom_point(aes(x = -log10(as.numeric(Pval)), y = reorder(kegg, -as.numeric(Pval))), shape = 19,alpha=1) +
-        scale_color_gradient(low="blue", high="red")+
+        geom_point(aes(x = -log10(as.numeric(Pval)), y = reorder(kegg, -as.numeric(Pval))), shape = 18,alpha=1) +
+        #scale_color_gradient(low="blue", high="red")+
+        scale_color_viridis(option = "D",direction = -1)+
         scale_x_continuous(trans='log10') +
         geom_vline(xintercept = 1.3) +
         theme(
@@ -3996,7 +4059,7 @@ KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
           legend.title = element_text(size=rel(1), face="bold"),
           plot.title = element_text(face="bold", size=rel(0.75), hjust=1),
           legend.text = element_text(size=rel(0.75)))+
-        labs(title=GraphTitlePval, x ="-log10 p-value", y = "KEGG", size ="Nb genes", color = "Ratio enrichment") +
+        labs(title=GraphTitlePval, x ="-log10 p-value", y = "KEGG", size ="Number of genes", color = "Ratio enrichment") +
         theme(plot.title = element_text(size = 13, face = "bold"))
       ggplot2::ggsave(filename=paste0(img_KEGG_dir, contrast, "_Pval_KEGGgraph.png"), width=7, height=7)
     }
@@ -4004,12 +4067,16 @@ KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
     # graphe Ratios
     KeggForGraph=as.data.frame(tableRatio)
 
+
     if (is.null(list) == TRUE){
       ggplot2::ggplot(as.data.frame(KeggForGraph), aes(x=RatioEnrich, y=kegg, size=nb_genes, color=as.numeric(Pval))) +
-      geom_point(aes(x = RatioEnrich, y = reorder(kegg, as.numeric(RatioEnrich))), shape = 19,alpha=1) +
+      #geom_point(aes(x = RatioEnrich, y = reorder(kegg, as.numeric(RatioEnrich))), shape = 19,alpha=1) +
+      geom_point(aes(x = RatioEnrich, y = reorder(kegg, as.numeric(RatioEnrich))), shape = 18,alpha=1) +
       facet_grid(factor(Sens, levels=c('UP','DOWN'))~., scales="free", space = "free",labeller = as_labeller(comp_names2))+
       geom_vline(xintercept = parameters$KEGG_Ratio_threshold) +
-      scale_color_gradient(low="red", high="blue")+
+      #scale_color_gradient(low="red", high="blue")+
+      scale_color_viridis(option = "D",direction = -1)+
+      #scale_color_gradient(low="yellow", high="darkorange")+
       theme(
         panel.background = element_rect(fill = "grey96", colour = "grey90", size = 0.5, linetype = "solid"),
         panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
@@ -4020,15 +4087,16 @@ KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
         legend.title = element_text(size=rel(1), face="bold"),
         plot.title = element_text(face="bold", size=rel(0.75), hjust=1),
         legend.text = element_text(size=rel(0.75)))+
-      labs(title=GraphTitleRatio, x ="Ratio enrichment", y = "KEGG", size ="Nb genes", color = "P-value") +
+      labs(title=GraphTitleRatio, x ="Ratio enrichment", y = "KEGG", size ="Number of genes", color = "P-value") +
       theme(plot.title = element_text(size = 13, face = "bold"))
     ggplot2::ggsave(filename=paste0(img_KEGG_dir, contrast, "_Ratio_KEGGgraph.png"), width=7, height=7)
     }
     else{
       ggplot2::ggplot(as.data.frame(KeggForGraph), aes(x=RatioEnrich, y=kegg, size=nb_genes, color=as.numeric(Pval))) +
-        geom_point(aes(x = RatioEnrich, y = reorder(kegg, as.numeric(RatioEnrich))), shape = 19,alpha=1) +
+        geom_point(aes(x = RatioEnrich, y = reorder(kegg, as.numeric(RatioEnrich))), shape = 18,alpha=1) +
         geom_vline(xintercept = parameters$KEGG_Ratio_threshold) +
-        scale_color_gradient(low="red", high="blue")+
+        #scale_color_gradient(low="red", high="blue")+
+        scale_color_viridis(option = "D",direction = -1)+
         theme(
           panel.background = element_rect(fill = "grey96", colour = "grey90", size = 0.5, linetype = "solid"),
           panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "white"),
@@ -4039,7 +4107,7 @@ KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
           legend.title = element_text(size=rel(1), face="bold"),
           plot.title = element_text(face="bold", size=rel(0.75), hjust=1),
           legend.text = element_text(size=rel(0.75)))+
-        labs(title=GraphTitleRatio, x ="Ratio enrichment", y = "KEGG", size ="Nb genes", color = "P-value") +
+        labs(title=GraphTitleRatio, x ="Ratio enrichment", y = "KEGG", size ="Number of genes", color = "P-value") +
         theme(plot.title = element_text(size = 13, face = "bold"))
       ggplot2::ggsave(filename=paste0(img_KEGG_dir, contrast, "_Ratio_KEGGgraph.png"), width=7, height=7)
     }
@@ -4050,3 +4118,157 @@ KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
   }
 }
 
+
+#' @title GenesNetwork
+#'
+#' @description calculate the expression correlation between genes and use the igraph package for visualization.
+#' \itemize{
+#'    \item Graphs of network
+#' }
+#'
+#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @param list, gene list of interest if you want to apply GenesNetwork function on a specific gene list
+#' @param title, name of the gene list if you want to apply GenesNetwork function on a specific gene list
+#' @return network of genes
+#'
+#' @import igraph
+#'
+#' @examples
+#' \dontrun{
+#'    network<-GenesNetwork(parameters)
+#'    # OR
+#'    network<-GenesNetwork( parameters, list, title)
+#' }
+#'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
+#' @export
+GenesNetwork <- function(parameters, list=NULL, title=NULL){
+
+  library("igraph")
+  study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
+  norm_dir = paste0(study_dir, "NormCountsTables/")
+
+  network_dir  = paste0(study_dir, "Network/")
+  if(dir.exists(network_dir)==FALSE){
+    dir.create(network_dir)
+    cat("\n\nDirectory: ",network_dir," created\n")
+  }
+
+  if (is.null(list) == TRUE){
+    img_Network_dir = paste0(network_dir, "All_genes/")
+    if(dir.exists(img_Network_dir)==FALSE){
+      dir.create(img_Network_dir)
+      cat("Directory: ",img_Network_dir," created\n")
+    }
+  }
+  else {
+    img_Network_dir = paste0(network_dir, "OnSpecificList_",title,"/")
+    if(dir.exists(img_Network_dir)==FALSE){
+      dir.create(img_Network_dir)
+      cat("Directory: ",img_Network_dir," created\n")
+    }
+  }
+
+  # import normalized counts
+  data_network=utils::read.table(paste0(norm_dir, parameters$analysis_name,"_CPM_NormCounts.txt"))
+
+  if (is.null(list) == FALSE){
+    data_network  = data_network[rownames(data_network) %in% list,]
+  }
+
+  g <- graph.adjacency(
+    as.matrix(as.dist(cor(t(data_network), method=parameters$graph_adgency))),
+    mode="undirected",
+    weighted=TRUE,
+    diag=FALSE
+  )
+
+  # Simplfify
+  g <- simplify(g, remove.multiple=TRUE, remove.loops=TRUE)
+
+  # Colour negative correlation edges as red
+  E(g)[which(E(g)$weight<0)]$color <- "red"
+
+  # Colour positive correlation edges as green
+  E(g)[which(E(g)$weight>0)]$color <- "green"
+
+  # Convert edge weights to absolute values
+  E(g)$weight <- abs(E(g)$weight)
+
+
+  # Remove edges below absolute Pearson correlation 0.8
+  g <- delete_edges(g, E(g)[which(E(g)$weight<=0.8)])
+
+
+  # Remove any vertices remaining that have no edges
+  g <- delete_vertices(g, V(g)[degree(g)==0])
+
+  # Assign names to the graph vertices (optional)
+  V(g)$name <- V(g)$name
+
+  # Change shape of graph vertices
+  V(g)$shape <- "sphere"
+
+  # Change colour of graph vertices
+  V(g)$color <- "skyblue"
+
+  # Change colour of vertex frames
+  V(g)$vertex.frame.color <- "white"
+
+  # Scale the size of the vertices to be proportional to the level of expression of each gene represented by each vertex
+  # Multiply scaled vales by a factor of 10
+  scale01 <- function(x){(x-min(x))/(max(x)-min(x))}
+  vSizes <- (scale01(apply(data_network, 1, mean)) + 1.0) * 10
+
+  # Amplify or decrease the width of the edges
+  edgeweights <- E(g)$weight * 2.0
+
+  # Convert the graph adjacency object into a minimum spanning tree based on Prim's algorithm
+  mst <- mst(g, algorithm="prim")
+
+  mst.communities <- edge.betweenness.community(mst, weights=NULL, directed=FALSE)
+  mst.clustering <- make_clusters(mst, membership=mst.communities$membership)
+  V(mst)$color <- mst.communities$membership + 1
+
+  # # Remove any vertices remaining that have no edges
+  # mst <- delete.vertices(mst, V(mst)[degree(g)==0])
+
+  # Plot the tree object clustering
+  plot.igraph(
+    mst,
+    #layout=layout.fruchterman.reingold,
+    #vertex.color="SkyBlue2",
+    layout=layout_nicely,
+    edge.curved=FALSE,
+    vertex.size=vSizes,
+    vertex.label.dist=-3,
+    vertex.label.color="black",
+    asp=FALSE,
+    vertex.label.cex=1.5,
+    #edge.width=edgeweights,
+    edge.arrow.mode=0,
+    main=paste0("Network on ", title),
+    edge.width=seq(1,10)
+    #vertex.size=10,
+    )
+  dev.print(device = png, file = paste0(img_Network_dir, "Network clustering.png"), width = 900, height = 800)
+
+  # # Plot the tree object clustering with circle
+  # plot(
+  #   mst.clustering, mst,
+  #   layout=layout.fruchterman.reingold,
+  #   edge.curved=FALSE,
+  #   vertex.size=vSizes,
+  #   vertex.label.dist=-3,
+  #   vertex.label.color="black",
+  #   asp=FALSE,
+  #   vertex.label.cex=1.5,
+  #   #edge.width=edgeweights,
+  #   edge.width=seq(1,10),
+  #   edge.arrow.mode=0,
+  #   main="Network clustering circle")
+  # dev.print(device = png, file = paste0(img_Network_dir, "Network clustering circle.png"), width = 900, height = 800)
+
+  detach("package:igraph")
+
+}
