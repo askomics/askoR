@@ -4,10 +4,10 @@
 ################################################
 # Removes all objects from the current workspace (R memory)
 rm(list=ls())
-# source AskoR.R file 
+# source AskoR.R file
 source("/directory/where/you/downloaded/the/file/AskoR.R")
 # defined your workspace
-setwd("/path/to/workspace/") 
+setwd("/path/to/workspace/")
 
 ##############################################
 ##                Parameters                ##
@@ -54,7 +54,7 @@ parameters$rm_sample = c("AC3R2","BC3R3")             # bad sample(s) !
 parameters$threshold_cpm = 0.5                        # CPM's threshold (default 0.5)
 parameters$replicate_cpm = 3                          # Minimum number of replicates (default 3)
 parameters$threshold_FDR = 0.05                       # FDR threshold (default 0.05)
-parameters$threshold_logFC = 0                        # logFC threshold (default 1)
+parameters$threshold_logFC = 0                        # logFC threshold (default 0)  - if parameters$threshold_logFC != 0, AskoR will use glmTreat because use of "treat" is more accurate (see edgeR user guide section 2.13).
 parameters$normal_method = "TMM"                      # normalization method (TMM/RLE/upperquartile/none) (default TMN)
 parameters$p_adj_method = "BH"                        # p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none) (default fdr)
 parameters$glm = "lrt"                                # GLM method (lrt/qlf) (default qlf)
