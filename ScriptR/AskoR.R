@@ -215,8 +215,8 @@ Asko_start <- function(){
 #'   \item Askomics : files compatible with Askomics Software
 #' }
 #'
-#' @param parameters, list that contains all arguments charged in Asko_start
-#' @return data, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)
+#' @param parameters list that contains all arguments charged in Asko_start
+#' @return list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)
 #'
 #' @examples
 #' \dontrun{
@@ -430,9 +430,9 @@ loadData <- function(parameters){
 #'
 #' @description Create contrast/condition/context file in format readable by Askomics Software.
 #'
-#' @param data_list, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)
-#' @param parameters, list that contains all arguments charged in Asko_start
-#' @return asko, list of data.frame contain condition, contrast and context information
+#' @param data_list list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)
+#' @param parameters list that contains all arguments charged in Asko_start
+#' @return list of data.frame contain condition, contrast and context information
 #'
 #' @examples
 #' \dontrun{
@@ -700,9 +700,9 @@ asko3c <- function(data_list, parameters){
 #'    \item Plot different graphes to explore data before and after filtering.
 #' }
 #'
-#' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
-#' @param parameters, list that contains all arguments charged in Asko_start
-#' @return filtered_counts, large DGEList with filtered counts and data descriptions.
+#' @param data_list list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @param parameters list that contains all arguments charged in Asko_start
+#' @return large DGEList with filtered counts and data descriptions.
 #'
 #' @examples
 #' \dontrun{
@@ -856,11 +856,11 @@ GEfilt <- function(data_list, parameters){
 #'    \item Optionally, write file with mean counts and normalized mean counts in Askomics format.
 #' }
 #'
-#' @param filtered_GE, large DGEList with filtered counts by GEfilt function.
-#' @param parameters, list that contains all arguments charged in Asko_start.
-#' @param asko_list, list of data.frame contain condition, contrast and context informations made by asko3c.
-#' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
-#' @return norm_GE, large DGEList with normalized counts and data descriptions.
+#' @param filtered_GE large DGEList with filtered counts by GEfilt function.
+#' @param parameters list that contains all arguments charged in Asko_start.
+#' @param asko_list list of data.frame contain condition, contrast and context informations made by asko3c.
+#' @param data_list list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @return large DGEList with normalized counts and data descriptions.
 #'
 #' @examples
 #' \dontrun{
@@ -985,8 +985,8 @@ GEnorm <- function(filtered_GE, asko_list, data_list, parameters){
 #'    \item hierarchical clustering
 #' }
 #'
-#' @param asko_norm, large DGEList with normalized counts by GEnorm function.
-#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @param asko_norm large DGEList with normalized counts by GEnorm function.
+#' @param parameters list that contains all arguments charged in Asko_start.
 #' @return none
 #'
 #' @import ggfortify
@@ -1177,13 +1177,13 @@ GEcorr <- function(asko_norm, parameters){
 #'    \item Volcano plot for a specified coefficient/contrast of a linear model.
 #' }
 #'
-#' @param fit, fitted linear model object.
-#' @param normGE, large DGEList with normalized counts and data description.
-#' @param resDE, vector containing integer values of -1 to represent down-regulated
+#' @param fit fitted linear model object.
+#' @param normGE large DGEList with normalized counts and data description.
+#' @param resDE vector containing integer values of -1 to represent down-regulated
 #' genes, 0 for no differential expression, and 1 for up-regulated genes.
-#' @param contrast, coefficient/contrast tested.
-#' @param tplot, type of plot selected for display.
-#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @param contrast coefficient/contrast tested.
+#' @param tplot type of plot selected for display.
+#' @param parameters list that contains all arguments charged in Asko_start.
 #' @return none.
 #'
 #' @examples
@@ -1241,13 +1241,13 @@ plot_glimma <- function(fit, normGE, resDE, contrast, tplot, parameters){
 #'    \item Volcano plot for a specified coefficient/contrast of a linear model.
 #' }
 #'
-#' @param fit, fitted linear model object.
-#' @param normGE, large DGEList with normalized counts and data description.
-#' @param resDE, vector containing integer values of -1 to represent down-regulated
+#' @param fit fitted linear model object.
+#' @param normGE large DGEList with normalized counts and data description.
+#' @param resDE vector containing integer values of -1 to represent down-regulated
 #' genes, 0 for no differential expression, and 1 for up-regulated genes.
-#' @param contrast, coefficient/contrast tested.
-#' @param tplot, type of plot selected for display.
-#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @param contrast coefficient/contrast tested.
+#' @param tplot type of plot selected for display.
+#' @param parameters list that contains all arguments charged in Asko_start.
 #' @return none.
 #'
 #' @examples
@@ -1294,12 +1294,12 @@ plot_expr <- function(fit, normGE, resDE, contrast, tplot, parameters){
 #'
 #' @description Calculation mean counts for two contrast or all matrix.
 #'
-#' @param glmfit, fitted linear model object.
-#' @param ASKOlist, list of data.frame contain condition, contrast and context information made by asko3c.
-#' @param context, coefficient/contrast tested.
+#' @param glmfit fitted linear model object.
+#' @param ASKOlist list of data.frame contain condition, contrast and context information made by asko3c.
+#' @param context coefficient/contrast tested.
 #' @return one of this:
 #' \itemize{
-#'    \item matrixMean, matrix with mean counts,
+#'    \item matrix with mean counts,
 #'    \item meanValue for one context/Condition.
 #' }
 #'
@@ -1361,13 +1361,13 @@ NormCountsMean <- function(glmfit, ASKOlist, context=NULL){
 #' By default, LR and logCPM were not displayed, you can switch this parametres
 #' to TRUE for display.
 #'
-#' @param glm_test, tests for one or more coefficients in the linear model (likelihood ratio tests or empirical Bayes quasi-likelihood F-tests).
-#' @param fit, fitted linear model object.
-#' @param contrast, coefficient/contrast names tested.
-#' @param ASKOlist, list of data.frame contain condition, contrast and context informations made by asko3c.
-#' @param dge, large DGEList with normalized counts by GEnorm function.
-#' @param data_list, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations).
-#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @param glm_test tests for one or more coefficients in the linear model (likelihood ratio tests or empirical Bayes quasi-likelihood F-tests).
+#' @param fit fitted linear model object.
+#' @param contrast coefficient/contrast names tested.
+#' @param ASKOlist list of data.frame contain condition, contrast and context informations made by asko3c.
+#' @param dge large DGEList with normalized counts by GEnorm function.
+#' @param data_list list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations).
+#' @param parameters list that contains all arguments charged in Asko_start.
 #' @return none
 #'
 #' @examples
@@ -1504,11 +1504,11 @@ AskoStats <- function (glm_test, fit, contrast, ASKOlist, dge, data_list, parame
 #'
 #' @description Genewise statistical tests for a given coefficient or contrast, with edgeR method.
 #'
-#' @param norm_GE, large DGEList with normalized counts and data description.
-#' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).
-#' @param asko_list, list of data.frame contain condition, contrast and context informations made by asko3c.
-#' @param parameters, list that contains all arguments charged in Asko_start.
-#' @return SumMat, list (TestResults format class limma) contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param norm_GE large DGEList with normalized counts and data description.
+#' @param data_list list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).
+#' @param asko_list list of data.frame contain condition, contrast and context informations made by asko3c.
+#' @param parameters list that contains all arguments charged in Asko_start.
+#' @return list (TestResults format class limma) contains for each contrast the significance expression (1/0/-1) for all gene.
 #'
 #' @import edgeR
 #' @import limma
@@ -1588,16 +1588,22 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   sum2=list()
   # if only one contrast ask
   if(length(data_list$contrast)==1){
+
     contrast<-makeContrasts(contrasts = data_list$contrast, levels = data_list$design)
     colnames(contrast)<-colnames(data_list$contrast)
+
     # likelihood ratio tests for one or more coefficients in the linear model.
-    if(parameters$glm=="lrt"){
+    if(parameters$glm=="lrt" & parameters$threshold_logFC==0){
       glm_test<-glmLRT(fit, contrast=contrast)
     }
     # similar to glmLRT except that it replaces likelihood ratio tests with empirical Bayes quasi-likelihood F-tests
-    if(parameters$glm=="qlf"){
+    if(parameters$glm=="qlf" & parameters$threshold_logFC==0){
       glm_test<-glmQLFTest(fit, contrast=contrast)
     }
+    if(parameters$threshold_logFC!=0){
+    glm_test<-glmTreat(fit, contrast=contrast, lfc=parameters$threshold_logFC)
+    }
+
     sum[,colnames(contrast)]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC, p.value=parameters$threshold_FDR)
     AskoStats(glm_test, fit, colnames(contrast), asko_list, normGEdisp, data_list, parameters)
 
@@ -1610,15 +1616,18 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
   # for more than one contrast
   else{
     for (contrast in colnames(data_list$contrast)){
-      # likelihood ratio tests for one or more coefficients in the linear model.
-      if(parameters$glm=="lrt"){
+
+      if(parameters$glm=="lrt" & parameters$threshold_logFC==0){
         glm_test<-glmLRT(fit, contrast=data_list$contrast[,contrast])
       }
       # similar to glmLRT except that it replaces likelihood ratio tests with empirical Bayes quasi-likelihood F-tests
-      if(parameters$glm=="qlf"){
+      if(parameters$glm=="qlf" & parameters$threshold_logFC==0){
         glm_test<-glmQLFTest(fit, contrast=data_list$contrast[,contrast])
       }
-      sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, lfc=parameters$threshold_logFC, p.value=parameters$threshold_FDR)
+      if(parameters$threshold_logFC!=0){
+      glm_test<-glmTreat(fit, contrast=data_list$contrast[,contrast], lfc=parameters$threshold_logFC)
+      }
+      sum[,contrast]<-decideTestsDGE(glm_test, adjust.method = parameters$p_adj_method, p.value=parameters$threshold_FDR)
       AskoStats(glm_test, fit, contrast, asko_list, normGEdisp, data_list, parameters)
 
       # display grahes (volcano or/and MD)
@@ -1659,9 +1668,9 @@ DEanalysis <- function(norm_GE, data_list, asko_list, parameters){
 #'
 #' @description Generate upsetR graphs.
 #'
-#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
-#' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).
-#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @param resDEG data frame contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param data_list list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).
+#' @param parameters list that contains all arguments charged in Asko_start.
 #' @return none
 #'
 #' @examples
@@ -1935,9 +1944,9 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 #'
 #' @description Plot Venn Diagram to compare different contrast
 #'
-#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
-#' @param asko_list, list of data.frame contain condition, contrast and context informations made by asko3c.
-#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @param resDEG data frame contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param asko_list list of data.frame contain condition, contrast and context informations made by asko3c.
+#' @param parameters list that contains all arguments charged in Asko_start.
 #' @return none.
 #'
 #' @examples
@@ -2104,11 +2113,11 @@ VD <- function(resDEG, parameters, asko_list){
 #' methods for eliminating local similarities and dependencies between GO
 #' terms can be implemented and applied.
 #'
-#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
-#' @param data_list, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations).
-#' @param parameters, list that contains all arguments charged in Asko_start.
-#' @param list, gene list of interest if you want to apply GOenrichment function on a specific gene list.
-#' @param title, name of the gene list if you want to apply GOenrichment function on a specific gene list.
+#' @param resDEG data frame contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param data_list list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations).
+#' @param parameters list that contains all arguments charged in Asko_start.
+#' @param list gene list of interest if you want to apply GOenrichment function on a specific gene list.
+#' @param title name of the gene list if you want to apply GOenrichment function on a specific gene list.
 #' @return none.
 #'
 #' @import topGO
@@ -2149,8 +2158,24 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
     GeneListName = title
     geneSelected = list
   }
+  else if (parameters$GO == "up") {
+    img_go_dir = paste0(GO_dir,"OnContrasts_UP_DEgenes/")
+    if(dir.exists(img_go_dir)==FALSE){
+      dir.create(img_go_dir)
+      cat("\n\nDirectory: ",img_go_dir," created\n")
+    }
+    GeneListName = colnames(data_list$contrast)
+  }
+  else if (parameters$GO == "down") {
+      img_go_dir = paste0(GO_dir,"OnContrasts_DOWN_Degenes/")
+      if(dir.exists(img_go_dir)==FALSE){
+        dir.create(img_go_dir)
+        cat("\n\nDirectory: ",img_go_dir," created\n")
+      }
+      GeneListName = colnames(data_list$contrast)
+  }
   else {
-    img_go_dir = paste0(GO_dir,"OnContrasts/")
+    img_go_dir = paste0(GO_dir,"OnContrasts_TOTAL_DEgenes/")
     if(dir.exists(img_go_dir)==FALSE){
       dir.create(img_go_dir)
       cat("\n\nDirectory: ",img_go_dir," created\n")
@@ -2350,11 +2375,26 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
         minR=(min(TabSigCompl$Ratio)+max(TabSigCompl$Ratio))/4
         minP=(min(as.numeric(TabSigCompl$statisticTest))+max(as.numeric(TabSigCompl$statisticTest)))/4
 
+        if (parameters$GO == "both"){
+          GraphTitleList = paste0("GO Enrichment for list\n",contrast, "\n (Total DE)", "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+          GraphTitleContrast = paste0("GO Enrichment for contrast\n",contrast, "\n (Total DE)", "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+        }
+
+        if (parameters$GO == "up"){
+          GraphTitleList = paste0("GO Enrichment for list\n",contrast, "\n (UP DE)", "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+          GraphTitleContrast = paste0("GO Enrichment for contrast\n",contrast, "\n (UP DE)", "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+        }
+
+        if (parameters$GO == "down"){
+          GraphTitleList = paste0("GO Enrichment for list\n",contrast, "\n (DOWN DE)", "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+          GraphTitleContrast = paste0("GO Enrichment for contrast\n",contrast, "\n (DOWN DE)", "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+        }
+
         if (is.null(list) == FALSE){
-          GraphTitle = paste0("GO Enrichment for list\n",contrast, "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+          GraphTitle = GraphTitleList
         }
         else{
-          GraphTitle = paste0("GO Enrichment for contrast\n",contrast, "\n (",length(which(geneList==1)), " annotated genes among ",length(geneSelected)," genes)")
+          GraphTitle = GraphTitleContrast
         }
 
         # Ratio Graph
@@ -2415,13 +2455,13 @@ GOenrichment<-function(resDEG, data_list, parameters, list=NULL, title=NULL){
 #'    \item Intersections of DE list genes in each cluster
 #' }
 #'
-#' @param asko_norm, large DGEList with normalized counts by GEnorm function.
-#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
-#' @param parameters, list that contains all arguments charged in Asko_start.
-#' @param data, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
-#' @param list, gene list of interest if you want to apply ClustAndGO function on a specific gene list
-#' @param title, name of the gene list if you want to apply ClustAndGO function on a specific gene list
-#' @return clust, data frame with clusters of each gene
+#' @param asko_norm large DGEList with normalized counts by GEnorm function.
+#' @param resDEG data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
+#' @param parameters list that contains all arguments charged in Asko_start.
+#' @param data list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @param list gene list of interest if you want to apply ClustAndGO function on a specific gene list
+#' @param title name of the gene list if you want to apply ClustAndGO function on a specific gene list
+#' @return data frame with clusters of each gene
 #'
 #' @import topGO
 #' @import goSTAG
@@ -3000,11 +3040,11 @@ ClustAndGO <- function(asko_norm, resDEG, parameters, data, list=NULL, title=NUL
 #'    \item Files with gene description of each significant enriched GO
 #' }
 #'
-#' @param data, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
-#' @param asko_norm, large DGEList with normalized counts by GEnorm function.
-#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
-#' @param parameters, list that contains all arguments charged in Asko_start.
-#' @param clustering, data frame with clusters of each gene produced by ClustAndGO function
+#' @param data list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @param asko_norm large DGEList with normalized counts by GEnorm function.
+#' @param resDEG data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
+#' @param parameters list that contains all arguments charged in Asko_start.
+#' @param clustering data frame with clusters of each gene produced by ClustAndGO function
 #' @return none
 #'
 #' @import tidyverse
@@ -3410,14 +3450,14 @@ IncludeNonDEgenes_InClustering <- function(data, asko_norm, resDEG, parameters, 
 #'    \item Heatmap of gene expression and DE status
 #' }
 #'
-#' @param list, list contain all the genes you want to get information on
-#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
-#' @param data, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
-#' @param parameters, list that contains all arguments charged in Asko_start.
-#' @param title, name of the gene list
-#' @param clustering, data frame with clusters of each gene produced by ClustAndGO function
-#' @param conditions, list of the conditions you want to see in graph and table
-#' @param contrasts, list of the conditions you want to see in graph and table
+#' @param list list contain all the genes you want to get information on
+#' @param resDEG data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
+#' @param data list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @param parameters list that contains all arguments charged in Asko_start.
+#' @param title name of the gene list
+#' @param clustering data frame with clusters of each gene produced by ClustAndGO function
+#' @param conditions list of the conditions you want to see in graph and table
+#' @param contrasts list of the conditions you want to see in graph and table
 #' @return none
 #'
 #' @import tidyverse
@@ -3609,11 +3649,11 @@ GeneInfo_OnList<-function(list, resDEG, data, parameters, title, clustering=NULL
 #'    \item P-value and ratio Graphs
 #' }
 #'
-#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
-#' @param data, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
-#' @param parameters, list that contains all arguments charged in Asko_start.
-#' @param list, gene list of interest if you want to apply KEGGenrichment function on a specific gene list.
-#' @param title, name of the gene list if you want to apply KEGGenrichment function on a specific gene list.
+#' @param resDEG data frame contains for each contrast the significance expression (1/0/-1) for all genes coming from DEanalysis function.
+#' @param data list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)
+#' @param parameters list that contains all arguments charged in Asko_start.
+#' @param list gene list of interest if you want to apply KEGGenrichment function on a specific gene list.
+#' @param title name of the gene list if you want to apply KEGGenrichment function on a specific gene list.
 #' @return none
 #'
 #' @import topGO
@@ -4126,17 +4166,15 @@ KEGGenrichment<-function(resDEG, data, parameters, list=NULL, title=NULL){
 #'    \item Graphs of network
 #' }
 #'
-#' @param parameters, list that contains all arguments charged in Asko_start.
-#' @param list, gene list of interest if you want to apply GenesNetwork function on a specific gene list
-#' @param title, name of the gene list if you want to apply GenesNetwork function on a specific gene list
+#' @param parameters list that contains all arguments charged in Asko_start.
+#' @param list gene list of interest if you want to apply GenesNetwork function on a specific gene list
+#' @param title name of the gene list if you want to apply GenesNetwork function on a specific gene list
 #' @return network of genes
 #'
 #' @import igraph
 #'
 #' @examples
 #' \dontrun{
-#'    network<-GenesNetwork(parameters)
-#'    # OR
 #'    network<-GenesNetwork( parameters, list, title)
 #' }
 #'
@@ -4153,14 +4191,14 @@ GenesNetwork <- function(parameters, list=NULL, title=NULL){
     dir.create(network_dir)
     cat("\n\nDirectory: ",network_dir," created\n")
   }
-
-  if (is.null(list) == TRUE){
-    img_Network_dir = paste0(network_dir, "All_genes/")
-    if(dir.exists(img_Network_dir)==FALSE){
-      dir.create(img_Network_dir)
-      cat("Directory: ",img_Network_dir," created\n")
-    }
-  }
+#
+#   if (is.null(list) == TRUE){
+#     img_Network_dir = paste0(network_dir, "All_genes/")
+#     if(dir.exists(img_Network_dir)==FALSE){
+#       dir.create(img_Network_dir)
+#       cat("Directory: ",img_Network_dir," created\n")
+#     }
+#   }
   else {
     img_Network_dir = paste0(network_dir, "OnSpecificList_",title,"/")
     if(dir.exists(img_Network_dir)==FALSE){
@@ -4172,9 +4210,9 @@ GenesNetwork <- function(parameters, list=NULL, title=NULL){
   # import normalized counts
   data_network=utils::read.table(paste0(norm_dir, parameters$analysis_name,"_CPM_NormCounts.txt"))
 
-  if (is.null(list) == FALSE){
+#  if (is.null(list) == FALSE){
     data_network  = data_network[rownames(data_network) %in% list,]
-  }
+ # }
 
   g <- graph.adjacency(
     as.matrix(as.dist(cor(t(data_network), method=parameters$graph_adgency))),
