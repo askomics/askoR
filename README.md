@@ -17,8 +17,8 @@ You'll find a test set in the **inst/extdata/input** folder. It'll be used for t
 
 ### Vignettes
 
-* [User Guide](https://github.com/asusete/askoR/wiki/Pipeline-askoR:-User-Guide)
-* [Parameters Table](https://github.com/asusete/askoR/wiki/Pipeline-askoR:-Parameters-Table)
+* [User Guide](https://github.com/askomics/askoR/wiki/Pipeline-askoR:-User-Guide)
+* [Parameters Table](https://github.com/askomics/askoR/wiki/Pipeline-askoR:-Parameters-Table)
 
 ### Download
 **NOTE: Currently it is preferable to use this method which is the most up to date.**<br/>
