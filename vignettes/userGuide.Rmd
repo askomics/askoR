@@ -1,11 +1,11 @@
 ---
 title: Pipeline askoR - User Guide
 author:
-- name: Fabrice Legeai
-  affiliation: &id INRAE Centre Bretagne - Normandie, UMR 1349 iGEPP
-- name: Kevin Gazengel
+- name: Susete Alves Carvalho
+  affiliation: &id INRAE Centre Bretagne - Normandie, UMR 1349 IGEPP
+- name: Kévin Gazengel
   affiliation: *id
-- name: Susete Alves C.
+- name: Fabrice Legeai
   affiliation: *id
 output: 
   BiocStyle::html_document:
@@ -237,9 +237,11 @@ It's time to load your data:
 ```{r run_askor4, eval=FALSE}
 data<-loadData(parameters)
 ```
-```{r exec1, echo=FALSE, message=FALSE, warning=FALSE}
+```{r exec1, eval=FALSE, message=FALSE, warning=FALSE}
 rm(list=ls())
 library(askoR)
+
+
 parameters<-Asko_start()
 parameters$dir_path="../inst/extdata/"
 parameters$analysis_name="DEG_test"
@@ -249,15 +251,13 @@ parameters$contrast_file = "Contrasts.txt"
 parameters$annotation = "Genes_annotations.txt"  
 parameters$geneID2GO_file = "GO_annotations.txt"
 parameters$rm_sample = c("AC3R2","BC3R3")
+parameters$CompleteHeatmap = TRUE
 data<-loadData(parameters)
 ``` 
-You can see that two folders have been created in DEG_test:
-  
- - **images:** You can see that two folders have been created in DEG_test.
- - **Askomics:** will contain the results of the differential analysis for each contract. All these files are in a format readable by askomics. 
+You can see that **DataExplore** folder has been created in DEG_test:
 
 Then the samples and conditions that have been loaded are displayed. These have been loaded into a structure called **"data"**. Some commands to display your data:
-```{r run_askor4b}
+```{r run_askor4b, eval=FALSE}
 # Displays all samples recorded
 data$samples  
 
@@ -278,43 +278,31 @@ dim(data$dge$counts)[2]
 ```
 
 The next step is to generate the files describing your experiences for Askomics. Even if you don't plan to use Askomics, this command is **mandatory** because it generates a data structure **"asko_data"** that will be used in the further analysis.
-```{r run_askor5}
+```{r run_askor5 , eval=FALSE}
 asko_data<-asko3c(data, parameters)
 ```
 
 # Filtering data
 For the filters the CPM method is used, you can set the cutoff values you want to:
-```{r run_askor6a}
+```{r run_askor6a, eval=FALSE}
 # CPM's threshold 
 parameters$threshold_cpm = 0.5  
 # minimum of sample which are upper to cpm threshold 
 parameters$replicate_cpm = 3 # we have 3 replicates
 ```
 
-```{r run_askor6b}
+```{r run_askor6b, eval=FALSE}
 # run filtering 
 asko_filt<-GEfilt(data, parameters)
 
 # Total number of filtered genes: 
 dim(asko_filt$counts)[1]
 ```
-The filtered data is saved in a structure called here: **asko_filt**. In the folder **DEG_test/images/**, you should find the images representing your data before and after filtering.<br/><br/>
-
-```{r filters1a, echo=FALSE, out.width='43%', fig.cap="Filtering Data", out.extra='style="display:inline-block;margin:0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_boxplot_logcpm_before_filtering.png")
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_boxplot_logcpm_after_filtering.png")
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_barplot_logcpm_before_filtering.png")
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_barplot_logcpm_after_filtering.png")
-```
-
-```{r filters1b, echo=FALSE, out.width='43%', fig.cap="Density Graphes", out.extra='style="display:inline-block;margin:0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_raw_data_1.png")
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_filtered_data_1.png")
-```
+The filtered data is saved in a structure called here: **asko_filt**. In the folder **DEG_test/DataExplore/**, you should find the images representing your data before and after filtering.<br/><br/>
 
 You notice that the legend of the density graphs is very low compared to the graph. You can correct this with the options ```parameters$densinset``` which modifies the position of the legend, it is also possible to define the number of columns with ```parameters$legendcol```. Finally, restart "GEfilt" function.
 
-```{r param1}
+```{r param1, eval=FALSE}
 # Set position the legend in bottom density graphe
 parameters$densinset = 0.20
 # Set numbers of column for legends
@@ -322,39 +310,27 @@ parameters$legendcol = 8
 # run filtering
 asko_filt<-GEfilt(data, parameters)
 ```
-```{r filters2, echo=FALSE, out.width='43%', fig.cap="Density Graphes Corrected", out.extra='style="display:inline-block;margin:0 0 -50px 0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_raw_data.png")
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_filtered_data.png")
-```
+
 
 # Normalize data
 Once the filters have been made, we can proceed to the normalization of the data. At this step, you can generate file with normalize factor values for each sample ```parameters$norm_factor=TRUE``` and/or generate with normalize counts ```parameters$norm_counts=TRUE```.
 
-```{r run_askor7}
+```{r run_askor7, eval=FALSE}
 # run normalization
 asko_norm<-GEnorm(asko_filt, asko_data, data, parameters)
 ```
-Normalized data is saved in a structure called here : **asko_norm**. In the folder **DEG_test/images/**, you should find the images representing your data after normalization. Two files are automatically generated because they will be used for co-expression analysis: _"DEG_test_CPMNormCounts.txt"_ and _"DEG_test_CPM_NormMeanCounts.txt"_.<br/><br/>
+Normalized data is saved in a structure called here : **asko_norm**. In the folder **"DEG_test/DataExplore/"**, you should find the images representing your data after normalization. Two files are automatically generated because they will be used for co-expression analysis: _"DEG_test_CPMNormCounts.txt"_ and _"DEG_test_CPM_NormMeanCounts.txt"_.<br/><br/>
 
-```{r norm, fig.cap="Normalization graphs (barplot)", echo=FALSE, out.width='43%', fig.align='center', out.extra='style="display:inline-block;margin:0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_boxplot_logcpm_after_norm.png")
-```
-```{r norm2, fig.cap="Normalization graphs (heatmap)", echo=FALSE, out.width='43%', out.extra='style="display:inline-block;margin:0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_heatmap_CPMcounts_per_sample.png")
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_heatmap_meanCounts_per_condi.png")
-```
+
 
 # Correlation
 From the filtered and normalized data, we can re-correlate the correlation between our samples.
-```{r run_askor8}
+```{r run_askor8, eval=FALSE}
 GEcorr(asko_norm,parameters)
 ```
-Several graphics will be saved in the **DEG_test/images/** folder, including MDS and PCA plots. Axis1 vs axis2 differentiate our A and B samples.<br/><br/>
+Several graphics will be saved in the **"DEG_test/DataExplore/"** folder, including MDS and PCA plots. Axis1 vs axis2 differentiate our A and B samples.<br/><br/>
 
-```{r corr, fig.cap="MDS and PCA plots - axis 1 and 2", echo=FALSE, out.width='43%', out.extra='style="display:inline-block;margin:0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_MDS_corr_axe1_2.png")
-knitr::include_graphics("../inst/extdata/DEG_test/images/DEG_test_PCA_axe1_2.png")
-```
+
 
 # DE analysis
 The differential expression analysis can be started. We will play with the following parameters:
@@ -365,7 +341,7 @@ The differential expression analysis can be started. We will play with the follo
  - p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none)
  - GLM method (lrt/qlf)
 
-```{r run_askor9a}
+```{r run_askor9a, eval=FALSE}
 # FDR threshold
 parameters$threshold_FDR = 0.05
 # logFC threshold
@@ -378,20 +354,27 @@ parameters$p_adj_method = "BH"
 parameters$glm = "lrt"
 ```
 You can decide to get the Volcano or Mean-Difference Plots for each contrast:
-```{r run_askor9b}
+```{r run_askor9b, eval=FALSE}
 # Mean-Difference Plot of Expression Data (aka MA plot)
 parameters$plotMD = TRUE
 # Volcano plot for a specified coefficient/contrast of a linear model
 parameters$plotVO = TRUE
 ```
 Once our parameters are defined, we can start the analysis.
-```{r run_askor9c}
+```{r run_askor9c, eval=FALSE}
 # run differential expression analysis
 resDEG<-DEanalysis(asko_norm, data, asko_data, parameters)
 ```
 For each contrast, you will find the number of over- or under-expressed genes. Genotype B does not show any major effects of the treatment, unlike genotype A. We also observe a certain number of differentially expressed genes between the genotypes.<br/>
 <br/>
-A file named **"DEG_test_summary_DE"** is located in the **DEG_test/** folder, which contains for each gene whether it is over-expressed (**1**) or under-expressed (**-1**) or neutral (**0**) for a given contrast. If you had provided an annotation file, these will be found in the last columns.<br/>
+
+This is summarized in a barplot :<br/>
+<br/>
+
+
+
+
+A file named **"Summary_DEresults.txt"** is located in the **DEG_test/DEanalysis/DEtables** folder, which contains for each gene whether it is over-expressed (**1**) or under-expressed (**-1**) or neutral (**0**) for a given contrast. If you had provided an annotation file, these will be found in the last columns.<br/>
 <br/>
 First lines of the :
 
@@ -402,16 +385,7 @@ Gene_000003 | -1 | 0 | **...** | 0 | 0 | histone-lysine n-m...
 Gene_000004 | 1 | 1 | **...** | -1 | 0 | hypothetical prote...
 **...** |
 
-You'll find in **"DEG_test/images/"** directory, les Volcano, MD plots and heatmap for each contrast.<br/><br/>
-
-```{r dge, fig.cap="DEanalysis plots", echo=FALSE, out.width='43%', out.extra='style="display:inline-block;margin:0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/images/AC3vsBC3_MeanDifference_of_ExpressionData.png")
-knitr::include_graphics("../inst/extdata/DEG_test/images/AC3vsBC3_VolcanoPlot.png")
-```
-
-```{r dge2, fig.cap="DEanalysis plots", echo=FALSE, out.width='50%', fig.align='center', out.extra='style="display:inline-block;margin:0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/images/AC3vsBC3_topDGE_heatmap.png")
-```
+You'll find in **"DEG_test/DEanalysis/DEimages"** directory, les Volcano, MD plots, Pvalue (raw and adjusted) graphs and heatmap for each contrast.<br/><br/>
 
 # Basic comparisons
 You can compare your lists of differentially expressed genes using two methods: Venn diagrams or Upset graphs. Venn diagrams allow you to compare up to 4 lists while Upset allows you to make wider comparisons. However, if you have too many lists to display the graph may be unreadable.
@@ -425,7 +399,7 @@ To display the Venn diagrams, you need to specify the type of comparison wanted 
  - "both" : Create VennDiagrams for gene expressed UP and DOWN (in the same graph)
 
 Next, you must provide a list of the comparisons to display: ```parameters$compaVD```. For exemple :
-```{r exemple1}
+```{r exemple1, eval=FALSE}
 # this create 1 venn diagram
 parameters$compaVD=c("Ctrast1-Ctrast2-Ctrast3") 
 # this create 3 venn diagrams
@@ -434,7 +408,7 @@ parameters$compaVD=c("Ctrast1-Ctrast2-Ctrast3",
                      "Ctrast7-Ctrast8-Ctrast9")
 ```
 Be careful, with the VD="both" you will only have to provide two contrasts. Example:
-```{r exemple2}
+```{r exemple2, eval=FALSE}
 # this create 1 venn diagram
 parameters$compaVD=c("Ctrast1-Ctrast2") 
 # this create 3 venn diagrams
@@ -447,6 +421,7 @@ With our data, we will make 3 Venn diagrams for the different types (all, up and
 parameters$compaVD = c("AC1vsAC2-AC1vsAC3-AC2vsAC3",
                        "BC1vsBC2-BC1vsBC3-BC2vsBC3",
                        "AC1vsBC1-AC2vsBC2-AC3vsBC3")
+
 
 # graph type "all"
 parameters$VD = "all"
@@ -469,14 +444,8 @@ parameters$compaVD = c("AC1vsBC1-AC2vsBC2",
 parameters$VD = "both"
 VD(resDEG, parameters, asko_data)
 ```
-All graphs will appear in a folder named **"DEG_test/vennDiagram/"**. Some example of venn diagrams :<br/><br/>
+All graphs will appear in a folder named **"DEG_test/VennDiagrams/"**. Some example of venn diagrams :<br/><br/>
 
-```{r venndiagram, fig.cap="Venn Diagrams", echo=FALSE, out.width='43%', out.extra='style="display:inline-block;margin:0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/vennDiagram/AC1vsBC1-AC2vsBC2-AC3vsBC3_all.png")
-knitr::include_graphics("../inst/extdata/DEG_test/vennDiagram/AC1vsBC1-AC2vsBC2-AC3vsBC3_up.png")
-knitr::include_graphics("../inst/extdata/DEG_test/vennDiagram/AC1vsBC1-AC2vsBC2-AC3vsBC3_down.png")
-knitr::include_graphics("../inst/extdata/DEG_test/vennDiagram/AC1vsBC1-AC2vsBC2_mixed.png")
-```
 
 ## Upset graphs
 You can display all contrast, you just need to specify the type of comparison wanted ```parameters$upset_basic```:
@@ -486,7 +455,7 @@ You can display all contrast, you just need to specify the type of comparison wa
  - "mixed" : Create chart for gene expressed UP and DOWN (in the same graph)
  - NULL    : Don't make graphs
 You can display multiples graphs based on list of contrast ```parameters$upset_list```, you need to precise the type of comparison ```parameters$upset_type```. Example:
-```{r exemple3}
+```{r exemple3, eval=FALSE}
 # Precise type of comparison: all, down, up, mixed.
 parameters$upset_type = "all"
 
@@ -524,15 +493,8 @@ parameters$upset_basic = "down" # all contrast
 parameters$upset_type = "down"  # list of contrast
 UpSetGraph(resDEG, data, parameters)
 ```
-An **"DEG_test/UpSetR_graphs/"** directory will be created with two subdirectories **"DEG_test/ UpSetR_graphs/Global_upset/"** and **"DEG_test/UpSetR_graphs/ Subset_upset/"**.<br/>
+An **"DEG_test/UpsetGraphs/"** directory will be created with two subdirectories **"DEG_test/ UpSetR_graphs/Global_upset/"** and **"DEG_test/UpsetGraphs/Subset_upset/"**.<br/>
 Some example of upset graphs (from subset _"AC1vsBC1-AC2vsBC2-AC3vsBC3"_):<br/><br/>
-
-```{r upsetR, fig.cap="UpsetR Graphs", echo=FALSE, out.width='43%',  out.extra='style="display:inline-block;margin:0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/UpSetR_graphs/Subset_upset/DEG_test_UpSetR_AC1vsBC1-AC2vsBC2-AC3vsBC3_allDEG.png")
-knitr::include_graphics("../inst/extdata/DEG_test/UpSetR_graphs/Subset_upset/DEG_test_UpSetR_AC1vsBC1-AC2vsBC2-AC3vsBC3_upDEG.png")
-knitr::include_graphics("../inst/extdata/DEG_test/UpSetR_graphs/Subset_upset/DEG_test_UpSetR_AC1vsBC1-AC2vsBC2-AC3vsBC3_downDEG.png")
-knitr::include_graphics("../inst/extdata/DEG_test/UpSetR_graphs/Subset_upset/DEG_test_UpSetR_AC1vsBC1-AC2vsBC2-AC3vsBC3_mixedDEG.png")
-```
 
 # GO Enrichment Analysis {#GO}
 We uses the GOs annotations file to perform enrichment analysis on differentially expressed gene. For this, you define :
@@ -559,13 +521,11 @@ parameters$Ratio_threshold = 1
 # run analysis
 GOenrichment(resDEG, data, parameters)
 ```
-An **"DEG_test/GO_images/"** directory will be created with all GO images and tables of statistics.
+A **"DEG_test/GOenrichment/"** directory will be created with all GO images and tables of statistics.
 Example of graph:<br/><br/>
 
-```{r GOgraph, fig.cap="GO Enrichment graphs", echo=FALSE, out.width='43%',  out.extra='style="display:inline-block;margin:0;padding:0;"'}
-knitr::include_graphics("../inst/extdata/DEG_test/GO_images/AC1vsBC1_Pvalue_BUBBLESgraph.png")
-knitr::include_graphics("../inst/extdata/DEG_test/GO_images/AC1vsBC1_Ratio_BUBBLESgraph.png")
-```
+By changing **parameters$GO** to "up" or "down", you can execute GO-term enrichment on UP-regulated genes or DOWN-regulated genes separately.
+
 
 Example of one statistical table:
 <font size='1'>
@@ -581,13 +541,199 @@ GO:0036094 | small molecule b... |      1327 |         105 |   106.24 |        0
 </font>
 Explications of some columns:
 
- - **Annotated:** number of genes in your genome are annotated with the GO-term.
+ - **Annotated:** number of genes in your genome annotated with GO-terms.
  - **Significant:** number of genes belonging to your input which are annotated with the GO-term.
  - **Expected:** show an estimate of the number of genes a node of size Annotated would have if the significant genes were to be randomly selected from the gene universe.
  - **statisticTest:** result of fisher test
+ 
+Finally, for each analysis, a **"NameOfTheContrast_SignificantGO"** directory is created in which you can find, for each enriched GO-term, the genes that enabled enrichment. 
 
-# Coexpression and clustering
 
-The function and the tutorial are being written/finalized. Please wait!
+# Co-Expression Analysis
+
+## Gene clustering
+
+ClustAndGO function is based on "coseq" package for gene clustering and enables to highlight DE genes (in at least 1 contrast) that have the same expression profile. Genes profiles are clustered using adapted transformations and mixture models or K-means algorithm. A model selection criteria is proposed to choose an appropriate number of clusters.
+
+Through ClustAndGO, the list of the genes of each cluster is extracted as a table and graphical outputs are produced to visualize cluster profiles. The function provided in AskoR also allows automatically to describe each cluster (gene expression, gene lists shared with several contrasts, GO-enrichmment).
+
+First, you have to define some parameters for the analysis. Here are the parameters to define for gene clustering analysis:
+
+- ```parameters$GO_threshold``` &nbsp;the significant threshold used to filter p-values
+
+- ```parameters$coseq_data```  &nbsp;the type of data you want to cluster
+  - **"LogScaledData"**: log2(data+1); for this you have to put parameters$coseq_transformation="none"
+  - **"ExpressionProfiles"**: sample expression / sum of expression in all samples - choosen default approach by coseq creators
+        
+- ```parameters$coseq_model``` &nbsp;the algorythm for the clustering 'kmeans', 'Normal' (gaussian mixture model).
+
+- ```parameters$coseq_transformation``` &nbsp;the transformation applied to the expression profiles for the clustering - sample expression / sum of expression in all samples, ("voom", "logRPKM", "arcsin", "logit", "logMedianRef", "logclr", "clr", "alr", "ilr", "none").
+
+- ```parameters$coseq_ClustersNb``` &nbsp;the number of clusters to be build
+  - **a fixed number from 2 to 25**, for example: parameters$coseq_ClustersNb=4
+  - **(by default) fixed range 2:25** (parameters$coseq_ClustersNb=2:25). Coseq choose a number chosen between 2 to 25 clusters based on the Integrated Completed Likelihood (ICL) criterion (in the case of the Gaussian mixture model) or on the slope heuristics (in the case of the K-means algorithm)
+        
+- ```parameters$coseq_HeatmapOrderSample``` &nbsp;choose "TRUE" if you don't want the samples to be clustered and prefer to keep the initial sample order.
+
+**Note**: If a GO annotation file has been provided by the user, don't forget also to define parameters for GO enrichment analysis in each cluster (Cf. GO enrichment Section for parameters).
+
+You can then run clustering analysis to highlight co-expression profiles:
+
+
+```{r clust1, eval=FALSE}
+# Parameters for gene clustering
+parameters$coseq_data = "ExpressionProfiles"
+parameters$coseq_model = "kmeans"     
+parameters$coseq_transformation = "clr"
+parameters$coseq_ClustersNb = 4   
+parameters$coseq_HeatmapOrderSample = FALSE
+
+# Parameters for GO enrichment 
+parameters$GO_threshold = 0.05
+parameters$GO_min_num_genes = 10
+parameters$GO_algo = "weight01"
+parameters$GO_stats = "fisher"
+
+# Parameters for GO enrichment graphs
+parameters$GO_max_top_terms = 10
+parameters$GO_min_sig_genes = 2
+parameters$Ratio_threshold = 2
+
+# run analysis
+clust<-ClustAndGO(asko_norm,resDEG,parameters, data)
+```
+
+A directory **"DEG_test/Clustering/OnDEgenes/"** is created, in which you will find one directory per analysis (the name will depend on the model, the transformation, and the number of clusters chosen).
+
+**Recommendations**
+
+- Coseq is designed to clusterize expression profiles (sample expression / sum of expression in all samples) with one of the transformations available but some users may want to clusterize directly the scaled log+1 expression. In that case, set ```parameters$coseq_data="LogScaledData"``` &nbsp and ```parameters$coseq_transformation="none" ```
+
+- "K-means" model is widely used and quite fast but it is a particular case of a gaussian mixture model where samples are suposed to be independant (correlation between samples = 0 and same variance). If you want to use a more flexible model, you set the parameters$coseq_model="Normal" to apply a global gaussian mixture model.
+
+- When using "K-means" model, the "clr" transformation is recommended by coseq in many cases but, if you are trying to identify very specific clusters (for example tissue specific clusters) you can test the "logclr" transformation.
+
+- When using "Normal" model, "arcsin" or "logit" transformations should be tested at the beginning.
+
+- Analyze your results of GO-enrichment very carefully if you have less than 100 genes in the cluster.
+
+## Global outputs
+
+Several files (tables and plots) are saved in the directory of the analysis and one directory per cluster is created (which contains detailed files for each cluster).
+
+### Tables
+
+ | | clusters.coexpr. | AC1 | AC2 | AC3 | BC1 | BC2 | BC3 | AC1vsAC2 | AC1vsAC3 | AC2vsAC3 | BC1vsBC2 | BC1vsBC3 | BC2vsBC3 | AC1vsBC1 | AC2vsBC2 | AC3vsBC3 | Description |
+ |:-|:-:|-:|-:|-:|-:|-:|-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-|
+ | Gene_000003 | 2 | 0.4419681 | 1.765120 | 1.041042 | 1.698956 | 1.0034991 | 0.8513948 | -1 | 0 | 0 | 0 | 0 | 0 | -1 | 0 | 0 | histone-lysine n-methyltransferase nsd2 |
+ | Gene_000004 | 1 | 47.5222800 | 33.976130 | 33.823440 | 42.246010 | 51.9250600 | 46.6207000 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | -1 | 0 | hypothetical protein pbra 009496 |
+ | Gene_000006 | 2 | 0.4632453 | 2.305171 | 1.047562 | 1.402427 | 0.6600896 | 0.6161691 | -1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | cilia- and flagella-associated 57-like |
+ | ... |
+<br/>
+
+### Plots
+
+A boxplot is produced to visualize the log scaled expression of all the genes in each cluster and each experimental condition.
+
+
+This is also represented as a heatmap, which can more easily enable to see gene proportion in each cluster and each experimental condition
+
+
+Coseq package produces probability graphs that are concatenated in one graph in ClustAndGO function. On the left you can see if clusters are robusts (if the gene is affiliated to the same cluster for more than 80% of the iterations it appears in black and its affiliation is supposed to be robust - the affiliation of red genes is less robust). On the right, you can see the number (and so evaluate the proportion) of robust and non-robust genes in each cluster:
+
+
+### Per-cluster outputs
+
+In the directory of the clustering analysis, a supplementary directory is created for each cluster in which you can find tables, plots, and a sub-directory which contains the lists of the genes for each GO-term enriched in the cluster.
+
+#### Scaled-expression boxplot
+
+First, for each cluster, log scaled expression is represented for the genes of the cluster. 
+
+
+#### UpSet plot of DEGs in contrasts
+
+To identify in each cluster the DE genes specific to each contrast or common to several, the intersections between DE gene lists are represented with the UpSetR package.
+
+
+#### GO-enrichment
+
+If a GO-annotation file is provided by the user, ClustAndGO performs automatically GO-term enrichment analysis for each cluster.
+
+**Bargraphs** \
+for each GO category are saved with the information of the enrichment ratio, the number of genes behind the enrichment and the p-value.
+
+
+**Enrichment of contrast-specific genes**\
+Since not all genes are DE in all contrasts (clustering performed on the list of DE genes in at least 1 contrast of the experiment), a representation highlighting the number of DE genes in each cluster is created.
+
+The plot shows, for each contrast of interest, the percentage of DE genes in the contrast in the cluster compared to the total number of DE genes in the contrast : "*" indicates whether the contrast is enriched in genes of the cluster. To define this significance, a Chi2 test is performed between 1) the (observed) proportion of genes in each contrast belonging to the cluster relative to the total number of genes in the contrast, and 2) the (expected) proportion of total genes in the cluster relative to the total number of DE genes in at least 1 of the contrasts (total number of genes used for clustering).
+If the Chi2 p-value is less than 0.05, and the observed proportion is greater than the expected proportion in a particular contrast, the contrast is statistically significantly enriched in genes of the cluster (data embedded in the graph: "***" 0.001; "**" 0.01; "*" 0.05).
+
+For example in cluster 3, the following plot shows that more than 750 genes are DE in contrast AC1vsAC3 and account for 40.5% of the total DE genes in contrast AC1vsAC3 (whereas the cluster 3 represents only 16.8% of the total number of total DE genes); this proportion shows that contrast AC1vsAC3 is significantly ("***") enriched in genes of the cluster 3 (the contrast would not have been significantly enriched with genes of the cluster 3 if 16.8% of its genes had belonged to cluster 3, according to a random distribution of genes in the contrasts).
+
+**Be careful:** the lower the number of genes (in the contrast and/or in the cluster), the less reliable the Chi2 test is. The interpretation of the significance is then difficult. 
+
+
+
+
+### To go further ...
+
+If you want, then you can include genes that are not DE in an additional (artificial) cluster and visualize it with the clusters identified on the DE genes with ClustAndGO function. This will also realize a GO-enrichment on these genes in a **"NOT_DE"** folder.
+
+NOTE: you have to run this function after creating "clust" object with your ClustAndGO analysis (you can create multiple "clust" objects with different names and run the function on it).
+
+```{r clust10, eval=FALSE}
+IncludeNonDEgenes_InClustering(data, asko_norm, resDEG, parameters, clust)
+```
+
+It can allow you to visualize the profile of the genes that are not DE and their proportion in the whole experiment (heatmap is also available).
+
+
+# Tips and tricks
+
+## How to perform a GO-enrichment analysis on a specific gene list ?
+
+If you want, you can also perform GO-enrichment on a specific list of genes (list of interest from another study, list of genes hightly expressed, ...). In this case, you can use the GOenrichment function with two supplementary parameters: the list of the names of the genes you want to analyze and the name you want to set for this list. This function produces the same outputs than the GOenrichment function used on contrasts in 'GO Enrichment Analysis' part.The directory used for the outputs is **"DEG_test/GOenrichment/NameOfTheList/"**. Here is an example on the 1000 first genes of the list:
+
+```{r GO2, eval=FALSE}
+list=rownames(resDEG[1:1000,])
+GOenrichment(resDEG, data, parameters, list, "First1000genes")
+```
+
+
+## How to perform a clustering analysis on a specific gene list ?
+
+On the same way, you can perform clustering on a specific list of genes (list of interest from another study, list of genes hightly expressed, ...). In this case, you can use the ClustAndGO function with two supplementary parameters: the list of the names of the genes you want to analyze and the name you want to set for this list. This function produces the same outputs than the ClustAndGO function used on all the DE genes in 'Gene clustering for Coexpression analysis' part. The directory used for the outputs is **"DEG_test/Clustering/NameOfTheList/"**.Here is an example on the 1000 first genes of the list:
+
+```{r clust2, eval=FALSE}
+list=rownames(resDEG[1:1000,])
+clust <- ClustAndGO(asko_norm,resDEG,parameters, data, list, "First1000genes")
+```
+
+
+## How to extract gene informations from a specific gene list ?
+
+Another function have been developed to enable the user to obtain heatmap expression and summary table (with all informations generated during the analysis : name of the genes, normalized expression in CPM in each experimental condition, DE status in contrasts, gene description, and cluster membership).
+
+In addition to the objects "resDEG" and "data", the function needs a list containing the names of the genes you want to analyze and a name for the list. A **"DEG_test/GeneListExplore/NameOfTheList/"** directory is created.
+
+First, you can draw a heatmap with scaled expression (CPM) of a specific gene list of interest together with the status (OVER/UNDER-differentially expressed or not). Here is an example with the first 25 genes of the dataset:
+
+```{r geneinfo1, eval=FALSE}
+list=rownames(resDEG[1:25,])
+GeneInfo_OnList(list, resDEG, data, parameters,"First25genes")
+```
+
+
+
+In this heatmap, a hierarchical clustering in performed on the genes (default clustering of the Heatmap() function of the ComplexHeatmap package). But if you had run ClustAndGO analysis and so created "clust" object, you can also sort the genes by clusters by adding "clust" as a supplementary parameter.
+
+
+```{r geneinfo3, eval=FALSE}
+conditionsToDraw = c("AC1", "AC2", "AC3")
+contrastToDraw = c("AC1vsAC2","AC1vsAC3","AC2vsAC3")
+GeneInfo_OnList(list, resDEG, data, parameters, "First25genes_WithClust", clustering=clust, conditions=conditionsToDraw, contrasts=contrastToDraw)
+
 
 

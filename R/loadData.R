@@ -24,47 +24,61 @@
 #'   \item Askomics : files compatible with Askomics Software
 #' }
 #'
-#' @param parameters, list that contains all arguments charged in Asko_start
-#' @return data, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)
+#' @param parameters list that contains all arguments charged in Asko_start
+#' @return list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)
 #'
 #' @examples
 #' \dontrun{
-#'     parameters<-Asko_start()
-#'     data<-loadData(parameters)
+#'    data<-loadData(parameters)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 loadData <- function(parameters){
 
   # Folders for output files
-  #---------------------------------------------------------
-  cat("\nCreate directories:\n")
+  cat("\nCreated directories:\n")
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
   if(dir.exists(study_dir)==FALSE){ dir.create(study_dir) }
   cat("\t",study_dir,"\n")
 
-  image_dir = paste0(study_dir, "images/")
+  explo_dir = paste0(study_dir,"DataExplore/")
+  if(dir.exists(explo_dir)==FALSE){ dir.create(explo_dir) }
+  cat("\t",explo_dir,"\n")
+
+  norm_dir = paste0(study_dir,"NormCountsTables/")
+  if(dir.exists(norm_dir)==FALSE){ dir.create(norm_dir) }
+  cat("\t",norm_dir,"\n")
+
+  de_dir = paste0(study_dir,"DEanalysis/")
+  if(dir.exists(de_dir)==FALSE){ dir.create(de_dir) }
+  cat("\t",de_dir,"\n")
+
+  image_dir = paste0(de_dir, "DEimages/")
   if(dir.exists(image_dir)==FALSE){ dir.create(image_dir) }
   cat("\t",image_dir,"\n")
 
+  table_dir = paste0(de_dir, "DEtables/")
+  if(dir.exists(table_dir)==FALSE){ dir.create(table_dir) }
+  cat("\t",table_dir,"\n")
+
+  asko_dir = paste0(de_dir, "AskoTables/")
+  if(dir.exists(asko_dir)==FALSE){ dir.create(asko_dir) }
+  cat("\t",asko_dir,"\n")
+
   if(is.null(parameters$VD)==FALSE){
-    venn_dir = paste0(study_dir, "vennDiagram/")
+    venn_dir = paste0(study_dir, "VennDiagrams/")
     if(dir.exists(venn_dir)==FALSE){ dir.create(venn_dir) }
     cat("\t",venn_dir,"\n")
   }
 
   if((is.null(parameters$upset_basic)==FALSE) || (is.null(parameters$upset_list)==FALSE && is.null(parameters$upset_type)==FALSE)){
-    upset_dir = paste0(study_dir, "UpSetR_graphs/")
+    upset_dir = paste0(study_dir, "UpsetGraphs/")
     if(dir.exists(upset_dir)==FALSE){ dir.create(upset_dir) }
     cat("\t",upset_dir,"\n")
   }
 
-  asko_dir = paste0(study_dir, "Askomics/")
-  if(dir.exists(asko_dir)==FALSE){ dir.create(asko_dir) }
-  cat("\t",asko_dir,"\n")
-
   # Management of input files
-  #---------------------------------------------------------
   input_path = paste0(parameters$dir_path, "/input/")
 
   # Sample file
@@ -121,7 +135,7 @@ loadData <- function(parameters){
   # Two possibilities:
   #     - 1 count file per condition
   #     - a matrix of count for all samples/conditions
-  #----------------------------------------------------
+  #
   # Multiple count files, 1 per conditions
   if(is.null(parameters$fileofcount)){
     cat("\nFiles of counts:\n")
@@ -149,12 +163,12 @@ loadData <- function(parameters){
     select_counts<-row.names(samples)
     countT<-count[,select_counts]
 
+
     # Creates a DGEList object from a table of counts
     dge<-edgeR::DGEList(counts=countT, samples=samples)
   }
 
   # Experimental design
-  #---------------------------------------------------------
   Group<-factor(samples$condition)
   cat("\nConditions :\n")
   print(Group)
@@ -163,7 +177,6 @@ loadData <- function(parameters){
   colnames(designExp) <- levels(Group)
 
   # Contrast for DE analysis
-  #---------------------------------------------------------
   contrast_path<-paste0(input_path, parameters$contrast_file)
   contrastab<-utils::read.table(contrast_path, sep="\t", header=TRUE, row.names = 1, comment.char="#", stringsAsFactors = FALSE)
 

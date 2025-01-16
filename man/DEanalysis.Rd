@@ -7,19 +7,22 @@
 DEanalysis(norm_GE, data_list, asko_list, parameters)
 }
 \arguments{
-\item{norm_GE, }{large DGEList with normalized counts and data description.}
+\item{norm_GE}{large DGEList with normalized counts and data description.}
 
-\item{data_list, }{list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).}
+\item{data_list}{list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).}
 
-\item{asko_list, }{list of data.frame contain condition, contrast and context informations made by asko3c.}
+\item{asko_list}{list of data.frame contain condition, contrast and context informations made by asko3c.}
 
-\item{parameters, }{list that contains all arguments charged in Asko_start.}
+\item{parameters}{list that contains all arguments charged in Asko_start.}
 }
 \value{
-SumMat, list (TestResults format class limma) contains for each contrast the significance expression (1/0/-1) for all gene.
+list (TestResults format class limma) contains for each contrast the significance expression (1/0/-1) for all gene.
 }
 \description{
 Genewise statistical tests for a given coefficient or contrast, with edgeR method.
+}
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 }
 \examples{
 \dontrun{

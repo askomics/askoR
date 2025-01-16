@@ -1,9 +1,22 @@
 Package: askoR
-Title: askoR - Differential Expresion Analysis using edgeR
+Title: Differential Expression Analysis using 'edgeR'
 Version: 1.0.0
-Author: Fabrice Legeai, Kévin Gazengel, Susete Alves Carvalho
-Maintainer: Fabrice Legeai <fabrice.legeai@inrae.fr>, Kévin Gazengel <kevin.gazengel@inrae.fr>, Susete Alves Carvalho <susete.alves-carvalho@inrae.fr>
-Description: AskoR is a pipeline for the analysis of gene expression data, using edgeR. 
+Date: 2024-08-30
+Authors@R: c(person(given = "Fabrice",
+                      family = "Legeai",
+                      role = "aut",
+		      email = "fabrice.legeai@inrae.fr"),
+               person(given = "Kévin",
+                      family = "Gazengel",
+                      role = c("aut", "cre"),
+                      email = "kevin.gazengel@inrae.fr"),
+               person(given = "Susete",
+                      family = "Alves Carvalho",
+                      role = "aut",
+		      email = "susete.alves-carvalho@inrae.fr")
+		)
+Maintainer: Kévin Gazengel <kevin.gazengel@inrae.fr>
+Description: Pipeline for the analysis of gene expression data, using 'edgeR' for differential analysis, 'topGO' for GOenrichment, and 'coseq' for gene clustering. 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -13,6 +26,11 @@ Depends:
     edgeR,
     limma
 Imports:
+    corrplot,
+    cowplot,
+    viridis,
+    gghalves,
+    tidyverse,
     ggfortify,
     ggrepel,
     gplots,
@@ -27,7 +45,8 @@ Imports:
     Glimma,
     ComplexHeatmap,
     circlize,
-    coseq
+    coseq,
+    tidyr
 Suggests: 
     futile.logger,
     methods,
@@ -35,10 +54,11 @@ Suggests:
     stats,
     knitr,
     rmarkdown,
-    BiocStyle
+    BiocStyle,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.2
 biocViews:
     RNASeq,
     Transcriptomics,
@@ -49,3 +69,4 @@ biocViews:
     MultipleComparison,
     FunctionalGenomics,
     Clustering
+Config/testthat/edition: 3

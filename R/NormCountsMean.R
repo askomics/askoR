@@ -2,12 +2,12 @@
 #'
 #' @description Calculation mean counts for two contrast or all matrix.
 #'
-#' @param glmfit, fitted linear model object.
-#' @param ASKOlist, list of data.frame contain condition, contrast and context information made by asko3c.
-#' @param context, coefficient/contrast tested.
+#' @param glmfit fitted linear model object.
+#' @param ASKOlist list of data.frame contain condition, contrast and context information made by asko3c.
+#' @param context coefficient/contrast tested.
 #' @return one of this:
 #' \itemize{
-#'    \item matrixMean, matrix with mean counts,
+#'    \item matrix with mean counts,
 #'    \item meanValue for one context/Condition.
 #' }
 #'
@@ -21,6 +21,7 @@
 #'     n_count<-NormCountsMean(glmfit, ASKOlist, context=NULL)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 NormCountsMean <- function(glmfit, ASKOlist, context=NULL){
   lib_size_norm<-glmfit$samples$lib.size*glmfit$samples$norm.factors                          # normalization computation of all library sizes

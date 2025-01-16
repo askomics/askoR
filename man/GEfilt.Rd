@@ -7,18 +7,21 @@
 GEfilt(data_list, parameters)
 }
 \arguments{
-\item{data_list, }{list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)}
+\item{data_list}{list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)}
 
-\item{parameters, }{list that contains all arguments charged in Asko_start}
+\item{parameters}{list that contains all arguments charged in Asko_start}
 }
 \value{
-filtered_counts, large DGEList with filtered counts and data descriptions.
+large DGEList with filtered counts and data descriptions.
 }
 \description{
 \itemize{
 \item Filter genes according to cpm threshold value and replicated cpm option value.
 \item Plot different graphes to explore data before and after filtering.
 }
+}
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 }
 \examples{
 \dontrun{

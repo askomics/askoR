@@ -7,17 +7,20 @@
 UpSetGraph(resDEG, data_list, parameters)
 }
 \arguments{
-\item{resDEG, }{data frame contains for each contrast the significance expression (1/0/-1) for all gene.}
+\item{resDEG}{data frame contains for each contrast the significance expression (1/0/-1) for all gene.}
 
-\item{data_list, }{list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).}
+\item{data_list}{list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).}
 
-\item{parameters, }{list that contains all arguments charged in Asko_start.}
+\item{parameters}{list that contains all arguments charged in Asko_start.}
 }
 \value{
 none
 }
 \description{
 Generate upsetR graphs.
+}
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 }
 \examples{
 \dontrun{

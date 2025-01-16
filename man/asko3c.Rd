@@ -7,21 +7,22 @@
 asko3c(data_list, parameters)
 }
 \arguments{
-\item{data_list, }{list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)}
+\item{data_list}{list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)}
 
-\item{parameters, }{list that contains all arguments charged in Asko_start}
+\item{parameters}{list that contains all arguments charged in Asko_start}
 }
 \value{
-asko, list of data.frame contain condition, contrast and context information
+list of data.frame contain condition, contrast and context information
 }
 \description{
 Create contrast/condition/context file in format readable by Askomics Software.
 }
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
+}
 \examples{
 \dontrun{
-    parameters <- Asko_start()
-    data<-loadData(parameters)
-    asko<-asko3c(data, parameters)
+   asko<-asko3c(data, parameters)
 }
 
 }

@@ -7,18 +7,18 @@
 plot_expr(fit, normGE, resDE, contrast, tplot, parameters)
 }
 \arguments{
-\item{fit, }{fitted linear model object.}
+\item{fit}{fitted linear model object.}
 
-\item{normGE, }{large DGEList with normalized counts and data description.}
+\item{normGE}{large DGEList with normalized counts and data description.}
 
-\item{resDE, }{vector containing integer values of -1 to represent down-regulated
+\item{resDE}{vector containing integer values of -1 to represent down-regulated
 genes, 0 for no differential expression, and 1 for up-regulated genes.}
 
-\item{contrast, }{coefficient/contrast tested.}
+\item{contrast}{coefficient/contrast tested.}
 
-\item{tplot, }{type of plot selected for display.}
+\item{tplot}{type of plot selected for display.}
 
-\item{parameters, }{list that contains all arguments charged in Asko_start.}
+\item{parameters}{list that contains all arguments charged in Asko_start.}
 }
 \value{
 none.
@@ -30,6 +30,9 @@ Two types of graphs can be created:
 \item Mean-Difference Plot of Expression Data (aka MA plot).
 \item Volcano plot for a specified coefficient/contrast of a linear model.
 }
+}
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 }
 \examples{
 \dontrun{

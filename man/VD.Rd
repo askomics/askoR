@@ -7,17 +7,20 @@
 VD(resDEG, parameters, asko_list)
 }
 \arguments{
-\item{resDEG, }{data frame contains for each contrast the significance expression (1/0/-1) for all gene.}
+\item{resDEG}{data frame contains for each contrast the significance expression (1/0/-1) for all gene.}
 
-\item{parameters, }{list that contains all arguments charged in Asko_start.}
+\item{parameters}{list that contains all arguments charged in Asko_start.}
 
-\item{asko_list, }{list of data.frame contain condition, contrast and context informations made by asko3c.}
+\item{asko_list}{list of data.frame contain condition, contrast and context informations made by asko3c.}
 }
 \value{
 none.
 }
 \description{
 Plot Venn Diagram to compare different contrast
+}
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 }
 \examples{
 \dontrun{

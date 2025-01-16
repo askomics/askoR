@@ -7,9 +7,9 @@
 GEcorr(asko_norm, parameters)
 }
 \arguments{
-\item{asko_norm, }{large DGEList with normalized counts by GEnorm function.}
+\item{asko_norm}{large DGEList with normalized counts by GEnorm function.}
 
-\item{parameters, }{list that contains all arguments charged in Asko_start.}
+\item{parameters}{list that contains all arguments charged in Asko_start.}
 }
 \value{
 none
@@ -21,6 +21,9 @@ Plot some graphes to see data correlation :
 \item MDS plots
 \item hierarchical clustering
 }
+}
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 }
 \examples{
 \dontrun{

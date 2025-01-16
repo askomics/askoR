@@ -4,20 +4,22 @@
 \alias{AskoStats}
 \title{AskoStats}
 \usage{
-AskoStats(glm_test, fit, contrast, ASKOlist, dge, parameters)
+AskoStats(glm_test, fit, contrast, ASKOlist, dge, data_list, parameters)
 }
 \arguments{
-\item{glm_test, }{tests for one or more coefficients in the linear model (likelihood ratio tests or empirical Bayes quasi-likelihood F-tests).}
+\item{glm_test}{tests for one or more coefficients in the linear model (likelihood ratio tests or empirical Bayes quasi-likelihood F-tests).}
 
-\item{fit, }{fitted linear model object.}
+\item{fit}{fitted linear model object.}
 
-\item{contrast, }{coefficient/contrast names tested.}
+\item{contrast}{coefficient/contrast names tested.}
 
-\item{ASKOlist, }{list of data.frame contain condition, contrast and context informations made by asko3c.}
+\item{ASKOlist}{list of data.frame contain condition, contrast and context informations made by asko3c.}
 
-\item{dge, }{large DGEList with normalized counts by GEnorm function.}
+\item{dge}{large DGEList with normalized counts by GEnorm function.}
 
-\item{parameters, }{list that contains all arguments charged in Asko_start.}
+\item{data_list}{list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations).}
+
+\item{parameters}{list that contains all arguments charged in Asko_start.}
 }
 \value{
 none
@@ -35,9 +37,12 @@ significance value for each condition/context.
 By default, LR and logCPM were not displayed, you can switch this parametres
 to TRUE for display.
 }
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
+}
 \examples{
 \dontrun{
-    AskoStats(glm_test, fit, contrast, ASKOlist, dge, parameters)
+    AskoStats(glm_test, fit, contrast, ASKOlist, dge, data_list, parameters)
 }
 
 }

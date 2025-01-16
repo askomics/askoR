@@ -1,2 +1,9 @@
-^askoR\.Rproj$
+^askoR.Rproj$
 ^\.Rproj\.user$
+^ScriptR$
+^.*\.Rproj$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
+^\.git$
+^WikiImgs$
+^DEG_test$

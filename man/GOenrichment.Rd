@@ -4,14 +4,18 @@
 \alias{GOenrichment}
 \title{GOenrichment}
 \usage{
-GOenrichment(resDEG, data_list, parameters)
+GOenrichment(resDEG, data_list, parameters, list = NULL, title = NULL)
 }
 \arguments{
-\item{resDEG, }{data frame contains for each contrast the significance expression (1/0/-1) for all gene.}
+\item{resDEG}{data frame contains for each contrast the significance expression (1/0/-1) for all gene.}
 
-\item{data_list, }{list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).}
+\item{data_list}{list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations).}
 
-\item{parameters, }{list that contains all arguments charged in Asko_start.}
+\item{parameters}{list that contains all arguments charged in Asko_start.}
+
+\item{list}{gene list of interest if you want to apply GOenrichment function on a specific gene list.}
+
+\item{title}{name of the gene list if you want to apply GOenrichment function on a specific gene list.}
 }
 \value{
 none.
@@ -23,9 +27,16 @@ the topology of the GO graph. Different test statistics and different
 methods for eliminating local similarities and dependencies between GO
 terms can be implemented and applied.
 }
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
+}
 \examples{
 \dontrun{
    GOenrichment(resDEG, data_list, parameters)
+   # OR
+   GOenrichment(resDEG, data_list, parameters, list, title)
+   # OR
+   GOenrichment(resDEG, data_list, parameters, list=NULL, title=NULL)
 }
 
 }

@@ -2,9 +2,9 @@
 #'
 #' @description Plot Venn Diagram to compare different contrast
 #'
-#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
-#' @param asko_list, list of data.frame contain condition, contrast and context informations made by asko3c.
-#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @param resDEG data frame contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param asko_list list of data.frame contain condition, contrast and context informations made by asko3c.
+#' @param parameters list that contains all arguments charged in Asko_start.
 #' @return none.
 #'
 #' @examples
@@ -12,18 +12,19 @@
 #'    VD(resDEG, parameters, asko_list)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 VD <- function(resDEG, parameters, asko_list){
   options(warn = -1)
   # check parameters
   if(is.null(parameters$VD)==TRUE){ return(NULL) }
-  if(is.null(parameters$compaVD)==TRUE || parameters$compaVD==""){
+  if(is.null(parameters$compaVD)==TRUE ){ ## enleve car pb version R 4.4.1: || parameters$compaVD==""
     cat("compaVD parameter must not be empty!")
     return(NULL)
   }
 
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
-  venn_dir = paste0(study_dir, "vennDiagram/")
+  venn_dir = paste0(study_dir, "VennDiagrams/")
   if(dir.exists(venn_dir)==FALSE){
     dir.create(venn_dir)
     cat("\n\nDirectory: ",venn_dir," created\n")
@@ -32,7 +33,7 @@ VD <- function(resDEG, parameters, asko_list){
   # don't write log file
   futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
 
-  cat("\nCreate VennDiagrams ")
+  cat("Created VennDiagrams ")
   if(parameters$VD == "all"){
     cat("for all differentially expressed genes.\n")
     for(comparaison in parameters$compaVD){
@@ -53,15 +54,15 @@ VD <- function(resDEG, parameters, asko_list){
 
       color <- RColorBrewer::brewer.pal(nbCompa, parameters$palette)
       VennDiagram::venn.diagram(input,
-                   main="All differentially expressed genes (up+down)",
-                   filename=paste0(venn_dir, "/", comparaison, "_all.png"),
-                   imagetype = "png",
-                   main.cex = 1,
-                   cat.cex = 0.8,
-                   cex = 0.8,
-                   fill = color,
-                   category.names = labels(input),
-                   col=0,euler.d = FALSE,scaled=FALSE)
+                                main="All differentially expressed genes (up+down)",
+                                filename=paste0(venn_dir, "/", comparaison, "_all.png"),
+                                imagetype = "png",
+                                main.cex = 1,
+                                cat.cex = 0.8,
+                                cex = 0.8,
+                                fill = color,
+                                category.names = labels(input),
+                                col=0,euler.d = FALSE,scaled=FALSE)
     }
   }
   else if(parameters$VD == "both"){
@@ -85,17 +86,17 @@ VD <- function(resDEG, parameters, asko_list){
         input[[nameDown]]<-listDown
       }
       venn<-VennDiagram::venn.diagram(input, main="Genes expressed \"UP\" and \"DOWN\"",
-                         filename=paste0(venn_dir, "/", comparaison, "_mixed.png"),
-                         imagetype = "png",
-                         main.cex = 1,
-                         cat.cex = 0.8,
-                         cex=0.8,
-                         cat.dist = c(-0.4,-0.4,0.1,0.1),
-                         cat.col = c( "red1","royalblue1", "red3", "royalblue4"),
-                         category.names = labels(input),
-                         col=c( "red1","royalblue1", "red3", "royalblue4"),
-                         euler.d = FALSE,
-                         scaled=FALSE)
+                                      filename=paste0(venn_dir, "/", comparaison, "_mixed.png"),
+                                      imagetype = "png",
+                                      main.cex = 1,
+                                      cat.cex = 0.8,
+                                      cex=0.8,
+                                      cat.dist = c(-0.4,-0.4,0.1,0.1),
+                                      cat.col = c( "red1","royalblue1", "red3", "royalblue4"),
+                                      category.names = labels(input),
+                                      col=c( "red1","royalblue1", "red3", "royalblue4"),
+                                      euler.d = FALSE,
+                                      scaled=FALSE)
     }
   }
   else if(parameters$VD == "up"){
@@ -118,15 +119,15 @@ VD <- function(resDEG, parameters, asko_list){
 
       color <- RColorBrewer::brewer.pal(nbCompa, parameters$palette)
       VennDiagram::venn.diagram(input,
-                   main="Genes expressed \"UP\"",
-                   filename=paste0(venn_dir, "/", comparaison, "_up.png"),
-                   imagetype = "png",
-                   main.cex = 1,
-                   cat.cex = 0.8,
-                   cex = 0.8,
-                   fill = color,
-                   category.names = labels(input),
-                   col=0,euler.d = FALSE,scaled=FALSE)
+                                main="Genes expressed \"UP\"",
+                                filename=paste0(venn_dir, "/", comparaison, "_up.png"),
+                                imagetype = "png",
+                                main.cex = 1,
+                                cat.cex = 0.8,
+                                cex = 0.8,
+                                fill = color,
+                                category.names = labels(input),
+                                col=0,euler.d = FALSE,scaled=FALSE)
     }
   }
   else if(parameters$VD == "down"){
@@ -149,15 +150,15 @@ VD <- function(resDEG, parameters, asko_list){
 
       color <- RColorBrewer::brewer.pal(nbCompa, parameters$palette)
       VennDiagram::venn.diagram(input,
-                   main="Genes expressed \"DOWN\"",
-                   filename=paste0(venn_dir, "/", comparaison, "_down.png"),
-                   imagetype = "png",
-                   main.cex = 1,
-                   cat.cex = 0.8,
-                   cex = 0.8,
-                   fill = color,
-                   category.names = labels(input),
-                   col=0,euler.d = FALSE,scaled=FALSE)
+                                main="Genes expressed \"DOWN\"",
+                                filename=paste0(venn_dir, "/", comparaison, "_down.png"),
+                                imagetype = "png",
+                                main.cex = 1,
+                                cat.cex = 0.8,
+                                cex = 0.8,
+                                fill = color,
+                                category.names = labels(input),
+                                col=0,euler.d = FALSE,scaled=FALSE)
     }
   }
 }

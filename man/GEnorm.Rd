@@ -7,16 +7,16 @@
 GEnorm(filtered_GE, asko_list, data_list, parameters)
 }
 \arguments{
-\item{filtered_GE, }{large DGEList with filtered counts by GEfilt function.}
+\item{filtered_GE}{large DGEList with filtered counts by GEfilt function.}
 
-\item{asko_list, }{list of data.frame contain condition, contrast and context informations made by asko3c.}
+\item{asko_list}{list of data.frame contain condition, contrast and context informations made by asko3c.}
 
-\item{data_list, }{list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)}
+\item{data_list}{list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations)}
 
-\item{parameters, }{list that contains all arguments charged in Asko_start.}
+\item{parameters}{list that contains all arguments charged in Asko_start.}
 }
 \value{
-norm_GE, large DGEList with normalized counts and data descriptions.
+large DGEList with normalized counts and data descriptions.
 }
 \description{
 Normalize counts
@@ -25,6 +25,9 @@ Normalize counts
 \item Plot different graphes to explore data before and after normalization.
 \item Optionally, write file with mean counts and normalized mean counts in Askomics format.
 }
+}
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 }
 \examples{
 \dontrun{

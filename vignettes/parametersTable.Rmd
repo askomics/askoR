@@ -47,7 +47,7 @@ knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
  ---------------|-------------------|---------|----------------------------------|
  ```-o``` or ```--out``` | ```parameters$analysis_name``` | DE_analysis | Output directory name (do not put space!) |
  ```-d``` or ```--dir``` | ```parameters$dir_path``` | ```"."``` | Work directory path |
- ```-O``` or ```--org``` | ```parameters$organism``` | Asko | Output files prefix |
+ ```-P``` or ```--prj``` | ```parameters$projectName``` | Asko | Output files prefix |
  ```-f``` or ```--fileofcount``` | ```parameters$fileofcount``` | NULL | Matrix of count for all samples/conditions |
  ```-G``` or ```--col_genes``` | ```parameters$col_genes``` | 1 | Column of genes ids in count files |
  ```-C``` or ```--col_counts``` | ```parameters$col_counts``` | 7 | Column of counts in count files |
@@ -59,7 +59,6 @@ knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
  ```-S``` or ```--select``` | ```parameters$select_sample``` | NULL | Selected sampls |
  ```-r``` or ```--remove``` | ```parameters$rm_sample``` | FALSE | Removed samples |
  ```-R``` or ```--regex``` | ```parameters$regex``` | FALSE | Use regex when selecting/removing samples |
- ```-k``` or ```--mk_context``` | ```parameters$mk_context``` | FALSE | Generate automatically the context names |
 
 # Filter and normalization
 
@@ -74,9 +73,10 @@ knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
  ```--legend_col``` | ```parameters$legendcol``` | 6 | Set numbers of column for density plot legends 
  ```--palette``` | ```parameters$palette``` | Set2 | color palette (ggplot)
  ```--hm``` | ```parameters$heatmap``` | TRUE | Generation of the expression heatmap
+ ```--CompleteHm``` | ```parameters$CompleteHeatmap``` | FALSE | Generation of the normalized expression on ALL genes
  ```--nh``` | ```parameters$numhigh``` | 50 | Number of genes in the heatmap 
  ```--dclust``` | ```parameters$distcluts``` | euclidean | The distance measure to be used : euclidean, maximum, manhattan, canberra, binary or minkowski 
- ```--hclust``` | ```parameters$hclust``` | complete | The agglomeration method to be used : ward.D, ward.D2, single, complete, average, mcquitty, median or centroid
+ ```--hclust``` | ```parameters$hclust``` | ward.D | The agglomeration method to be used : ward.D, ward.D2, single, complete, average, mcquitty, median or centroid
 
 
 # Differential expression analysis
@@ -117,23 +117,23 @@ knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
  command line | parameters | default | descriptions
  --------------|---------------------|----|----------------------------------------|
  ```--GO``` | ```parameters$GO``` | NULL | GO enrichment analysis for gene expressed 'up', 'down', 'both', or NULL 
- ```--GO_algo``` | ```parameters$GO_algo``` | classic | algorithms which are accessible via the runTest function: "whichAlgorithms()"
+ ```--GO_algo``` | ```parameters$GO_algo``` | weight01 | algorithms which are accessible via the runTest function: "whichAlgorithms()"
  ```--GO_stats``` | ```parameters$GO_stats``` | fisher | statistical tests which are accessible via the runTest function: "whichTests()"
- ```--GO_cat``` | ```parameters$GO_cat``` | BP | GO category to explore: BP, CC or MF
  ```--GO_threshold``` | ```parameters$GO_threshold``` | 0.05 | the significant threshold used to filter p-values 
  ```--GO_max_top_terms``` | ```parameters$GO_max_top_terms``` | 10 | the maximum number of GO terms plot 
  ```--GO_min_num_genes``` | ```parameters$GO_min_num_genes``` | 10 | the minimum number of genes for each GO terms 
+ ```--GO_min_sig_genes``` | ```parameters$GO_sig_genes``` | 1 | the minimum number of significant genes behind the enriched GO-term
  ```--Ratio_threshold``` | ```parameters$Ratio_threshold``` | 0 | the minimum ratio for display GO in graph 
 
 # Co-expression analysis
 
  command line | parameters | default | descriptions
  ----------------------------|--------------------------------------|------|---------------------------------------|
+ ```--coseq_data``` | ```parameters$coseq_data``` | ExpressionProfiles | set LogScaledData if you want to clusterize on data in transformed in log (ExpressionProfiles is recommended by coseq creators)
  ```--coseq_model``` | ```parameters$coseq_model``` | Normal | Coseq model : Poisson, kmeans or Normal
- ```--coseq_normFactors``` | ```parameters$coseq_normFactors``` | none | Coseq normalization factor : TC , UQ, Med , DESeq, TMM or none (default none)
  ```--coseq_transformation``` | ```parameters$coseq_transformation``` | arcsin | Coseq tranformation : voom, logRPKM, arcsin, logit, logMedianRef, profile, logclr, clr, alr, ilr or none
- ```--coseq_ClustersNb``` | ```parameters$coseq_ClustersNb``` | 2:12 | Coseq : number of clusters desired (2:12 (auto), number from 2 to 12)
- ```--coseq_ContrastsThreshold``` | ```parameters$coseq_ContrastsThreshold``` | 1 | Coseq : number of contrasts in which DE genes are found for clustering 
- ```--coseq_normFactors``` | ```parameters$coseq_normFactors``` | none | Coseq normalization factor (TC , UQ, Med , DESeq, TMM , none)
+ ```--coseq_ClustersNb``` | ```parameters$coseq_ClustersNb``` | 2:25 | number of clusters desired (2:25 number from 2 to 25)
+ ```--coseq_ContrastsThreshold``` | ```parameters$coseq_ContrastsThreshold``` | 1 | Coseq number of contrasts in which DE genes are found for clustering 
+ ```--coseq_HeatmapOrderSample``` | ```parameters$coseq_HeatmapOrderSample``` | FALSE | Set TRUE if you prefer keeping your sample order than clusterizing samples in heatmap
 
 

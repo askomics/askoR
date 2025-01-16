@@ -2,9 +2,9 @@
 #'
 #' @description Generate upsetR graphs.
 #'
-#' @param resDEG, data frame contains for each contrast the significance expression (1/0/-1) for all gene.
-#' @param data_list, list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).
-#' @param parameters, list that contains all arguments charged in Asko_start.
+#' @param resDEG data frame contains for each contrast the significance expression (1/0/-1) for all gene.
+#' @param data_list list contain all data and metadata (DGEList, samples descritions, contrast, design and annotations).
+#' @param parameters list that contains all arguments charged in Asko_start.
 #' @return none
 #'
 #' @examples
@@ -12,18 +12,18 @@
 #'    UpSetGraph(sumDEG, data_list, parameters)
 #' }
 #'
+#' @note Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
 #' @export
 UpSetGraph <- function(resDEG, data_list, parameters){
   options(warn = -1)
   study_dir = paste0(parameters$dir_path,"/", parameters$analysis_name, "/")
-  image_dir = paste0(study_dir, "UpSetR_graphs/")
+  image_dir = paste0(study_dir, "UpsetGraphs/")
   if(dir.exists(image_dir)==FALSE){
     dir.create(image_dir)
     cat("\n\nDirectory: ",image_dir," created\n")
   }
 
   # Global UpsetR
-  #---------------------------------------------------------------------------------------
   if(is.null(parameters$upset_basic)==FALSE){
 
     # created directory
@@ -134,8 +134,8 @@ UpSetGraph <- function(resDEG, data_list, parameters){
         if(ncol(ordDEG)<=6){tsc=2}else{tsc=1.45}
         grDevices::png(paste0(global_dir, parameters$analysis_name,"_UpSetR_mixedDEG.png"), width=1280, height=1024)
         print(UpSetR::upset(data=ordDEG, sets=rev(sets), nsets=ncol(ordDEG), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
-                    text.scale = tsc, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",
-                                                                                             column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
+                            text.scale = tsc, set.metadata = list(data = metadata, plots = list(list(type = "matrix_rows",
+                                                                                                     column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
         grid::grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
         grDevices::dev.off()
       }
@@ -143,7 +143,6 @@ UpSetGraph <- function(resDEG, data_list, parameters){
   }
 
   # Multiple graphs UpSetR
-  #---------------------------------------------------------------------------------------
   if(is.null(parameters$upset_type)==TRUE && is.null(parameters$upset_list)==FALSE){
     warning("For Subset chart: upset_type must be not empty.\n", immediate.=TRUE, call.=FALSE)
   }
@@ -176,7 +175,7 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for all Differentially Expressed Genes
           if(length(compa)<=6){tsc=2}else{tsc=1.45}
-          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_allDEG.png"), width=1280, height=1024)
+          grDevices::png(paste0(subset_dir,comparaison,"_allDEG.png"), width=1280, height=1024)
           print(UpSetR::upset(data=ordDEG, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
           grid::grid.text("All differentially expressed genes (up+down)", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
           grDevices::dev.off()
@@ -200,7 +199,7 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for Down Expressed Genes
           if(length(compa)<=6){tsc=2}else{tsc=1.45}
-          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_upDEG.png"), width=1280, height=1024)
+          grDevices::png(paste0(subset_dir,comparaison,"_upDEG.png"), width=1280, height=1024)
           print(UpSetR::upset(data=ordDEG, sets=rev(compa), nsets=length(compa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
           grid::grid.text("Genes expressed \"UP\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
           grDevices::dev.off()
@@ -225,7 +224,7 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for Down Expressed Genes
           if(length(newcompa)<=6){tsc=2}else{tsc=1.45}
-          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_downDEG.png"), width=1280, height=1024)
+          grDevices::png(paste0(subset_dir,comparaison,"_downDEG.png"), width=1280, height=1024)
           print(UpSetR::upset(data=ordDEG, sets=rev(newcompa), nsets=length(newcompa), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA, text.scale = tsc))
           grid::grid.text("Genes expressed \"DOWN\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
           grDevices::dev.off()
@@ -263,10 +262,10 @@ UpSetGraph <- function(resDEG, data_list, parameters){
 
           # record upsetR graph for Up and Down Expressed Genes
           if(length(sets)<=6){tsc=2}else{tsc=1.25}
-          grDevices::png(paste0(subset_dir, parameters$analysis_name,"_UpSetR_",comparaison,"_mixedDEG.png"), width=1280, height=1024)
+          grDevices::png(paste0(subset_dir,comparaison,"_mixedDEG.png"), width=1280, height=1024)
           print(UpSetR::upset(data=ordDEG, sets=rev(sets), nsets=length(sets), keep.order=TRUE, sets.bar.color="#56B4E9", nintersects=NA,
-                      text.scale = tsc, set.metadata = list(data = metadata,
-                                                            plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
+                              text.scale = tsc, set.metadata = list(data = metadata,
+                                                                    plots = list(list(type = "matrix_rows",column = "SENS", colors = c(UP = "#FF9999", DOWN = "#99FF99"), alpha = 0.5)))))
           grid::grid.text("Genes expressed \"UP\" and \"DOWN\"", x=0.65, y=0.95, gp=grid::gpar(fontsize=26))
           grDevices::dev.off()
         }

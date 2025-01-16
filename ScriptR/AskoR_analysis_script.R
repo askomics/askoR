@@ -4,10 +4,10 @@
 ################################################
 # Removes all objects from the current workspace (R memory)
 rm(list=ls())
-# source AskoR.R file 
+# source AskoR.R file
 source("/directory/where/you/downloaded/the/file/AskoR.R")
 # defined your workspace
-setwd("/path/to/workspace/") 
+setwd("/path/to/workspace/")
 
 ##############################################
 ##                Parameters                ##
@@ -54,33 +54,32 @@ parameters$rm_sample = c("AC3R2","BC3R3")             # bad sample(s) !
 parameters$threshold_cpm = 0.5                        # CPM's threshold (default 0.5)
 parameters$replicate_cpm = 3                          # Minimum number of replicates (default 3)
 parameters$threshold_FDR = 0.05                       # FDR threshold (default 0.05)
-parameters$threshold_logFC = 0                        # logFC threshold (default 1)
+parameters$threshold_logFC = 0                        # logFC threshold (default 0)  - if parameters$threshold_logFC != 0, AskoR will use glmTreat because use of "treat" is more accurate (see edgeR user guide section 2.13).
 parameters$normal_method = "TMM"                      # normalization method (TMM/RLE/upperquartile/none) (default TMN)
-parameters$p_adj_method = "BH"                        # p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none) (default fdr)
-parameters$glm = "lrt"                                # GLM method (lrt/qlf) (default qlf)
+parameters$p_adj_method = "fdr"                        # p-value adjust method (holm/hochberg/hommel/bonferroni/BH/BY/fdr/none) (default fdr)
+parameters$glm = "qlf"                                # GLM method (lrt/qlf) (default qlf)
 parameters$CompleteHeatmap = FALSE                    # Generate Complete heatmap on all normalized genes (default FALSE, select "TRUE" only if your have less 30000 genes and enough RAM on your computer)
 parameters$logFC = TRUE                               # logFC in the summary table (default TRUE)
 parameters$FC = TRUE                                  # FC in the summary table (default TRUE)
 parameters$logCPM = FALSE                             # logCPm in the summary table (default FALSE)
 parameters$FDR = TRUE                                 # FDR in the summary table (default TRUE)
-parameters$LR = TRUE                                  # LR in the summary table (default FALSE)
 parameters$Sign = TRUE                                # Significance (1/0/-1) in the summary table (default TRUE)
 parameters$Expression = TRUE                          # Significance expression in the summary table (default TRUE)
-parameters$mean_counts = FALSE                        # Mean counts in the summary table (default TRUE)
-parameters$norm_counts = FALSE                        # Generate files with mormalized counts
+parameters$mean_counts = TRUE                         # Mean counts in the summary table (default TRUE)
+parameters$norm_counts = FALSE                        # Generate files with mormalized counts (default FALSE)
 
 # for legend of density plot
 #-----------------------------------
-parameters$densbotmar = 15                            # Set bottom margin of density plot to help position the legend (default 20)
-parameters$densinset = 0.20                           # Set position the legend in bottom density graphe (default 0.45)
+parameters$densbotmar = 20                            # Set bottom margin of density plot to help position the legend (default 20)
+parameters$densinset = 0.45                           # Set position the legend in bottom density graphe (default 0.45)
 parameters$legendcol = 6                              # Set numbers of column for legends (default 6)
 
 # Visualization of results from differential expression analyses
 #-----------------------------------
-parameters$plotMD = TRUE                              # Mean-Difference Plot of Expression Data (aka MA plot) (default FALSE)
-parameters$plotVO = TRUE                              # Volcano plot for a specified coefficient/contrast of a linear model (default FALSE)
-parameters$glimMD = TRUE                              # Glimma - Interactif Mean-Difference Plot of Expression Data (aka MA plot) (default FALSE)
-parameters$glimVO = TRUE                              # Glimma - Interactif Volcano plot for a specified coefficient/contrast of a linear model (default FALSE)
+parameters$plotMD = FALSE                              # Mean-Difference Plot of Expression Data (aka MA plot) (default FALSE)
+parameters$plotVO = FALSE                              # Volcano plot for a specified coefficient/contrast of a linear model (default FALSE)
+parameters$glimMD = FALSE                              # Glimma - Interactif Mean-Difference Plot of Expression Data (aka MA plot) (default FALSE)
+parameters$glimVO = FALSE                              # Glimma - Interactif Volcano plot for a specified coefficient/contrast of a linear model (default FALSE)
 
 ########################################
 ##  Loading the data from the samples ##
@@ -178,16 +177,15 @@ UpSetGraph(resDEG, data, parameters)
 #----------------------------------------------------------------------
 parameters$GO_threshold = 0.05               # the significant threshold used to filter p-values (default 0.05)
 parameters$GO_min_num_genes = 10             # the minimum number of genes for each GO terms (default 10)
-parameters$GO = "both"                       # gene set chosen for analysis 'up', 'down', 'both', or NULL (default NULL)
+parameters$GO = "NULL"                       # gene set chosen for analysis 'up', 'down', 'both', or NULL (default NULL)
 parameters$GO_algo = "weight01"              # algorithms for runTest function ("classic", "elim", "weight", "weight01", "lea", "parentchild") (default weight01)
 parameters$GO_stats = "fisher"               # statistical tests for runTest function ("fisher", "ks", "t", "globaltest", "sum", "ks.ties") (default fisher)
 
 # Parameters for visualization
 #----------------------------------------------------------------------
-parameters$Ratio_threshold = 1               # the min ratio for display GO in graph (default 0)
-parameters$GO_max_top_terms = 10
-# the maximum number of GO terms plot (default 10)
-parameters$GO_min_sig_genes = 5              # the minimum number of significant gene(s) behind the enriched GO-term in graph (default 0)
+parameters$Ratio_threshold = 0               # the min ratio for display GO in graph (default 0)
+parameters$GO_max_top_terms = 10             # the maximum number of GO terms plot (default 10)
+parameters$GO_min_sig_genes = 1              # the minimum number of significant gene(s) behind the enriched GO-term in graph (default 1)
 
 # Run analysis on all contrasts
 #----------------------------------------------------------------------
@@ -202,11 +200,11 @@ GOenrichment(resDEG, data, parameters, list, "TitleOfTheList")
 ##### Co-Expression Analysis #####
 # Parameters for gene clustering
 #----------------------------------------------------------------------
-parameters$coseq_data = "ExpressionProfiles"     # Perform clustering on transformed profiles based on normalized cpm counts (choose "LogScaledData" if you prefer to clusterize log2cpm counts and don't forget to set coseq_transformation to "none" in this case)
-# parameters$coseq_model = "kmeans"              # (default kmeans)
-# parameters$coseq_transformation = "clr"        # (default clr)
-parameters$coseq_ClustersNb = 4                  # (default : auto (select the best number automatically between 2 to 25))
-parameters$coseq_HeatmapOrderSample = T          # Choose TRUE if you prefer keeping your sample order than clusterizing samples in heatmap  (default FALSE)
+parameters$coseq_data = "ExpressionProfiles"     # Perform clustering on transformed profiles based on normalized cpm counts (choose "LogScaledData" if you prefer to clusterize log2cpm counts and don't forget to set coseq_transformation to "none" in this case; default="ExpressionProfiles")
+parameters$coseq_model = "kmeans"                # (default kmeans)
+parameters$coseq_transformation = "clr"          # (default clr)
+parameters$coseq_ClustersNb = 2:25               # (default : auto (select the best number automatically between 2 to 25))
+parameters$coseq_HeatmapOrderSample = FALSE      # Choose TRUE if you prefer keeping your sample order than clusterizing samples in heatmap  (default FALSE)
 
 # Parameters for for GO enrichment in clusters
 #----------------------------------------------------------------------
@@ -216,9 +214,9 @@ parameters$GO_algo = "weight01"
 parameters$GO_stats = "fisher"
 
 ### Parameters for visualization
-parameters$Ratio_threshold = 2
+parameters$Ratio_threshold = 0
 parameters$GO_max_top_terms = 10
-parameters$GO_min_sig_genes = 2
+parameters$GO_min_sig_genes = 0
 
 # Run analysis on all DE genes (DE genes in 1 contrast at least)
 #----------------------------------------------------------------------

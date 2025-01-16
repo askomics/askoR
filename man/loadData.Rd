@@ -7,10 +7,10 @@
 loadData(parameters)
 }
 \arguments{
-\item{parameters, }{list that contains all arguments charged in Asko_start}
+\item{parameters}{list that contains all arguments charged in Asko_start}
 }
 \value{
-data, list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)
+list contain all data and metadata (DGEList, samples descriptions, contrast, design and annotations)
 }
 \description{
 Function to load :
@@ -36,10 +36,12 @@ Three output directory will be create :
 \item Askomics : files compatible with Askomics Software
 }
 }
+\note{
+Remember to read the Wiki section in \url{https://github.com/askomics/askoR/wiki}
+}
 \examples{
 \dontrun{
-    parameters<-Asko_start()
-    data<-loadData(parameters)
+   data<-loadData(parameters)
 }
 
 }
